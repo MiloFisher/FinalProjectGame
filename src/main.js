@@ -5,7 +5,7 @@ let config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: false
+            debug: true
         }
     },
     scene: [ Level01 ]
@@ -13,6 +13,7 @@ let config = {
 let game = new Phaser.Game(config);
 
 //global variables
+let playerSpeed = 300;
 
 // reserve keyboard vars
 let keyW, keyA, keyS, keyD;
