@@ -17,6 +17,7 @@ let playerSpeed = 300;              // how fast the player will move
 let pathNodes = [];                 // holds path nodes for enemy pathfinding
 let enemies = [];                   // holds enemies
 let obstacles = [];                 // holds obstacles
+let activeScene = null;             // holds the current scene
 // reserve keyboard vars
 let keyW, keyA, keyS, keyD;
 
@@ -42,13 +43,29 @@ function snapToNode(object){
     object.setPosition(node.x, node.y);
 }
 
-function generatePathNodes(scene, spacingX, spacingY, lowerX, lowerY, upperX, upperY) {
+function moveToNode(object) {
+    var node = getNodeIn(object);
+    object.movingToNode = true;
+    activeScene.tweens.add({
+        targets: object,
+        x: node.x,
+        y: node.y,
+        duration: 500,
+        ease: 'Power2',
+        //completeDelay: 500,
+        onComplete: function () { 
+            object.movingToNode = false;
+        },
+    });
+}
+
+function generatePathNodes(spacingX, spacingY, lowerX, lowerY, upperX, upperY) {
     pathNodes = [];
     var pathArrayLength = 0;
     for(var r = lowerY + spacingY/2; r < upperY; r += spacingY) {
         pathArrayLength = 0;
         for (var c = lowerX + spacingX/2; c < upperX; c += spacingX) {
-            spawnPathNode(scene,c,r);
+            spawnPathNode(c,r);
             pathArrayLength++;
         }
     }
@@ -83,12 +100,12 @@ function removeFromNeighbors(node) {
     }
 }
 
-function spawnPathNode(scene,x,y) {
-    pathNodes.push(new PathNode(scene,x,y,'pathNode'));
+function spawnPathNode(x,y) {
+    pathNodes.push(new PathNode(x,y,'pathNode'));
 }
 
-function spawnZombie(scene,x, y, target) {
-    var z = new Zombie(scene, x, y, 'zombie', 40, 200, target);
+function spawnZombie(x, y, target) {
+    var z = new Zombie(x, y, 'zombie', 40, 200, target);
     snapToNode(z);
     enemies.push(z);
 }

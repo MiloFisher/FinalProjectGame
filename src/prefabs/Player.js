@@ -1,17 +1,17 @@
 class Player extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, texture, colliderRadius) {
-        super(scene, x, y, texture);
+    constructor(x, y, texture, colliderRadius) {
+        super(activeScene, x, y, texture);
         // Player Configuration
-        scene.add.existing(this);
-        scene.physics.add.existing(this);
+        activeScene.add.existing(this);
+        activeScene.physics.add.existing(this);
         this.setCircle(colliderRadius);
         this.movementSpeed = playerSpeed;
 
         // Define Player Input
-        keyW = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-        keyA = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-        keyS = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
-        keyD = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+        keyW = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+        keyA = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+        keyS = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+        keyD = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
     }
 
     update() {

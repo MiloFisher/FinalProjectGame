@@ -1,18 +1,24 @@
 class Enemy extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, texture, colliderRadius, movementSpeed, target) {
-        super(scene, x, y, texture);
+    constructor(x, y, texture, colliderRadius, movementSpeed, target) {
+        super(activeScene, x, y, texture);
         // Enemy Configuration
-        scene.add.existing(this);
-        scene.physics.add.existing(this);
+        activeScene.add.existing(this);
+        activeScene.physics.add.existing(this);
         this.setCircle(colliderRadius);
         this.movementSpeed = movementSpeed;
         this.target = target;
         this.targetNode = null;
         this.adjacent = false;
+        this.movingToNode = false;
     }
 
     pathfind(target) {
         // step 1: return if already en route
+        if(this.movingToNode == true) {
+            this.setVelocity(0, 0);
+            this.targetNode = null;
+            return;
+        }
         if(this.targetNode != null) {
             if (Math.abs(this.x - target.x) <= 90 && Math.abs(this.y - target.y) <= 90) {
                 if(!this.adjacent) {
@@ -22,7 +28,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 return;
             } else if(this.adjacent){
                 this.adjacent = false;
-                snapToNode(this); //replace with moveToNode(this)
+                moveToNode(this); //replace with moveToNode(this)
                 this.setVelocity(0, 0);
                 this.targetNode = null;
             } else if (Math.abs(this.x - this.targetNode.x) < 5 && Math.abs(this.y - this.targetNode.y) < 5) {
@@ -63,6 +69,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 for(var j = 0; j < open.length; j ++) {
                     if (currentNode.neighbors[i].x == open[j].x && currentNode.neighbors[i].y == open[j].y){
                         if (currentNode.neighbors[i].cost < open[j].cost) {
+                            currentNode.neighbors[i].parent = currentNode;
                             open[j] = currentNode.neighbors[i];
                         }
                         duplicate = true;
@@ -70,6 +77,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                     }
                 }
                 if(!duplicate && !alreadyChecked) {
+                    currentNode.neighbors[i].parent = currentNode;
                     open.push(currentNode.neighbors[i]); 
                 }
             }
@@ -80,7 +88,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                     cheapest = i;
                 }
             }
-            open[cheapest].parent = currentNode;
             currentNode = open[cheapest];
             closed.push(currentNode);
             open.splice(cheapest, 1);
@@ -92,7 +99,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         do{
             c++;
             path.push(path[path.length-1].parent);
-        } while (path[path.length - 1].parent != null && c < 100);
+        } while (!(path[path.length - 1].x == startNode.x && path[path.length - 1].y == startNode.y) && c < 100);
         // step 7: move along path
         this.targetNode = path[path.length - 2];
         if(this.targetNode.x == startNode.x && this.targetNode.y < startNode.y ) {

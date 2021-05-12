@@ -11,15 +11,17 @@ class Level01 extends Phaser.Scene {
     }
 
     create() {
+        // Set active scene
+        activeScene = this;
         // Generate Path
-        generatePathNodes(this,80,80,0,0,1200,700);
+        generatePathNodes(80,80,0,0,1200,700);
 
         // Create Entities
-        this.player = new Player(this,600,300,'player',40);
+        this.player = new Player(600,300,'player',40);
         enemies = [];
-        spawnZombie(this,100,100,this.player);
+        spawnZombie(100,100,this.player);
         obstacles = [];
-        obstacles.push(new Obstacle(this, 300, 300, 'obstacle'));
+        obstacles.push(new Obstacle(300, 300, 'obstacle'));
 
         // Collisions
         // this.physics.add.collider(this.player, enemies, () => {
