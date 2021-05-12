@@ -17,14 +17,14 @@ class Level01 extends Phaser.Scene {
         // Create Entities
         this.player = new Player(this,600,300,'player',40);
         enemies = [];
-        spawnZombie(this,100,100);
+        spawnZombie(this,100,100,this.player);
         obstacles = [];
         obstacles.push(new Obstacle(this, 300, 300, 'obstacle'));
 
         // Collisions
-        this.physics.add.collider(this.player, enemies, () => {
-            console.log("Hit");
-        });
+        // this.physics.add.collider(this.player, enemies, () => {
+        //     console.log("Hit");
+        // });
         this.physics.add.collider(pathNodes, obstacles, (_pathNode, _obstacle) => {
             _pathNode.body.enable = false;
             for (var i = 0; i < pathNodes.length; i++) {
@@ -38,17 +38,16 @@ class Level01 extends Phaser.Scene {
         });
 
         this.keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        this.started = true;
     }
 
     update() {
-        if (Phaser.Input.Keyboard.JustDown(this.keySpace)) {
-            enemies[0].pathfind(this.player);
+        if(this.started) {
+            // Update Entities
+            this.player.update();
+            enemies.forEach(e => {
+                e.update();
+            });
         }
-
-        // Update Entities
-        this.player.update();
-        enemies.forEach(e => {
-            e.update();
-        });
     }
 }

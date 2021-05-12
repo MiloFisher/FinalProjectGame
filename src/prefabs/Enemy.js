@@ -1,30 +1,50 @@
 class Enemy extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, texture, colliderRadius, movementSpeed) {
+    constructor(scene, x, y, texture, colliderRadius, movementSpeed, target) {
         super(scene, x, y, texture);
         // Enemy Configuration
         scene.add.existing(this);
         scene.physics.add.existing(this);
         this.setCircle(colliderRadius);
         this.movementSpeed = movementSpeed;
-        this.body.immovable = true;
-        this.enRoute = false;
+        this.target = target;
+        this.targetNode = null;
+        this.adjacent = false;
     }
 
     pathfind(target) {
-        var counter = 0;
         // step 1: return if already en route
-        if(this.enRoute) {return;}
+        if(this.targetNode != null) {
+            if (Math.abs(this.x - target.x) <= 90 && Math.abs(this.y - target.y) <= 90) {
+                if(!this.adjacent) {
+                    this.setVelocity(0, 0);
+                    this.adjacent = true;
+                }
+                return;
+            } else if(this.adjacent){
+                this.adjacent = false;
+                snapToNode(this); //replace with moveToNode(this)
+                this.setVelocity(0, 0);
+                this.targetNode = null;
+            } else if (Math.abs(this.x - this.targetNode.x) < 5 && Math.abs(this.y - this.targetNode.y) < 5) {
+                snapToNode(this);
+                this.setVelocity(0,0);
+                this.targetNode = null;
+            } else {
+                return;
+            }
+        }
         // step 2: instantiate variables
         var startNode = getNodeIn(this);
+        startNode.parent = null;
         var endNode = getClosestNode(target);
         var currentNode = startNode;
         var open = [];
         var closed = [];
         // step 3: loop
+        var counter = 0;
         do {
             // step 4: open all adjacent nodes (that aren't duplicates unless their cost is less and haven't been checked already)
             for(var i = 0; i < currentNode.neighbors.length; i++) {
-                currentNode.neighbors[i].parent = currentNode;
                 var addCost;
                 if (currentNode.neighbors[i].x == currentNode.x || currentNode.neighbors[i].y == currentNode.y) {
                     addCost = 80;
@@ -54,18 +74,59 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 }
             }
             // step 5: set current node to the open node with the lowest cost, close it, and remove it from open
-            closed.push(currentNode);
-            open.splice(cheapest, 1);
             var cheapest = 0;
             for (var i = 1; i < open.length; i++) {
                 if(open[i].cost < open[cheapest].cost) {
                     cheapest = i;
                 }
             }
+            open[cheapest].parent = currentNode;
             currentNode = open[cheapest];
-            currentNode.alpha = 1;
+            closed.push(currentNode);
+            open.splice(cheapest, 1);
             counter++;
         } while (!(currentNode.x == endNode.x && currentNode.y == endNode.y) && counter < 500);
-
+        // step 6: create path to target
+        var path = [currentNode];
+        var c = 0;
+        do{
+            c++;
+            path.push(path[path.length-1].parent);
+        } while (path[path.length - 1].parent != null && c < 100);
+        // step 7: move along path
+        this.targetNode = path[path.length - 2];
+        if(this.targetNode.x == startNode.x && this.targetNode.y < startNode.y ) {
+            // move up
+            this.angle = 0;
+            this.setVelocity(0, this.movementSpeed * -1);
+        } else if (this.targetNode.x == startNode.x && this.targetNode.y > startNode.y) {
+            // move down
+            this.angle = 180;
+            this.setVelocity(0, this.movementSpeed * 1);
+        } else if (this.targetNode.x > startNode.x && this.targetNode.y == startNode.y) {
+            // move right
+            this.angle = 90;
+            this.setVelocity(this.movementSpeed * 1,0);
+        } else if (this.targetNode.x < startNode.x && this.targetNode.y == startNode.y) {
+            // move left
+            this.angle = 270;
+            this.setVelocity(this.movementSpeed * -1, 0);
+        } else if (this.targetNode.x > startNode.x && this.targetNode.y < startNode.y) {
+            // move up, right
+            this.angle = 45;
+            this.setVelocity(this.movementSpeed * 0.6, this.movementSpeed * -0.6);
+        } else if (this.targetNode.x > startNode.x && this.targetNode.y > startNode.y) {
+            // move down, right
+            this.angle = 135;
+            this.setVelocity(this.movementSpeed * 0.6, this.movementSpeed * 0.6);
+        } else if (this.targetNode.x < startNode.x && this.targetNode.y > startNode.y) {
+            // move down, left
+            this.angle = 225;
+            this.setVelocity(this.movementSpeed * -0.6, this.movementSpeed * 0.6);
+        } else if (this.targetNode.x < startNode.x && this.targetNode.y < startNode.y) {
+            // move up, left
+            this.angle = 315;
+            this.setVelocity(this.movementSpeed * -0.6, this.movementSpeed * -0.6);
+        }
     }
 }

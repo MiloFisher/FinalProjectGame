@@ -87,8 +87,8 @@ function spawnPathNode(scene,x,y) {
     pathNodes.push(new PathNode(scene,x,y,'pathNode'));
 }
 
-function spawnZombie(scene,x, y) {
-    var z = new Zombie(scene, x, y, 'zombie', 40);
+function spawnZombie(scene,x, y, target) {
+    var z = new Zombie(scene, x, y, 'zombie', 40, 200, target);
     snapToNode(z);
     enemies.push(z);
 }
