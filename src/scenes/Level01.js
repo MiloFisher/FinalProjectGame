@@ -20,6 +20,7 @@ class Level01 extends Phaser.Scene {
         this.player = new Player(600,300,'player',40);
         enemies = [];
         spawnZombie(100,100,this.player);
+        spawnZombie(100,500, this.player);
         obstacles = [];
         obstacles.push(new Obstacle(300, 300, 'obstacle'));
 
