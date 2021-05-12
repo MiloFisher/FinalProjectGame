@@ -5,7 +5,7 @@ let config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: true
+            debug: false
         }
     },
     scene: [ Level01 ]
@@ -52,7 +52,6 @@ function moveToNode(object) {
         y: node.y,
         duration: 500,
         ease: 'Power2',
-        //completeDelay: 500,
         onComplete: function () { 
             object.movingToNode = false;
         },

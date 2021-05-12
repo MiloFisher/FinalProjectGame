@@ -24,9 +24,7 @@ class Level01 extends Phaser.Scene {
         obstacles.push(new Obstacle(300, 300, 'obstacle'));
 
         // Collisions
-        // this.physics.add.collider(this.player, enemies, () => {
-        //     console.log("Hit");
-        // });
+        this.physics.add.collider(this.player, obstacles);
         this.physics.add.collider(pathNodes, obstacles, (_pathNode, _obstacle) => {
             _pathNode.body.enable = false;
             for (var i = 0; i < pathNodes.length; i++) {

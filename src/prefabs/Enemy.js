@@ -12,30 +12,52 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.movingToNode = false;
     }
 
+    lookAt(target) {
+        var forgiveness = 20;
+        if (Math.abs(this.x - target.x) < forgiveness && this.y < target.y) {
+            this.angle = 180; // look up
+        } else if (Math.abs(this.x - target.x) < forgiveness && this.y > target.y) {
+            this.angle = 0; // look down
+        } else if (this.x > target.x && Math.abs(this.y - target.y) < forgiveness) {
+            this.angle = 270; // look right
+        } else if (this.x < target.x && Math.abs(this.y - target.y) < forgiveness) {
+            this.angle = 90; // look left
+        } else if (this.x > target.x && this.y < target.y) {
+            this.angle = 225; // look up, right
+        } else if (this.x > target.x && this.y > target.y) {
+            this.angle = 315; // look down, right
+        } else if (this.x < target.x && this.y > target.y) {
+            this.angle = 45; // look down, left
+        } else if (this.x < target.x && this.y < target.y) {
+            this.angle = 135; // look up, left
+        }
+    }
+
     pathfind(target) {
-        // step 1: return if already en route
-        if(this.movingToNode == true) {
+        // step 1: return if any of the following are met:
+        if (this.movingToNode == true) {  // enemy is moving to align itself in a node
             this.setVelocity(0, 0);
             this.targetNode = null;
             return;
         }
-        if(this.targetNode != null) {
-            if (Math.abs(this.x - target.x) <= 90 && Math.abs(this.y - target.y) <= 90) {
-                if(!this.adjacent) {
+        if (this.targetNode != null) { // enemy no longer has a target node
+            if (Math.abs(this.x - target.x) <= 90 && Math.abs(this.y - target.y) <= 90) { // enemy is within range of it's target
+                if(!this.adjacent) { // enemy has not been flagged as adjacent yet
                     this.setVelocity(0, 0);
                     this.adjacent = true;
                 }
+                this.lookAt(target);
                 return;
-            } else if(this.adjacent){
+            } else if(this.adjacent){ // enemy is not in range of the target, but is still flagged as adjacent
                 this.adjacent = false;
-                moveToNode(this); //replace with moveToNode(this)
+                moveToNode(this);
                 this.setVelocity(0, 0);
                 this.targetNode = null;
-            } else if (Math.abs(this.x - this.targetNode.x) < 5 && Math.abs(this.y - this.targetNode.y) < 5) {
+            } else if (Math.abs(this.x - this.targetNode.x) < 5 && Math.abs(this.y - this.targetNode.y) < 5) { // enemy reached target node
                 snapToNode(this);
                 this.setVelocity(0,0);
                 this.targetNode = null;
-            } else {
+            } else { // enemy is still en route to target node
                 return;
             }
         }
