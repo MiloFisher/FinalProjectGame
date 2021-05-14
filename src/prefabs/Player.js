@@ -4,6 +4,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         // Player Configuration
         activeScene.add.existing(this);
         activeScene.physics.add.existing(this);
+        this.body.collideWorldBounds = true;
         this.setCircle(colliderRadius);
         this.movementSpeed = playerSpeed;
 
