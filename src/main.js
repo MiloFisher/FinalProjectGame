@@ -5,10 +5,10 @@ let config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: false
+            debug: true
         }
     },
-    scene: [ Level01 ]
+    scene: [ Menu, Level01 ]
 }
 let game = new Phaser.Game(config);
 

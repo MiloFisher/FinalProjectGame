@@ -16,6 +16,8 @@ class Level01 extends Phaser.Scene {
     create() {
         // Set active scene
         activeScene = this;
+
+        // Set up level bounds
         this.physics.world.setBounds(0,0,2400,1440);
 
         // Create tile map
