@@ -11,6 +11,8 @@ class Level01 extends Phaser.Scene {
 
         this.load.tilemapTiledJSON('map', 'assets/temp_tilemap.json');
         this.load.image('tiles', 'assets/temp_tilegrid.png');
+
+        this.load.audio('temp_sound', './assets/Meteor.mp3');
     }
 
     create() {
@@ -47,6 +49,15 @@ class Level01 extends Phaser.Scene {
 
         this.keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.started = true;
+
+        // We have sound, yay!
+        this.config = {
+            rate: 2,
+            volume: .5,
+            loop: false
+        }
+        this.sound = this.sound.add('temp_sound', this.config);
+        this.sound.play(this.config);
     }
 
     update() {
