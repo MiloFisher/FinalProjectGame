@@ -6,7 +6,6 @@ class Level01 extends Phaser.Scene {
     preload() {
         this.load.image('player', 'assets/temp_player.png');
         this.load.image('zombie', 'assets/temp_zombie.png');
-        this.load.image('obstacle', 'assets/temp_obstacle.png');
         this.load.image('pathNode', 'assets/pathNode.png');
 
         this.load.tilemapTiledJSON('map', 'assets/temp_tilemap.json');
@@ -32,20 +31,18 @@ class Level01 extends Phaser.Scene {
         generatePathNodes();
 
         // Create Player
-        this.player = new Player(600,380,'player',40);
+        player = new Player(600,380,'player',40);
         this.cameras.main.setBounds(0,0,2400,1440);
-        this.cameras.main.startFollow(this.player);
+        this.cameras.main.startFollow(player);
 
         // Create Entites
         enemies = [];
-        spawnZombie(100,100,this.player);
-        spawnZombie(100,500, this.player);
-        obstacles = [];
-        //obstacles.push(new Obstacle(300, 300, 'obstacle'));
+        spawnZombie(100,100, player);
+        spawnZombie(100,500, player);
 
         // Collisions
-        this.physics.add.collider(this.player, obstacles);
-        this.physics.add.collider(this.player, layer);
+        addTriangles();
+        this.physics.add.collider(player, layer, () => {}, diagonalCollision);
 
         this.keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.started = true;
@@ -63,7 +60,7 @@ class Level01 extends Phaser.Scene {
     update() {
         if(this.started) {
             // Update Entities
-            this.player.update();
+            player.update();
             enemies.forEach(e => {
                 e.update();
             });

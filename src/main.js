@@ -15,15 +15,58 @@ let game = new Phaser.Game(config);
 // global variables
 let playerSpeed = 300;              // how fast the player will move
 let pathNodes = [[]];               // holds path nodes for enemy pathfinding
+let triangles = [[]];               // holds triangles for diagonal collision
+let player;                         // holds player
+let lastPlayerX;                    // holds player's last x position
+let lastPlayerY;                    // holds player's last y position
 let enemies = [];                   // holds enemies
-let obstacles = [];                 // holds obstacles
 let activeScene = null;             // holds the current scene
 let map = null;                     // holds current tilemap
 // reserve keyboard vars
 let keyW, keyA, keyS, keyD;
 
 // global functions
+function addTriangles() {
+    triangles = [[]];
+    for (var r = 0; r < map.height; r++) {
+        triangles.push([]);
+        for (var c = 0; c < map.width; c++) {
+            triangles[r].push(0);
+            var tile = map.getTileAt(c, r);
+            if (tile.properties.corner) {
+                var x = tile.x * tile.width;
+                var y = tile.y * tile.height;
+                switch(tile.properties.direction) {
+                    case 0: triangles[r][c] = new Phaser.Geom.Triangle(x, y + tile.width, x + tile.width, y + tile.width, x + tile.width, y); break;
+                    case 1: triangles[r][c] = new Phaser.Geom.Triangle(x, y + tile.width, x + tile.width, y + tile.width, x, y); break;
+                    case 2: triangles[r][c] = new Phaser.Geom.Triangle(x, y, x + tile.width, y + tile.width, x + tile.width, y); break;
+                    case 3: triangles[r][c] = new Phaser.Geom.Triangle(x, y + tile.width, x, y, x + tile.width, y); break;
+                }
+            }
+        }
+    }
+}
+
+function diagonalCollision(object1, object2) {
+    var tile = map.getTileAt(object2.x, object2.y);
+    if(tile.properties.corner == true) {
+        var circle = new Phaser.Geom.Circle(object1.x, object1.y, object1.body.radius);
+        if (Phaser.Geom.Intersects.TriangleToCircle(triangles[object2.y][object2.x], circle)) {
+            object1.setPosition(lastPlayerX,lastPlayerY);
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return true;
+    }
+}
+
 function getClosestNode(object) {
+    var node = getNodeIn(object);
+    if(node != 0) {
+        return node;
+    }
     var closestR = 0;
     var closestC = 0;
     for (var r = 0; r < map.height; r++) {
@@ -41,14 +84,8 @@ function getClosestNode(object) {
 }
 
 function getNodeIn(object){
-    for(var r = 0; r < map.height; r++) {
-        for(var c = 0; c < map.width; c++) {
-            var tile = map.getTileAt(c, r);
-            if (tile.properties.walkable) {
-                if (Math.abs(object.x - pathNodes[r][c].x) <= 40 && Math.abs(object.y - pathNodes[r][c].y) <= 40) { return pathNodes[r][c]; }
-            }
-        }
-    }
+    var tile = map.getTileAtWorldXY(object.x,object.y);
+    return pathNodes[tile.y][tile.x];
 }
 
 function snapToNode(object){

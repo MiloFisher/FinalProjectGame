@@ -21,6 +21,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     movement() {
+        lastPlayerX = this.x;
+        lastPlayerY = this.y;
         let h = 0;
         let v = 0;
         // Direction horizontal (h) & vertical (v) are set by combination of held keys
