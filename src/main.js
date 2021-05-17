@@ -72,9 +72,6 @@ function separate(object, intersections) {
     var y2 = intersections[1].y - object.y;
     var midX = (x1 + x2) / 2;
     var midY = (y1 + y2) / 2;
-    var distance = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-
-    var v0 = new Phaser.Math.Vector2(object.x, object.y);
     var v1 = new Phaser.Math.Vector2(midX, midY);
     
     var scale;
@@ -85,7 +82,6 @@ function separate(object, intersections) {
     }
     var v2 = v1.scale(scale);
     object.body.position.subtract(v2);
-    
 }
 
 function getClosestNode(object) {
