@@ -55,7 +55,9 @@ function diagonalCollision(object1, object2) {
         var out = [];
         Phaser.Geom.Intersects.GetTriangleToCircle(triangles[object2.y][object2.x], circle, out);
         if (out.length > 0) {
-            separate(object1, out);
+            if(out.length > 1) {
+                separate(object1, out);
+            }
             return true;
         } else {
             return false;
@@ -76,7 +78,7 @@ function separate(object, intersections) {
     
     var scale;
     if (object.body.velocity.x != 0 && object.body.velocity.y != 0) {
-        scale = .131;
+        scale = .144;
     } else {
         scale = .1;
     }
