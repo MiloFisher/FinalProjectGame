@@ -143,19 +143,19 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         } else if (this.targetNode.x > startNode.x && this.targetNode.y < startNode.y) {
             // move up, right
             this.angle = 45;
-            this.setVelocity(this.movementSpeed * 0.6, this.movementSpeed * -0.6);
+            this.setVelocity(this.movementSpeed * diagonalSpeed, this.movementSpeed * -diagonalSpeed);
         } else if (this.targetNode.x > startNode.x && this.targetNode.y > startNode.y) {
             // move down, right
             this.angle = 135;
-            this.setVelocity(this.movementSpeed * 0.6, this.movementSpeed * 0.6);
+            this.setVelocity(this.movementSpeed * diagonalSpeed, this.movementSpeed * diagonalSpeed);
         } else if (this.targetNode.x < startNode.x && this.targetNode.y > startNode.y) {
             // move down, left
             this.angle = 225;
-            this.setVelocity(this.movementSpeed * -0.6, this.movementSpeed * 0.6);
+            this.setVelocity(this.movementSpeed * -diagonalSpeed, this.movementSpeed * diagonalSpeed);
         } else if (this.targetNode.x < startNode.x && this.targetNode.y < startNode.y) {
             // move up, left
             this.angle = 315;
-            this.setVelocity(this.movementSpeed * -0.6, this.movementSpeed * -0.6);
+            this.setVelocity(this.movementSpeed * -diagonalSpeed, this.movementSpeed * -diagonalSpeed);
         }
     }
 }

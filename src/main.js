@@ -14,6 +14,7 @@ let game = new Phaser.Game(config);
 
 // global variables
 let playerSpeed = 300;              // how fast the player will move
+let diagonalSpeed = .71;            // multiplier for how fast entities move diagonally
 let pathNodes = [[]];               // holds path nodes for enemy pathfinding
 let triangles = [[]];               // holds triangles for diagonal collision
 let player;                         // holds player
@@ -51,8 +52,10 @@ function diagonalCollision(object1, object2) {
     var tile = map.getTileAt(object2.x, object2.y);
     if(tile.properties.corner == true) {
         var circle = new Phaser.Geom.Circle(object1.x, object1.y, object1.body.radius);
-        if (Phaser.Geom.Intersects.TriangleToCircle(triangles[object2.y][object2.x], circle)) {
-            object1.setPosition(lastPlayerX,lastPlayerY);
+        var out = [];
+        Phaser.Geom.Intersects.GetTriangleToCircle(triangles[object2.y][object2.x], circle, out);
+        if (out.length > 0) {
+            separate(object1, out);
             return true;
         } else {
             return false;
@@ -60,6 +63,29 @@ function diagonalCollision(object1, object2) {
     } else {
         return true;
     }
+}
+
+function separate(object, intersections) {
+    var x1 = intersections[0].x - object.x;
+    var y1 = intersections[0].y - object.y;
+    var x2 = intersections[1].x - object.x;
+    var y2 = intersections[1].y - object.y;
+    var midX = (x1 + x2) / 2;
+    var midY = (y1 + y2) / 2;
+    var distance = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+
+    var v0 = new Phaser.Math.Vector2(object.x, object.y);
+    var v1 = new Phaser.Math.Vector2(midX, midY);
+    
+    var scale;
+    if (object.body.velocity.x != 0 && object.body.velocity.y != 0) {
+        scale = .131;
+    } else {
+        scale = .1;
+    }
+    var v2 = v1.scale(scale);
+    object.body.position.subtract(v2);
+    
 }
 
 function getClosestNode(object) {

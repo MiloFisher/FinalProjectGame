@@ -44,7 +44,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             this.setVelocity(this.movementSpeed * h, this.movementSpeed  * v);
         } // If moving diagonally, reduce velocity to 60% of speed
         else {
-            this.setVelocity(this.movementSpeed * h * 0.6, this.movementSpeed * v * 0.6);
+            this.setVelocity(this.movementSpeed * h * 0.6, this.movementSpeed * v * diagonalSpeed);
         }
     }
 
