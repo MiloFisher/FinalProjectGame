@@ -8,7 +8,7 @@ let config = {
             debug: true
         }
     },
-    scene: [ Menu, Level01 ]
+    scene: [Menu, NewGame, Settings, Credits, Level01 ]
 }
 let game = new Phaser.Game(config);
 
@@ -22,9 +22,16 @@ let lastPlayerX;                    // holds player's last x position
 let lastPlayerY;                    // holds player's last y position
 let enemies = [];                   // holds enemies
 let activeScene = null;             // holds the current scene
+let activeSceneKey = null;          // holds the current scene's key
 let map = null;                     // holds current tilemap
+
+// data for save file
+let saveName = 'saveData';          // holds name of saved data
+let playerClass = 'warrior';        // holds player's class
+let secretUnlocked = false;         // hold if secret character has been unlocked
+
 // reserve keyboard vars
-let keyW, keyA, keyS, keyD;
+let keyW, keyA, keyS, keyD, keyUP, keyLEFT, keyDOWN, keyRIGHT, keyENTER;
 
 // global functions
 function addTriangles() {
@@ -50,15 +57,26 @@ function addTriangles() {
 
 function diagonalCollision(object1, object2) {
     var tile = map.getTileAt(object2.x, object2.y);
+    var circle = new Phaser.Geom.Circle(object1.x, object1.y, object1.body.radius);
+    var out = [];
     if(tile.properties.corner == true) {
-        var circle = new Phaser.Geom.Circle(object1.x, object1.y, object1.body.radius);
-        var out = [];
         Phaser.Geom.Intersects.GetTriangleToCircle(triangles[object2.y][object2.x], circle, out);
         if (out.length > 0) {
             if(out.length > 1) {
-                separate(object1, out);
+                separate(object1, out, true);
             }
             return true;
+        } else {
+            return false;
+        }
+    } else if (tile.properties.walkable == false){
+        var rect = new Phaser.Geom.Rectangle(tile.x * tile.width, tile.y * tile.height, tile.width, tile.height);
+        Phaser.Geom.Intersects.GetCircleToRectangle(circle, rect, out);
+        if (out.length > 0) {
+            if (out.length > 1) {
+                separate(object1, out, false);
+            }
+            return false;
         } else {
             return false;
         }
@@ -67,7 +85,7 @@ function diagonalCollision(object1, object2) {
     }
 }
 
-function separate(object, intersections) {
+function separate(object, intersections, diagonal) {
     var x1 = intersections[0].x - object.x;
     var y1 = intersections[0].y - object.y;
     var x2 = intersections[1].x - object.x;
@@ -78,9 +96,17 @@ function separate(object, intersections) {
     
     var scale;
     if (object.body.velocity.x != 0 && object.body.velocity.y != 0) {
-        scale = .144;
+        if(diagonal) {
+            scale = .145;
+        } else {
+            scale = .101;
+        }
     } else {
-        scale = .1;
+        if (diagonal) {
+            scale = .101;
+        } else {
+            scale = .145;
+        }
     }
     var v2 = v1.scale(scale);
     object.body.position.subtract(v2);
@@ -193,4 +219,30 @@ function spawnZombie(x, y, target) {
     var z = new Zombie(x, y, 'zombie', 40, 200, target);
     snapToNode(z);
     enemies.push(z);
+}
+
+function saveGame() {
+    var file = {
+        class: playerClass,
+        level: activeSceneKey,
+        secret: secretUnlocked,
+    };
+    localStorage.setItem(saveName, JSON.stringify(file));
+}
+
+function loadGame() {
+    var file = JSON.parse(localStorage.getItem(saveName));
+    console.log(file.class);
+    console.log(file.level);
+    console.log(file.secret);
+    activeScene.scene.start(file.level);
+}
+
+function removeGame() {
+    localStorage.removeItem(saveName);
+}
+
+function fileExists() {
+    var file = JSON.parse(localStorage.getItem(saveName));
+    return file != null;
 }

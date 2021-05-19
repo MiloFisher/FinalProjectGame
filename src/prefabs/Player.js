@@ -7,8 +7,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.body.collideWorldBounds = true;
         this.setCircle(colliderRadius);
         this.movementSpeed = playerSpeed;
+        this.separatedThisFrame = false;
 
-        // Define Player Input
+        // Player Input
         keyW = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         keyA = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
         keyS = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
@@ -17,7 +18,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
     update() {
         this.movement();
-        
+    
     }
 
     movement() {

@@ -1,6 +1,7 @@
 class Level01 extends Phaser.Scene {
     constructor() {
-        super("level01Scene");
+        activeSceneKey = "level01Scene";
+        super(activeSceneKey);
     }
 
     preload() {
@@ -17,6 +18,9 @@ class Level01 extends Phaser.Scene {
     create() {
         // Set active scene
         activeScene = this;
+
+        // Save game
+        saveGame();
 
         // Set up level bounds
         this.physics.world.setBounds(0,0,2400,1440);
