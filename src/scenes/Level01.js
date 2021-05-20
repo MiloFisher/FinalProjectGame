@@ -13,6 +13,11 @@ class Level01 extends Phaser.Scene {
         this.load.image('tiles', 'assets/temp_tilegrid.png');
 
         this.load.audio('temp_sound', './assets/Meteor.mp3');
+
+        // sprite sheets
+        this.load.spritesheet('warrior_walking', './assets/warrior/warrior_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
+        this.load.spritesheet('rogue_walking', './assets/rogue/rogue_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
+        this.load.spritesheet('mage_walking', './assets/mage/mage_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     }
 
     create() {
@@ -34,8 +39,11 @@ class Level01 extends Phaser.Scene {
         // Generate Path
         generatePathNodes();
 
+        // Animations
+        createAnimations();
+
         // Create Player
-        player = new Player(600,380,'player',40);
+        player = new Player(600,380, playerClass + '_walking', 40);
         this.cameras.main.setBounds(0,0,2400,1440);
         this.cameras.main.startFollow(player);
 
@@ -69,5 +77,6 @@ class Level01 extends Phaser.Scene {
                 e.update();
             });
         }
+        player.anims.play(playerClass + '_walking', true);
     }
 }

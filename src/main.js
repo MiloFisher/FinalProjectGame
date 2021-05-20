@@ -235,6 +235,7 @@ function loadGame() {
     console.log(file.class);
     console.log(file.level);
     console.log(file.secret);
+    playerClass = file.class;
     activeScene.scene.start(file.level);
 }
 
@@ -245,4 +246,30 @@ function removeGame() {
 function fileExists() {
     var file = JSON.parse(localStorage.getItem(saveName));
     return file != null;
+}
+
+function createAnimations() {
+    // Warrior Animations
+    activeScene.anims.create({
+        key: 'warrior_walking',
+        frames: activeScene.anims.generateFrameNumbers('warrior_walking', { start: 0, end: 1, first: 0 }),
+        frameRate: playerSpeed/100,
+        scale: .25,
+    });
+
+    // Rogue Animations
+    activeScene.anims.create({
+        key: 'rogue_walking',
+        frames: activeScene.anims.generateFrameNumbers('rogue_walking', { start: 0, end: 1, first: 0 }),
+        frameRate: playerSpeed / 100,
+        scale: .25,
+    });
+
+    // Mage Animations
+    activeScene.anims.create({
+        key: 'mage_walking',
+        frames: activeScene.anims.generateFrameNumbers('mage_walking', { start: 0, end: 1, first: 0 }),
+        frameRate: playerSpeed / 100,
+        scale: .25,
+    });
 }
