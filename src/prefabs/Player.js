@@ -47,6 +47,12 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         else {
             this.setVelocity(this.movementSpeed * h * diagonalSpeed, this.movementSpeed * v * diagonalSpeed);
         }
+        // Set move animation
+        if(this.body.velocity.x != 0 || this.body.velocity.y != 0) {
+            player.anims.play(playerClass + '_walking', true);
+        } else {
+            player.anims.play(playerClass + '_idle', true);
+        }
     }
 
     lookDirection(h,v) {

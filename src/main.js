@@ -5,7 +5,7 @@ let config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: true
+            debug: false
         }
     },
     scene: [Menu, NewGame, Settings, Credits, Level01 ]
@@ -249,27 +249,41 @@ function fileExists() {
 }
 
 function createAnimations() {
+    var walkFrameRate = 4;
+
     // Warrior Animations
     activeScene.anims.create({
         key: 'warrior_walking',
         frames: activeScene.anims.generateFrameNumbers('warrior_walking', { start: 0, end: 1, first: 0 }),
-        frameRate: playerSpeed/100,
-        scale: .25,
+        frameRate: walkFrameRate,
+    });
+    activeScene.anims.create({
+        key: 'warrior_idle',
+        frames: activeScene.anims.generateFrameNumbers('warrior_idle', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
     });
 
     // Rogue Animations
     activeScene.anims.create({
         key: 'rogue_walking',
         frames: activeScene.anims.generateFrameNumbers('rogue_walking', { start: 0, end: 1, first: 0 }),
-        frameRate: playerSpeed / 100,
-        scale: .25,
+        frameRate: walkFrameRate,
+    });
+    activeScene.anims.create({
+        key: 'rogue_idle',
+        frames: activeScene.anims.generateFrameNumbers('rogue_idle', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
     });
 
     // Mage Animations
     activeScene.anims.create({
         key: 'mage_walking',
         frames: activeScene.anims.generateFrameNumbers('mage_walking', { start: 0, end: 1, first: 0 }),
-        frameRate: playerSpeed / 100,
-        scale: .25,
+        frameRate: walkFrameRate,
+    });
+    activeScene.anims.create({
+        key: 'mage_idle',
+        frames: activeScene.anims.generateFrameNumbers('mage_idle', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
     });
 }
