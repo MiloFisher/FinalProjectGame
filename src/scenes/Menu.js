@@ -25,12 +25,38 @@ class Menu extends Phaser.Scene {
         var centerX = game.config.width/2;
         var centerY = game.config.height/2;
         var gap = 70;
+        var offset = 0;
         if(fileExists()) {
-            this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'Continue', { font: "50px Gothic", fill: "#ffffff" }).setOrigin(0.5));
+            this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'Continue', { font: "50px Gothic", fill: "#ffffff" }).setOrigin(0.5).setInteractive());
+            offset = 1;
+            this.options[0].on('pointerdown', function (pointer) { 
+                if(activeScene.selected == 0) { 
+                    activeScene.select(); 
+                }
+                activeScene.selected = 0;
+            });
         }
-        this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'New Game', { font: "50px Gothic", fill: "#ffffff" }).setOrigin(0.5));
-        this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'Settings', { font: "50px Gothic", fill: "#ffffff" }).setOrigin(0.5));
-        this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'Credits', { font: "50px Gothic", fill: "#ffffff" }).setOrigin(0.5));
+        this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'New Game', { font: "50px Gothic", fill: "#ffffff" }).setOrigin(0.5).setInteractive());
+        this.options[0 + offset].on('pointerdown', function (pointer) { 
+            if (activeScene.selected == 0 + offset) {
+                activeScene.select();
+            }
+            activeScene.selected = 0 + offset;
+        });
+        this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'Settings', { font: "50px Gothic", fill: "#ffffff" }).setOrigin(0.5).setInteractive());
+        this.options[1 + offset].on('pointerdown', function (pointer) { 
+            if (activeScene.selected == 1 + offset) {
+                activeScene.select();
+            }
+            activeScene.selected = 1 + offset;
+        });
+        this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'Credits', { font: "50px Gothic", fill: "#ffffff" }).setOrigin(0.5).setInteractive());
+        this.options[2 + offset].on('pointerdown', function (pointer) {
+            if (activeScene.selected == 2 + offset) {
+                activeScene.select();
+            }
+            activeScene.selected = 2 + offset;
+        });
     }
 
     update() {

@@ -50,8 +50,12 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         // Set move animation
         if(this.body.velocity.x != 0 || this.body.velocity.y != 0) {
             player.anims.play(playerClass + '_walking', true);
+            if (!activeScene.walkSound.isPlaying) {
+                activeScene.walkSound.play();
+            }
         } else {
             player.anims.play(playerClass + '_idle', true);
+            activeScene.walkSound.stop();
         }
     }
 

@@ -28,10 +28,10 @@ let map = null;                     // holds current tilemap
 // data for save file
 let saveName = 'saveData';          // holds name of saved data
 let playerClass = 'warrior';        // holds player's class
-let secretUnlocked = false;         // hold if secret character has been unlocked
+let secretUnlocked = true;         // hold if secret character has been unlocked
 
 // reserve keyboard vars
-let keyW, keyA, keyS, keyD, keyUP, keyLEFT, keyDOWN, keyRIGHT, keyENTER;
+let keyW, keyA, keyS, keyD, keyUP, keyLEFT, keyDOWN, keyRIGHT, keyENTER, keyESCAPE;
 
 // global functions
 function addTriangles() {
@@ -248,6 +248,17 @@ function fileExists() {
     return file != null;
 }
 
+function loadGenericSpritesheets(scene) {
+    scene.load.spritesheet('warrior_walking', './assets/warrior/warrior_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
+    scene.load.spritesheet('warrior_idle', './assets/warrior/warrior_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
+    scene.load.spritesheet('rogue_walking', './assets/rogue/rogue_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
+    scene.load.spritesheet('rogue_idle', './assets/rogue/rogue_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
+    scene.load.spritesheet('mage_walking', './assets/mage/mage_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
+    scene.load.spritesheet('mage_idle', './assets/mage/mage_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
+    scene.load.spritesheet('necromancer_walking', './assets/necromancer/necromancer_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
+    scene.load.spritesheet('necromancer_idle', './assets/necromancer/necromancer_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
+}
+
 function createAnimations() {
     var walkFrameRate = 4;
 
@@ -285,5 +296,25 @@ function createAnimations() {
         key: 'mage_idle',
         frames: activeScene.anims.generateFrameNumbers('mage_idle', { start: 0, end: 0, first: 0 }),
         frameRate: 0,
+    });
+
+    // Necromancer Animations
+    activeScene.anims.create({
+        key: 'necromancer_walking',
+        frames: activeScene.anims.generateFrameNumbers('necromancer_walking', { start: 0, end: 1, first: 0 }),
+        frameRate: walkFrameRate,
+    });
+    activeScene.anims.create({
+        key: 'necromancer_idle',
+        frames: activeScene.anims.generateFrameNumbers('necromancer_idle', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
+    });
+}
+
+function createSounds() {
+    activeScene.walkSound = activeScene.sound.add('walk', {
+        rate: 1,
+        volume: 4,
+        loop: true
     });
 }
