@@ -1,5 +1,5 @@
 class Enemy extends Phaser.Physics.Arcade.Sprite {
-    constructor(x, y, texture, colliderRadius, movementSpeed, target) {
+    constructor(x, y, texture, colliderRadius, movementSpeed, target, key) {
         super(activeScene, x, y, texture);
         // Enemy Configuration
         activeScene.add.existing(this);
@@ -10,6 +10,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.targetNode = null;
         this.adjacent = false;
         this.movingToNode = false;
+        this.key = key;
     }
 
     lookAt(target) {
@@ -38,6 +39,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         if (this.movingToNode == true) {  // enemy is moving to align itself in a node
             this.setVelocity(0, 0);
             this.targetNode = null;
+            this.anims.play(this.key + '_walking', true);
             return;
         }
         if (this.targetNode != null) { // enemy no longer has a target node
@@ -47,17 +49,21 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                     this.adjacent = true;
                 }
                 this.lookAt(target);
+                this.anims.play(this.key + '_idle', true);
                 return;
             } else if(this.adjacent){ // enemy is not in range of the target, but is still flagged as adjacent
                 this.adjacent = false;
                 moveToNode(this);
                 this.setVelocity(0, 0);
                 this.targetNode = null;
+                this.anims.play(this.key + '_idle', true);
             } else if (Math.abs(this.x - this.targetNode.x) < 5 && Math.abs(this.y - this.targetNode.y) < 5) { // enemy reached target node
                 snapToNode(this);
                 this.setVelocity(0,0);
                 this.targetNode = null;
+                this.anims.play(this.key + '_idle', true);
             } else { // enemy is still en route to target node
+                this.anims.play(this.key + '_walking', true);
                 return;
             }
         }

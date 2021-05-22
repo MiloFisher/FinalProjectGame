@@ -15,7 +15,9 @@ class Level01 extends Phaser.Scene {
         this.load.audio('walk', './assets/Running.mp3');
 
         // sprite sheets
-        loadGenericSpritesheets(this);
+        loadPlayerSpritesheets(this);
+        this.load.spritesheet('slime_walking', './assets/mobs1/slime_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
+        this.load.spritesheet('slime_idle', './assets/mobs1/slime_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
     }
 
     create() {
@@ -38,7 +40,17 @@ class Level01 extends Phaser.Scene {
         generatePathNodes();
 
         // Animations
-        createAnimations();
+        createPlayerAnimations();
+        this.anims.create({
+            key: 'slime_walking',
+            frames: this.anims.generateFrameNumbers('slime_walking', { start: 0, end: 1, first: 0 }),
+            frameRate: 4,
+        });
+        this.anims.create({
+            key: 'slime_idle',
+            frames: this.anims.generateFrameNumbers('slime_idle', { start: 0, end: 0, first: 0 }),
+            frameRate: 0,
+        });
 
         // Sound
         createSounds();
@@ -50,8 +62,8 @@ class Level01 extends Phaser.Scene {
 
         // Create Entites
         enemies = [];
-        spawnZombie(100,100, player);
-        spawnZombie(100,500, player);
+        spawnSlime(100,100, player);
+        spawnSlime(100,500, player);
 
         // Collisions
         addTriangles();

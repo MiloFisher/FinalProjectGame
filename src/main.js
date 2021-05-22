@@ -216,9 +216,15 @@ function spawnPathNode(tile) {
 }
 
 function spawnZombie(x, y, target) {
-    var z = new Zombie(x, y, 'zombie', 40, 200, target);
-    snapToNode(z);
-    enemies.push(z);
+    var e = new Zombie(x, y, 'zombie', 40, 200, target);
+    snapToNode(e);
+    enemies.push(e);
+}
+
+function spawnSlime(x, y, target) {
+    var e = new Slime(x, y, 'slime_idle', 40, 200, target);
+    snapToNode(e);
+    enemies.push(e);
 }
 
 function saveGame() {
@@ -248,7 +254,7 @@ function fileExists() {
     return file != null;
 }
 
-function loadGenericSpritesheets(scene) {
+function loadPlayerSpritesheets(scene) {
     scene.load.spritesheet('warrior_walking', './assets/warrior/warrior_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('warrior_idle', './assets/warrior/warrior_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
     scene.load.spritesheet('rogue_walking', './assets/rogue/rogue_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
@@ -259,7 +265,7 @@ function loadGenericSpritesheets(scene) {
     scene.load.spritesheet('necromancer_idle', './assets/necromancer/necromancer_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
 }
 
-function createAnimations() {
+function createPlayerAnimations() {
     var walkFrameRate = 4;
 
     // Warrior Animations
