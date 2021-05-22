@@ -24,6 +24,8 @@ let enemies = [];                   // holds enemies
 let activeScene = null;             // holds the current scene
 let activeSceneKey = null;          // holds the current scene's key
 let map = null;                     // holds current tilemap
+let playerAttacks = [];             // holds player's attack objects
+let enemyAttacks = [];              // holds enemies' attack objects
 
 // data for save file
 let saveName = 'saveData';          // holds name of saved data
@@ -216,13 +218,13 @@ function spawnPathNode(tile) {
 }
 
 function spawnZombie(x, y, target) {
-    var e = new Zombie(x, y, 'zombie', 40, 200, target);
+    var e = new Zombie(x, y, 'zombie', 40, 50, 200, target);
     snapToNode(e);
     enemies.push(e);
 }
 
 function spawnSlime(x, y, target) {
-    var e = new Slime(x, y, 'slime_idle', 40, 200, target);
+    var e = new Slime(x, y, 'slime_idle', 40, 20, 200, target);
     snapToNode(e);
     enemies.push(e);
 }
@@ -254,15 +256,62 @@ function fileExists() {
     return file != null;
 }
 
+function circleToRotatedRectOverlap(circleX, circleY, circleRadius, rectWidth, rectHeight, rectCenterX, rectCenterY, rectAngle) {
+    // function code adapted from http://www.migapro.com/circle-and-rotated-rectangle-collision-detection/
+    // Rotate circle's center point back
+    var rectX = rectCenterX - rectWidth/2;
+    var rectY = rectCenterY - rectHeight/2;
+    var unrotatedCircleX = Math.cos(rectAngle) * (circleX - rectCenterX) -
+        Math.sin(rectAngle) * (circleY - rectCenterY) + rectCenterX;
+    var unrotatedCircleY = Math.sin(rectAngle) * (circleX - rectCenterX) +
+        Math.cos(rectAngle) * (circleY - rectCenterY) + rectCenterY;
+
+    // Closest point in the rectangle to the center of circle rotated backwards(unrotated)
+    var closestX, closestY;
+
+    // Find the unrotated closest x point from center of unrotated circle
+    if (unrotatedCircleX < rectX) {
+        closestX = rectX;
+    } else if (unrotatedCircleX > rectX + rectWidth) {
+        closestX = rectX + rectWidth;
+    } else {
+        closestX = unrotatedCircleX;
+    }
+    // Find the unrotated closest y point from center of unrotated circle
+    if (unrotatedCircleY < rectY) {
+        closestY = rectY;
+    } else if (unrotatedCircleY > rectY + rectHeight) {
+        closestY = rectY + rectHeight;
+    } else {
+        closestY = unrotatedCircleY;
+    }
+    // Determine collision
+    var distance = findDistance(unrotatedCircleX, unrotatedCircleY, closestX, closestY);
+    return distance < circleRadius;
+}
+
+function findDistance(fromX, fromY, toX, toY) {
+    var a = Math.abs(fromX - toX);
+    var b = Math.abs(fromY - toY);
+    return Math.sqrt((a * a) + (b * b));
+}
+
 function loadPlayerSpritesheets(scene) {
     scene.load.spritesheet('warrior_walking', './assets/warrior/warrior_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('warrior_idle', './assets/warrior/warrior_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
+    scene.load.spritesheet('warrior_basic', './assets/warrior/warrior_basic.png', { frameWidth: 80, frameHeight: 240, startFrame: 0, endFrame: 0 });
+
     scene.load.spritesheet('rogue_walking', './assets/rogue/rogue_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('rogue_idle', './assets/rogue/rogue_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
+    scene.load.spritesheet('rogue_basic', './assets/rogue/rogue_basic.png', { frameWidth: 80, frameHeight: 160, startFrame: 0, endFrame: 1 });
+    
     scene.load.spritesheet('mage_walking', './assets/mage/mage_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('mage_idle', './assets/mage/mage_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
+    scene.load.spritesheet('mage_basic', './assets/mage/mage_basic.png', { frameWidth: 80, frameHeight: 160, startFrame: 0, endFrame: 1 });
+    
     scene.load.spritesheet('necromancer_walking', './assets/necromancer/necromancer_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('necromancer_idle', './assets/necromancer/necromancer_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
+    scene.load.spritesheet('necromancer_basic', './assets/necromancer/necromancer_basic.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
 }
 
 function createPlayerAnimations() {
@@ -279,6 +328,11 @@ function createPlayerAnimations() {
         frames: activeScene.anims.generateFrameNumbers('warrior_idle', { start: 0, end: 0, first: 0 }),
         frameRate: 0,
     });
+    activeScene.anims.create({
+        key: 'warrior_basic',
+        frames: activeScene.anims.generateFrameNumbers('warrior_basic', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
+    });
 
     // Rogue Animations
     activeScene.anims.create({
@@ -290,6 +344,11 @@ function createPlayerAnimations() {
         key: 'rogue_idle',
         frames: activeScene.anims.generateFrameNumbers('rogue_idle', { start: 0, end: 0, first: 0 }),
         frameRate: 0,
+    });
+    activeScene.anims.create({
+        key: 'rogue_basic',
+        frames: activeScene.anims.generateFrameNumbers('rogue_basic', { start: 0, end: 1, first: 0 }),
+        frameRate: 4,
     });
 
     // Mage Animations
@@ -303,6 +362,11 @@ function createPlayerAnimations() {
         frames: activeScene.anims.generateFrameNumbers('mage_idle', { start: 0, end: 0, first: 0 }),
         frameRate: 0,
     });
+    activeScene.anims.create({
+        key: 'mage_basic',
+        frames: activeScene.anims.generateFrameNumbers('mage_basic', { start: 0, end: 1, first: 0 }),
+        frameRate: 4,
+    });
 
     // Necromancer Animations
     activeScene.anims.create({
@@ -314,6 +378,11 @@ function createPlayerAnimations() {
         key: 'necromancer_idle',
         frames: activeScene.anims.generateFrameNumbers('necromancer_idle', { start: 0, end: 0, first: 0 }),
         frameRate: 0,
+    });
+    activeScene.anims.create({
+        key: 'necromancer_basic',
+        frames: activeScene.anims.generateFrameNumbers('necromancer_basic', { start: 0, end: 1, first: 0 }),
+        frameRate: 4,
     });
 }
 

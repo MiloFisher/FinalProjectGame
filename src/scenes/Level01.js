@@ -5,7 +5,7 @@ class Level01 extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('player', 'assets/temp_player.png');
+        //this.load.image('player', 'assets/temp_player.png');
         this.load.image('zombie', 'assets/temp_zombie.png');
         this.load.image('pathNode', 'assets/pathNode.png');
 
@@ -68,6 +68,8 @@ class Level01 extends Phaser.Scene {
         // Collisions
         addTriangles();
         this.physics.add.collider(player, layer, () => {}, diagonalCollision);
+        this.physics.add.overlap(playerAttacks, enemies, () => {});
+        this.physics.add.overlap(enemyAttacks, player, () => {});
 
         this.keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.started = true;
@@ -80,6 +82,16 @@ class Level01 extends Phaser.Scene {
             enemies.forEach(e => {
                 e.update();
             });
+
+            // Check Collisions
+            for(var i = 0; i < playerAttacks.length; i++) {
+                for (var j = 0; j < playerAttacks[i].targets.length; j++) {
+                    if (circleToRotatedRectOverlap(playerAttacks[i].targets[j].x, playerAttacks[i].targets[j].y, playerAttacks[i].targets[j].body.radius, playerAttacks[i].width, playerAttacks[i].height, playerAttacks[i].x, playerAttacks[i].y, playerAttacks[i].angle)) {
+                        playerAttacks[i].targets[j].takeDamage(playerAttacks[i].damage);
+                        playerAttacks[i].targets.splice(j,1);
+                    }
+                }
+            }
         }
     }
 }

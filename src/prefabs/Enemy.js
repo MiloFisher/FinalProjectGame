@@ -1,16 +1,46 @@
 class Enemy extends Phaser.Physics.Arcade.Sprite {
-    constructor(x, y, texture, colliderRadius, movementSpeed, target, key) {
+    constructor(x, y, texture, colliderRadius, health, movementSpeed, target, key, hitColor) {
         super(activeScene, x, y, texture);
         // Enemy Configuration
         activeScene.add.existing(this);
         activeScene.physics.add.existing(this);
         this.setCircle(colliderRadius);
+        this.setInteractive();
+        this.health = health;
+        this.maxHealth = health;
         this.movementSpeed = movementSpeed;
         this.target = target;
         this.targetNode = null;
         this.adjacent = false;
         this.movingToNode = false;
         this.key = key;
+        this.takingDamage = false;
+        this.hitColor = hitColor;
+    }
+
+    takeDamage(damage) {
+        this.takingDamage = true;
+        this.setTint(this.hitColor, this.hitColor, this.hitColor, this.hitColor);
+        this.tint = this.hitColor;
+        this.health -= damage;
+        if (this.health <= 0) {
+            this.die();
+        }
+        activeScene.time.delayedCall(250, () => {
+            if(this) {
+                this.clearTint();
+                this.takingDamage = false;
+            }
+        }, null, activeScene);
+    }
+
+    die() {
+        for(var i = 0; i < enemies.length; i++) {
+            if(enemies[i] == this) {
+                enemies.splice(i,1);
+                this.destroy();
+            }
+        }
     }
 
     lookAt(target) {
