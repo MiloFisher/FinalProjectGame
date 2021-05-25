@@ -8,6 +8,8 @@ class Level01 extends Phaser.Scene {
         //this.load.image('player', 'assets/temp_player.png');
         this.load.image('zombie', 'assets/temp_zombie.png');
         this.load.image('pathNode', 'assets/pathNode.png');
+        this.load.image('arrow', 'assets/rogue/projectile_arrow.png');
+
 
         this.load.tilemapTiledJSON('map', 'assets/temp_tilemap.json');
         this.load.image('tiles', 'assets/temp_tilegrid.png');
@@ -56,7 +58,12 @@ class Level01 extends Phaser.Scene {
         createSounds();
 
         // Create Player
-        player = new Player(600,380, playerClass + '_idle', 40);
+        switch(playerClass) {
+            case 'warrior': player = new Warrior(600, 380, playerClass + '_idle', 40); break;
+            case 'rogue': player = new Rogue(600, 380, playerClass + '_idle', 40); break;
+            case 'mage': player = new Mage(600, 380, playerClass + '_idle', 40); break;
+            case 'necromancer': player = new Necromancer(600, 380, playerClass + '_idle', 40); break;
+        }
         this.cameras.main.setBounds(0,0,2400,1440);
         this.cameras.main.startFollow(player);
 
@@ -82,15 +89,36 @@ class Level01 extends Phaser.Scene {
             enemies.forEach(e => {
                 e.update();
             });
+            projectiles.forEach(p => {
+                p.update();
+            });
 
             // Check Collisions
             for(var i = 0; i < playerAttacks.length; i++) {
                 for (var j = 0; j < playerAttacks[i].targets.length; j++) {
-                    if (circleToRotatedRectOverlap(playerAttacks[i].targets[j].x, playerAttacks[i].targets[j].y, playerAttacks[i].targets[j].body.radius, playerAttacks[i].width, playerAttacks[i].height, playerAttacks[i].x, playerAttacks[i].y, playerAttacks[i].angle)) {
+                    if (playerAttacks[i].targets[j] != undefined && circleToRotatedRectOverlap(playerAttacks[i].targets[j].x, playerAttacks[i].targets[j].y, playerAttacks[i].targets[j].body.radius, playerAttacks[i].width, playerAttacks[i].height, playerAttacks[i].x, playerAttacks[i].y, playerAttacks[i].angle)) {
                         playerAttacks[i].targets[j].takeDamage(playerAttacks[i].damage);
                         playerAttacks[i].targets.splice(j,1);
                     }
                 }
+            }
+            for(var i = 0; i < projectiles.length; i++) {
+                if(projectileTerrainCollision(projectiles[i])) {
+                    var _projectile = projectiles[i];
+                    projectiles.splice(i, 1);
+                    for (var j = 0; j < playerAttacks.length; j++) {
+                        if (playerAttacks[j] == _projectile) {
+                            playerAttacks.splice(j, 1);
+                            break;
+                        }
+                    }
+                    _projectile.sprite.destroy();
+                    _projectile.destroy();
+                }
+            }
+
+            if (Phaser.Input.Keyboard.JustDown(this.keySpace)) {
+                console.log(playerAttacks.length,  projectiles.length);
             }
         }
     }

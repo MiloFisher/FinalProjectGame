@@ -82,29 +82,29 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     lookDirection(h,v) {
         if(h == 0 && v == 0) { // Not Moving
             return;
-        } else if (h == 0 && v == 1) { // Moving Up
-            this.angle = 180;
+        } else if (h == 0 && v == -1) { // Moving Up
+            this.angle = 0;
             this.direction = 0;
-        } else if (h == 1 && v == 1) { // Moving Up, Right
-            this.angle = 135;
+        } else if (h == 1 && v == -1) { // Moving Up, Right
+            this.angle = 45;
             this.direction = 1;
         } else if (h == 1 && v == 0) { // Moving Right
             this.angle = 90;
             this.direction = 2;
-        } else if (h == 1 && v == -1) { // Moving Right, Down
-            this.angle = 45;
+        } else if (h == 1 && v == 1) { // Moving Right, Down
+            this.angle = 135;
             this.direction = 3;
-        } else if (h == 0 && v == -1) { // Moving Down
-            this.angle = 0;
+        } else if (h == 0 && v == 1) { // Moving Down
+            this.angle = 180;
             this.direction = 4;
-        } else if (h == -1 && v == -1) { // Moving Down, Left
-            this.angle = 315;
+        } else if (h == -1 && v == 1) { // Moving Down, Left
+            this.angle = 225;
             this.direction = 5;
         } else if (h == -1 && v == 0) { // Moving Left
             this.angle = 270;
             this.direction = 6;
-        } else if (h == -1 && v == 1) { // Moving Left, Up
-            this.angle = 225;
+        } else if (h == -1 && v == -1) { // Moving Left, Up
+            this.angle = 315;
             this.direction = 7;
         }
     }
@@ -165,7 +165,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 case 'rogue':
                     this.setOffset(0, 40);
                     duration = 500;
-                    attack = new Attack(activeScene, this, this.direction, 40, 80, 5); 
+                    attack = new Projectile(activeScene, this, this.direction, 20, 20, 5, 4); 
+                    projectiles.push(attack);
                     break;
                 case 'mage': 
                     this.setOffset(0, 40);
@@ -183,7 +184,6 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             activeScene.time.delayedCall(duration, () => {
                 this.isAttacking = false;
                 this.lockMovement = false;
-                this.setScale(1);
                 for(var i = 0; i < playerAttacks.length; i++) {
                     if(playerAttacks[i] == attack) {
                         playerAttacks.splice(i,1);

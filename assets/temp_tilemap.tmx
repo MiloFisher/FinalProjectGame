@@ -14,6 +14,7 @@
   <tile id="1">
    <properties>
     <property name="corner" type="bool" value="false"/>
+    <property name="projectileCanCollide" type="bool" value="true"/>
     <property name="walkable" type="bool" value="false"/>
    </properties>
   </tile>

@@ -26,6 +26,7 @@ let activeSceneKey = null;          // holds the current scene's key
 let map = null;                     // holds current tilemap
 let playerAttacks = [];             // holds player's attack objects
 let enemyAttacks = [];              // holds enemies' attack objects
+let projectiles = [];               // holds all projectile objects
 
 // data for save file
 let saveName = 'saveData';          // holds name of saved data
@@ -256,6 +257,15 @@ function fileExists() {
     return file != null;
 }
 
+function projectileTerrainCollision(object) {
+    var borderForgiveness = 10;
+    if(object.x < 0 - borderForgiveness || object.x > activeScene.physics.world.bounds.width + borderForgiveness || object.y < 0 - borderForgiveness || object.y > activeScene.physics.world.bounds.height + borderForgiveness) {
+        return true;
+    }
+    var tile = map.getTileAtWorldXY(object.x, object.y);
+    return tile != null && tile.properties.projectileCanCollide;
+}
+
 function circleToRotatedRectOverlap(circleX, circleY, circleRadius, rectWidth, rectHeight, rectCenterX, rectCenterY, rectAngle) {
     // function code adapted from http://www.migapro.com/circle-and-rotated-rectangle-collision-detection/
     // Rotate circle's center point back
@@ -389,7 +399,7 @@ function createPlayerAnimations() {
 function createSounds() {
     activeScene.walkSound = activeScene.sound.add('walk', {
         rate: 1,
-        volume: 4,
+        volume: 2,
         loop: true
     });
 }

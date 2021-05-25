@@ -14,7 +14,7 @@ class Attack extends Phaser.GameObjects.Rectangle {
         }
         var x = caster.x + distX;
         var y = caster.y + distY;
-        super(scene, x, y, width, height, 0xff0000, 0);
+        super(scene, x, y, width, height, 0xff0000, .5);
         // Attack Configuration
         activeScene.add.existing(this);
         this.angle = direction * 45;
