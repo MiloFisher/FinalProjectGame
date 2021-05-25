@@ -8,8 +8,6 @@ class Level01 extends Phaser.Scene {
         //this.load.image('player', 'assets/temp_player.png');
         this.load.image('zombie', 'assets/temp_zombie.png');
         this.load.image('pathNode', 'assets/pathNode.png');
-        this.load.image('arrow', 'assets/rogue/projectile_arrow.png');
-
 
         this.load.tilemapTiledJSON('map', 'assets/temp_tilemap.json');
         this.load.image('tiles', 'assets/temp_tilegrid.png');
@@ -78,7 +76,6 @@ class Level01 extends Phaser.Scene {
         this.physics.add.overlap(playerAttacks, enemies, () => {});
         this.physics.add.overlap(enemyAttacks, player, () => {});
 
-        this.keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.started = true;
     }
 
@@ -95,10 +92,21 @@ class Level01 extends Phaser.Scene {
 
             // Check Collisions
             for(var i = 0; i < playerAttacks.length; i++) {
+                targetLoop:
                 for (var j = 0; j < playerAttacks[i].targets.length; j++) {
-                    if (playerAttacks[i].targets[j] != undefined && circleToRotatedRectOverlap(playerAttacks[i].targets[j].x, playerAttacks[i].targets[j].y, playerAttacks[i].targets[j].body.radius, playerAttacks[i].width, playerAttacks[i].height, playerAttacks[i].x, playerAttacks[i].y, playerAttacks[i].angle)) {
+                    if (playerAttacks[i].targets[j].body != undefined && circleToRotatedRectOverlap(playerAttacks[i].targets[j].x, playerAttacks[i].targets[j].y, playerAttacks[i].targets[j].body.radius, playerAttacks[i].width, playerAttacks[i].height, playerAttacks[i].x, playerAttacks[i].y, playerAttacks[i].angle)) {
                         playerAttacks[i].targets[j].takeDamage(playerAttacks[i].damage);
                         playerAttacks[i].targets.splice(j,1);
+                        for (var k = 0; k < projectiles.length; k++) {
+                            var _projectile = projectiles[k];
+                            if(playerAttacks[i] == _projectile) {
+                                playerAttacks.splice(i, 1);
+                                projectiles.splice(k, 1);
+                                _projectile.sprite.destroy();
+                                _projectile.destroy();
+                                break targetLoop;
+                            }
+                        }
                     }
                 }
             }
@@ -115,10 +123,6 @@ class Level01 extends Phaser.Scene {
                     _projectile.sprite.destroy();
                     _projectile.destroy();
                 }
-            }
-
-            if (Phaser.Input.Keyboard.JustDown(this.keySpace)) {
-                console.log(playerAttacks.length,  projectiles.length);
             }
         }
     }

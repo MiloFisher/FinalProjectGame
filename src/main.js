@@ -314,14 +314,17 @@ function loadPlayerSpritesheets(scene) {
     scene.load.spritesheet('rogue_walking', './assets/rogue/rogue_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('rogue_idle', './assets/rogue/rogue_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
     scene.load.spritesheet('rogue_basic', './assets/rogue/rogue_basic.png', { frameWidth: 80, frameHeight: 160, startFrame: 0, endFrame: 1 });
+    scene.load.image('arrow', 'assets/rogue/projectile_arrow.png');
     
     scene.load.spritesheet('mage_walking', './assets/mage/mage_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('mage_idle', './assets/mage/mage_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
     scene.load.spritesheet('mage_basic', './assets/mage/mage_basic.png', { frameWidth: 80, frameHeight: 160, startFrame: 0, endFrame: 1 });
+    scene.load.image('arcane_bolt', 'assets/mage/projectile_arcane.png');
     
     scene.load.spritesheet('necromancer_walking', './assets/necromancer/necromancer_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('necromancer_idle', './assets/necromancer/necromancer_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
     scene.load.spritesheet('necromancer_basic', './assets/necromancer/necromancer_basic.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
+    scene.load.image('void_bolt', 'assets/necromancer/projectile_void.png');
 }
 
 function createPlayerAnimations() {

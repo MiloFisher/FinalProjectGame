@@ -16,11 +16,10 @@ class Rogue extends Player {
             }
             this.isAttacking = true;
             player.anims.play(playerClass + '_basic', true);
-            var duration;
-            var attack;
             this.setOffset(0, 40);
-            duration = 500;
-            attack = new Projectile(activeScene, this, this.direction, 10, 20, 5, 8, 'arrow');
+            
+            var duration = 500;
+            var attack = new Projectile(activeScene, this, this.direction, 10, 20, 5, 8, 'arrow');
             projectiles.push(attack);
             playerAttacks.push(attack);
 
