@@ -1,6 +1,6 @@
 class Mage extends Player {
-    constructor(x, y, texture, colliderRadius) {
-        super(x, y, texture, colliderRadius);
+    constructor(x, y, texture, colliderRadius, health) {
+        super(x, y, texture, colliderRadius, health);
 
     }
 

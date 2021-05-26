@@ -16,6 +16,8 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.key = key;
         this.takingDamage = false;
         this.hitColor = hitColor;
+        this.isAttacking = false;
+        this.direction = 0;
     }
 
     takeDamage(damage) {
@@ -46,21 +48,29 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     lookAt(target) {
         var forgiveness = 20;
         if (Math.abs(this.x - target.x) < forgiveness && this.y < target.y) {
-            this.angle = 180; // look up
+            this.angle = 180;
+            this.direction = 4;
         } else if (Math.abs(this.x - target.x) < forgiveness && this.y > target.y) {
-            this.angle = 0; // look down
+            this.angle = 0; 
+            this.direction = 0;
         } else if (this.x > target.x && Math.abs(this.y - target.y) < forgiveness) {
-            this.angle = 270; // look right
+            this.angle = 270;
+            this.direction = 6;
         } else if (this.x < target.x && Math.abs(this.y - target.y) < forgiveness) {
-            this.angle = 90; // look left
+            this.angle = 90;
+            this.direction = 2;
         } else if (this.x > target.x && this.y < target.y) {
-            this.angle = 225; // look up, right
+            this.angle = 225; 
+            this.direction = 5;
         } else if (this.x > target.x && this.y > target.y) {
-            this.angle = 315; // look down, right
+            this.angle = 315;
+            this.direction = 7;
         } else if (this.x < target.x && this.y > target.y) {
-            this.angle = 45; // look down, left
+            this.angle = 45;
+            this.direction = 1;
         } else if (this.x < target.x && this.y < target.y) {
-            this.angle = 135; // look up, left
+            this.angle = 135; 
+            this.direction = 3;
         }
     }
 
@@ -80,6 +90,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 }
                 this.lookAt(target);
                 this.anims.play(this.key + '_idle', true);
+                this.attack();
                 return;
             } else if(this.adjacent){ // enemy is not in range of the target, but is still flagged as adjacent
                 this.adjacent = false;
@@ -164,34 +175,42 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             // move up
             this.angle = 0;
             this.setVelocity(0, this.movementSpeed * -1);
+            this.direction = 0;
         } else if (this.targetNode.x == startNode.x && this.targetNode.y > startNode.y) {
             // move down
             this.angle = 180;
             this.setVelocity(0, this.movementSpeed * 1);
+            this.direction = 4;
         } else if (this.targetNode.x > startNode.x && this.targetNode.y == startNode.y) {
             // move right
             this.angle = 90;
             this.setVelocity(this.movementSpeed * 1,0);
+            this.direction = 2;
         } else if (this.targetNode.x < startNode.x && this.targetNode.y == startNode.y) {
             // move left
             this.angle = 270;
             this.setVelocity(this.movementSpeed * -1, 0);
+            this.direction = 6;
         } else if (this.targetNode.x > startNode.x && this.targetNode.y < startNode.y) {
             // move up, right
             this.angle = 45;
             this.setVelocity(this.movementSpeed * diagonalSpeed, this.movementSpeed * -diagonalSpeed);
+            this.direction = 1;
         } else if (this.targetNode.x > startNode.x && this.targetNode.y > startNode.y) {
             // move down, right
             this.angle = 135;
             this.setVelocity(this.movementSpeed * diagonalSpeed, this.movementSpeed * diagonalSpeed);
+            this.direction = 3;
         } else if (this.targetNode.x < startNode.x && this.targetNode.y > startNode.y) {
             // move down, left
             this.angle = 225;
             this.setVelocity(this.movementSpeed * -diagonalSpeed, this.movementSpeed * diagonalSpeed);
+            this.direction = 5;
         } else if (this.targetNode.x < startNode.x && this.targetNode.y < startNode.y) {
             // move up, left
             this.angle = 315;
             this.setVelocity(this.movementSpeed * -diagonalSpeed, this.movementSpeed * -diagonalSpeed);
+            this.direction = 7;
         }
     }
 }

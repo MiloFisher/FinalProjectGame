@@ -14,11 +14,19 @@ class Attack extends Phaser.GameObjects.Rectangle {
         }
         var x = caster.x + distX;
         var y = caster.y + distY;
-        super(scene, x, y, width, height, 0xff0000, .5);
+        var a = 0;
+        if(enableHitboxes) {
+            a = .5;
+        }
+        super(scene, x, y, width, height, 0xff0000, a);
         // Attack Configuration
         activeScene.add.existing(this);
         this.angle = direction * 45;
         this.damage = damage;
-        this.targets = enemies.slice(0);
+        if(caster == player) {
+            this.targets = enemies.slice(0);
+        } else {
+            this.targets = [ player ];
+        }
     }
 }

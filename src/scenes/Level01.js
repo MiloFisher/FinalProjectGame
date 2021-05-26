@@ -57,10 +57,10 @@ class Level01 extends Phaser.Scene {
 
         // Create Player
         switch(playerClass) {
-            case 'warrior': player = new Warrior(600, 380, playerClass + '_idle', 40); break;
-            case 'rogue': player = new Rogue(600, 380, playerClass + '_idle', 40); break;
-            case 'mage': player = new Mage(600, 380, playerClass + '_idle', 40); break;
-            case 'necromancer': player = new Necromancer(600, 380, playerClass + '_idle', 40); break;
+            case 'warrior': player = new Warrior(600, 380, playerClass + '_idle', 40, 100); break;
+            case 'rogue': player = new Rogue(600, 380, playerClass + '_idle', 40, 100); break;
+            case 'mage': player = new Mage(600, 380, playerClass + '_idle', 40, 100); break;
+            case 'necromancer': player = new Necromancer(600, 380, playerClass + '_idle', 40, 100); break;
         }
         this.cameras.main.setBounds(0,0,2400,1440);
         this.cameras.main.startFollow(player);
@@ -73,13 +73,9 @@ class Level01 extends Phaser.Scene {
         // Collisions
         addTriangles();
         this.physics.add.collider(player, layer, () => {}, diagonalCollision);
-        this.physics.add.overlap(playerAttacks, enemies, () => {});
-        this.physics.add.overlap(enemyAttacks, player, () => {});
 
         // HUD
-        hud = this.add.sprite(600, 0, 'hud').setOrigin(0.5).setScrollFactor(0);
-        hud.y = 630 + (hud.height - hud.height * hudScale) / 2;
-        hud.setScale(hudScale);
+        createHUD();
 
         this.started = true;
     }
@@ -115,6 +111,25 @@ class Level01 extends Phaser.Scene {
                     }
                 }
             }
+            for (var i = 0; i < enemyAttacks.length; i++) {
+                targetLoop:
+                for (var j = 0; j < enemyAttacks[i].targets.length; j++) {
+                    if (enemyAttacks[i].targets[j].body != undefined && circleToRotatedRectOverlap(enemyAttacks[i].targets[j].x, enemyAttacks[i].targets[j].y, enemyAttacks[i].targets[j].body.radius, enemyAttacks[i].width, enemyAttacks[i].height, enemyAttacks[i].x, enemyAttacks[i].y, enemyAttacks[i].angle)) {
+                        enemyAttacks[i].targets[j].takeDamage(enemyAttacks[i].damage);
+                        enemyAttacks[i].targets.splice(j, 1);
+                        for (var k = 0; k < projectiles.length; k++) {
+                            var _projectile = projectiles[k];
+                            if (enemyAttacks[i] == _projectile) {
+                                enemyAttacks.splice(i, 1);
+                                projectiles.splice(k, 1);
+                                _projectile.sprite.destroy();
+                                _projectile.destroy();
+                                break targetLoop;
+                            }
+                        }
+                    }
+                }
+            }
             for(var i = 0; i < projectiles.length; i++) {
                 if(projectileTerrainCollision(projectiles[i])) {
                     var _projectile = projectiles[i];
@@ -132,9 +147,13 @@ class Level01 extends Phaser.Scene {
             var circle = new Phaser.Geom.Circle(player.x, player.y, player.body.radius);
             var rect = new Phaser.Geom.Rectangle(hud.x + this.cameras.main.worldView.x - hud.width * hudScale / 2, hud.y + this.cameras.main.worldView.y - hud.height * hudScale / 2, hud.width * hudScale, hud.height * hudScale);
             if (Phaser.Geom.Intersects.CircleToRectangle(circle, rect)) {
-                hud.alpha = .25;
+                hudComponents.forEach(h => {
+                    h.alpha = .25;
+                });
             } else {
-                hud.alpha = 1;
+                hudComponents.forEach(h => {
+                    h.alpha = 1;
+                });
             }
         }
     }

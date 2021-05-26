@@ -1,6 +1,6 @@
 class Warrior extends Player {
-    constructor(x, y, texture, colliderRadius) {
-        super(x, y, texture, colliderRadius);
+    constructor(x, y, texture, colliderRadius, health) {
+        super(x, y, texture, colliderRadius, health);
 
     }
 
@@ -14,13 +14,11 @@ class Warrior extends Player {
             }
             this.isAttacking = true;
             player.anims.play(playerClass + '_basic', true);
-            var duration;
-            var attack;
             this.setVelocity(0, 0);
             this.setOffset(0, 80);
             this.lockMovement = true;
-            duration = 250;
-            attack = new Attack(activeScene, this, this.direction, 40, 80, 5);
+            var duration = 250;
+            var attack = new Attack(activeScene, this, this.direction, 40, 80, 5);
             playerAttacks.push(attack);
 
             // On Attack stop

@@ -1,6 +1,6 @@
 class Rogue extends Player {
-    constructor(x, y, texture, colliderRadius) {
-        super(x, y, texture, colliderRadius);
+    constructor(x, y, texture, colliderRadius, health) {
+        super(x, y, texture, colliderRadius, health);
 
     }
 
@@ -17,7 +17,7 @@ class Rogue extends Player {
             this.isAttacking = true;
             player.anims.play(playerClass + '_basic', true);
             this.setOffset(0, 40);
-            
+
             var duration = 500;
             var attack = new Projectile(activeScene, this, this.direction, 10, 20, 5, 8, 'arrow');
             projectiles.push(attack);

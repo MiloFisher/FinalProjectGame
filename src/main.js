@@ -5,7 +5,7 @@ let config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: true
+            debug: false
         }
     },
     scene: [Menu, NewGame, Settings, Credits, Level01 ]
@@ -15,8 +15,11 @@ let game = new Phaser.Game(config);
 // global variables
 let playerSpeed = 300;              // how fast the player will move
 let diagonalSpeed = .71;            // multiplier for how fast entities move diagonally
-let hud;                            // holds HUD overlay
+let hud;                            // holds HUD background
+let hudComponents = [];             // holds all components of HUD
 let hudScale = .75;                 // scale of HUD overlay
+let healthBar;                      // holds health bar object
+let hudIcons = [];                  // holds icons on HUD
 let pathNodes = [[]];               // holds path nodes for enemy pathfinding
 let triangles = [[]];               // holds triangles for diagonal collision
 let player;                         // holds player
@@ -29,6 +32,7 @@ let map = null;                     // holds current tilemap
 let playerAttacks = [];             // holds player's attack objects
 let enemyAttacks = [];              // holds enemies' attack objects
 let projectiles = [];               // holds all projectile objects
+let enableHitboxes = true;          // controls if attack hitboxes are shown
 
 // data for save file
 let saveName = 'saveData';          // holds name of saved data
@@ -227,7 +231,7 @@ function spawnZombie(x, y, target) {
 }
 
 function spawnSlime(x, y, target) {
-    var e = new Slime(x, y, 'slime_idle', 40, 20, 200, target);
+    var e = new Slime(x, y, 'slime_idle', 40, 20, 150, target);
     snapToNode(e);
     enemies.push(e);
 }
@@ -409,4 +413,39 @@ function createSounds() {
         volume: 2,
         loop: true
     });
+}
+
+function createHUD() {
+    hud = activeScene.add.sprite(600, 0, 'hud').setOrigin(0.5).setScrollFactor(0);
+    hud.y = 630 + (hud.height - hud.height * hudScale) / 2;
+    hud.setScale(hudScale);
+    hudComponents.push(hud);
+    var fontSize = 40;
+    var cellY = hud.y + (hud.height * hudScale) / 6;
+    var cellX = [];
+    for(var i = 0; i < 6; i++) {
+        cellX.push(hud.x + (-2 + 0.8 * i) * (hud.width * hudScale) / 6);
+    }
+    hudIcons.push(activeScene.add.sprite(cellX[0], cellY, 'bag_icon').setOrigin(0.5).setScrollFactor(0).setScale(hudScale));
+    hudIcons.push(activeScene.add.sprite(cellX[1], cellY, 'consumable_icon').setOrigin(0.5).setScrollFactor(0).setScale(hudScale));
+    for(var i = 0; i < 4; i++) {
+        hudIcons.push(activeScene.add.sprite(cellX[i+2], cellY, playerClass + '_icon_' + i).setOrigin(0.5).setScrollFactor(0).setScale(hudScale));
+    }
+    for(var i = 0; i < hudIcons.length; i++) {
+        hudComponents.push(hudIcons[i]);
+    }
+    hudComponents.push(activeScene.add.text(cellX[0], cellY, 'E', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff" }).setOrigin(0.5).setScrollFactor(0));
+    hudComponents.push(activeScene.add.text(cellX[1], cellY, 'C', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff" }).setOrigin(0.5).setScrollFactor(0));
+    hudComponents.push(activeScene.add.text(cellX[2], cellY, '1', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff" }).setOrigin(0.5).setScrollFactor(0));
+    hudComponents.push(activeScene.add.text(cellX[3], cellY, '2', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff" }).setOrigin(0.5).setScrollFactor(0));
+    hudComponents.push(activeScene.add.text(cellX[4], cellY, '3', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff" }).setOrigin(0.5).setScrollFactor(0));
+    hudComponents.push(activeScene.add.text(cellX[5], cellY, '4', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff" }).setOrigin(0.5).setScrollFactor(0));
+    healthBar = activeScene.add.rectangle(hud.x, hud.y - (hud.height * hudScale) * 0.37, 550 * hudScale, 32 * hudScale, 0xff0000, 1).setOrigin(0.5).setScrollFactor(0);
+    hudComponents.push(healthBar);
+}
+
+function updateHealthBar() {
+    var percent = player.health / player.maxHealth;
+    healthBar.setSize(550 * hudScale * percent,32 * hudScale);
+    healthBar.x = hud.x + ((550 * hudScale) - (550 * hudScale * percent));
 }

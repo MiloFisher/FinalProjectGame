@@ -1,5 +1,5 @@
 class Player extends Phaser.Physics.Arcade.Sprite {
-    constructor(x, y, texture, colliderRadius) {
+    constructor(x, y, texture, colliderRadius, health) {
         super(activeScene, x, y, texture);
         // Player Configuration
         activeScene.add.existing(this);
@@ -10,6 +10,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.isAttacking = false;
         this.direction = 0;
         this.lockMovement = false;
+        this.hitColor = 0xff0000;
+        this.health = health;
+        this.maxHealth = health;
 
         // Player Input
         keyW = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -142,55 +145,24 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    basicAttack(pointer,gameObject) {
-        if(!this.isAttacking) {
-            // On Attack start
-            if(gameObject == undefined) {
-                this.lookAt(activeScene.cameras.main.worldView.x + pointer.x, activeScene.cameras.main.worldView.y + pointer.y);
-            } else {
-                this.lookAt(gameObject.x, gameObject.y);
-            }
-            this.isAttacking = true;
-            player.anims.play(playerClass + '_basic', true);
-            var duration;
-            var attack;
-            switch(playerClass) {
-                case 'warrior': 
-                    this.setVelocity(0, 0);
-                    this.setOffset(0, 80);
-                    this.lockMovement = true;
-                    duration = 250;
-                    attack = new Attack(activeScene, this, this.direction, 40, 80, 5);
-                    break;
-                case 'rogue':
-                    this.setOffset(0, 40);
-                    duration = 500;
-                    attack = new Projectile(activeScene, this, this.direction, 20, 20, 5, 4); 
-                    projectiles.push(attack);
-                    break;
-                case 'mage': 
-                    this.setOffset(0, 40);
-                    duration = 500;
-                    attack = new Attack(activeScene, this, this.direction, 40, 80, 5);
-                    break;
-                case 'necromancer':
-                    duration = 500;
-                    attack = new Attack(activeScene, this, this.direction, 40, 80, 5);
-                    break;
-            }
-            playerAttacks.push(attack);
-
-            // On Attack stop
-            activeScene.time.delayedCall(duration, () => {
-                this.isAttacking = false;
-                this.lockMovement = false;
-                for(var i = 0; i < playerAttacks.length; i++) {
-                    if(playerAttacks[i] == attack) {
-                        playerAttacks.splice(i,1);
-                        attack.destroy();
-                    }
-                }
-            }, null, activeScene);
+    takeDamage(damage) {
+        this.takingDamage = true;
+        this.setTint(this.hitColor, this.hitColor, this.hitColor, this.hitColor);
+        this.tint = this.hitColor;
+        this.health -= damage;
+        updateHealthBar();
+        if (this.health <= 0) {
+            this.die();
         }
+        activeScene.time.delayedCall(250, () => {
+            if (this) {
+                this.clearTint();
+                this.takingDamage = false;
+            }
+        }, null, activeScene);
+    }
+
+    die() {
+        console.log("game over");
     }
 }
