@@ -76,6 +76,11 @@ class Level01 extends Phaser.Scene {
         this.physics.add.overlap(playerAttacks, enemies, () => {});
         this.physics.add.overlap(enemyAttacks, player, () => {});
 
+        // HUD
+        hud = this.add.sprite(600, 0, 'hud').setOrigin(0.5).setScrollFactor(0);
+        hud.y = 630 + (hud.height - hud.height * hudScale) / 2;
+        hud.setScale(hudScale);
+
         this.started = true;
     }
 
@@ -123,6 +128,13 @@ class Level01 extends Phaser.Scene {
                     _projectile.sprite.destroy();
                     _projectile.destroy();
                 }
+            }
+            var circle = new Phaser.Geom.Circle(player.x, player.y, player.body.radius);
+            var rect = new Phaser.Geom.Rectangle(hud.x + this.cameras.main.worldView.x - hud.width * hudScale / 2, hud.y + this.cameras.main.worldView.y - hud.height * hudScale / 2, hud.width * hudScale, hud.height * hudScale);
+            if (Phaser.Geom.Intersects.CircleToRectangle(circle, rect)) {
+                hud.alpha = .25;
+            } else {
+                hud.alpha = 1;
             }
         }
     }

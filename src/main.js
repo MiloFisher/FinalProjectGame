@@ -5,7 +5,7 @@ let config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: false
+            debug: true
         }
     },
     scene: [Menu, NewGame, Settings, Credits, Level01 ]
@@ -15,6 +15,8 @@ let game = new Phaser.Game(config);
 // global variables
 let playerSpeed = 300;              // how fast the player will move
 let diagonalSpeed = .71;            // multiplier for how fast entities move diagonally
+let hud;                            // holds HUD overlay
+let hudScale = .75;                 // scale of HUD overlay
 let pathNodes = [[]];               // holds path nodes for enemy pathfinding
 let triangles = [[]];               // holds triangles for diagonal collision
 let player;                         // holds player
@@ -307,6 +309,8 @@ function findDistance(fromX, fromY, toX, toY) {
 }
 
 function loadPlayerSpritesheets(scene) {
+    scene.load.image('hud', 'assets/HUD.png');
+
     scene.load.spritesheet('warrior_walking', './assets/warrior/warrior_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('warrior_idle', './assets/warrior/warrior_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
     scene.load.spritesheet('warrior_basic', './assets/warrior/warrior_basic.png', { frameWidth: 80, frameHeight: 240, startFrame: 0, endFrame: 0 });
