@@ -6,6 +6,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         activeScene.physics.add.existing(this);
         this.body.collideWorldBounds = true;
         this.setCircle(colliderRadius);
+        this.depth = 1;
         this.movementSpeed = playerSpeed;
         this.isAttacking = false;
         this.direction = 0;
@@ -13,23 +14,150 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.hitColor = 0xff0000;
         this.health = health;
         this.maxHealth = health;
+        this.selectedAbility = -1;
+        this.displayHitArea;
+        this.cooldown0 = false;
+        this.cooldown1 = false;
+        this.cooldown2 = false;
+        this.cooldown3 = false;
 
         // Player Input
         keyW = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         keyA = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
         keyS = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         keyD = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+        keyE = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+        keyC = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
+        key1 = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
+        key2 = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
+        key3 = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
+        key4 = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
         activeScene.input.on('pointerdown', function (pointer) {
-            player.basicAttack(pointer);
+            switch(player.selectedAbility) {
+                case -1: player.basicAttack(pointer); break;
+                case 0: player.ability0(pointer); break;
+                case 1: player.ability1(pointer); break;
+                case 2: player.ability2(pointer); break;
+                case 3: player.ability3(pointer); break;
+            }
+            player.selectedAbility = -1;
+            if (player.displayHitArea != undefined) {
+                player.displayHitArea.destroy();
+            }
         }, activeScene);
         activeScene.input.on('gameobjectdown', (pointer, gameObject, event) => {
-            player.basicAttack(pointer, gameObject);
+            switch (player.selectedAbility) {
+                case -1: player.basicAttack(pointer, gameObject); break;
+                case 0: player.ability0(pointer, gameObject); break;
+                case 1: player.ability1(pointer, gameObject); break;
+                case 2: player.ability2(pointer, gameObject); break;
+                case 3: player.ability3(pointer, gameObject); break;
+            }
+            player.selectedAbility = -1;
+            if (player.displayHitArea != undefined) {
+                player.displayHitArea.destroy();
+            }
         });
     }
 
     update() {
         if(!this.lockMovement) {
             this.movement();
+        }
+        this.abilities();
+        this.displayHitAreas();
+    }
+
+    abilities() {
+        if (Phaser.Input.Keyboard.JustDown(key1)) {
+            switch(this.ability0Type()) {
+                case 'single_use':
+                    this.ability0();
+                    break;
+                case 'toggle_and_aim':
+                    if (this.selectedAbility == 0) {
+                        this.selectedAbility = -1;
+                    } else {
+                        this.selectedAbility = 0;
+                    }
+                    break;
+            }
+        }
+        if (Phaser.Input.Keyboard.JustDown(key2)) {
+            switch (this.ability1Type()) {
+                case 'single_use':
+                    this.ability1();
+                    break;
+                case 'toggle_and_aim':
+                    if (this.selectedAbility == 1) {
+                        this.selectedAbility = -1;
+                    } else {
+                        this.selectedAbility = 1;
+                    }
+                    break;
+            }
+        }
+        if (Phaser.Input.Keyboard.JustDown(key3)) {
+            switch (this.ability2Type()) {
+                case 'single_use':
+                    this.ability2();
+                    break;
+                case 'toggle_and_aim':
+                    if (this.selectedAbility == 2) {
+                        this.selectedAbility = -1;
+                    } else {
+                        this.selectedAbility = 2;
+                    }
+                    break;
+            }
+        }
+        if (Phaser.Input.Keyboard.JustDown(key4)) {
+            switch (this.ability3Type()) {
+                case 'single_use':
+                    this.ability3();
+                    break;
+                case 'toggle_and_aim':
+                    if (this.selectedAbility == 3) {
+                        this.selectedAbility = -1;
+                    } else {
+                        this.selectedAbility = 3;
+                    }
+                    break;
+            }
+        }
+    }
+
+    displayHitAreas() {
+        switch (this.selectedAbility) {
+            case -1:
+                if (this.displayHitArea != undefined) {
+                    this.displayHitArea.destroy();
+                }
+                break;
+            case 0:
+                if (this.displayHitArea != undefined) {
+                    this.displayHitArea.destroy();
+                }
+                this.displayHitArea = this.ability0DisplayHitArea();
+                break;
+            case 1:
+                if (this.displayHitArea != undefined) {
+                    this.displayHitArea.destroy();
+                }
+                this.displayHitArea = this.ability1DisplayHitArea();
+                break;
+            case 2:
+                if (this.displayHitArea != undefined) {
+                    this.displayHitArea.destroy();
+                }
+                this.displayHitArea = this.ability2DisplayHitArea();
+                break;
+            case 3:
+                if (this.displayHitArea != undefined) {
+                    this.displayHitArea.destroy();
+                }
+                this.displayHitArea = this.ability3DisplayHitArea();
+                break;
         }
     }
 
@@ -147,8 +275,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
     takeDamage(damage) {
         this.takingDamage = true;
-        this.setTint(this.hitColor, this.hitColor, this.hitColor, this.hitColor);
-        this.tint = this.hitColor;
+        if(!this.isAttacking) {
+            this.setTint(this.hitColor, this.hitColor, this.hitColor, this.hitColor);
+        } else {
+            this.clearTint();
+        }
         this.health -= damage;
         updateHealthBar();
         if (this.health <= 0) {
@@ -164,5 +295,43 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
     die() {
         console.log("game over");
+    }
+
+    displayHitAreaCircle(radius, distanceFromCaster) {
+        var distX = 0;
+        var distY = 0;
+        switch (this.direction) {
+            case 0: distX = 0; distY = -distanceFromCaster; break;
+            case 1: distX = Math.sqrt(2) / 2 * distanceFromCaster; distY = Math.sqrt(2) / 2 * -distanceFromCaster; break;
+            case 2: distX = distanceFromCaster; distY = 0; break;
+            case 3: distX = Math.sqrt(2) / 2 * distanceFromCaster; distY = Math.sqrt(2) / 2 * distanceFromCaster; break;
+            case 4: distX = 0; distY = distanceFromCaster; break;
+            case 5: distX = Math.sqrt(2) / 2 * -distanceFromCaster; distY = Math.sqrt(2) / 2 * distanceFromCaster; break;
+            case 6: distX = -distanceFromCaster; distY = 0; break;
+            case 7: distX = Math.sqrt(2) / 2 * -distanceFromCaster; distY = Math.sqrt(2) / 2 * -distanceFromCaster; break;
+        }
+        var x = this.x + distX;
+        var y = this.y + distY;
+        return activeScene.add.circle(x, y, radius, 0xff0000, .5);
+    }
+
+    displayHitAreaRectangle(width, height, distanceFromCaster) {
+        var distX = 0;
+        var distY = 0;
+        switch (this.direction) {
+            case 0: distX = 0; distY = -distanceFromCaster; break;
+            case 1: distX = Math.sqrt(2) / 2 * distanceFromCaster; distY = Math.sqrt(2) / 2 * -distanceFromCaster; break;
+            case 2: distX = distanceFromCaster; distY = 0; break;
+            case 3: distX = Math.sqrt(2) / 2 * distanceFromCaster; distY = Math.sqrt(2) / 2 * distanceFromCaster; break;
+            case 4: distX = 0; distY = distanceFromCaster; break;
+            case 5: distX = Math.sqrt(2) / 2 * -distanceFromCaster; distY = Math.sqrt(2) / 2 * distanceFromCaster; break;
+            case 6: distX = -distanceFromCaster; distY = 0; break;
+            case 7: distX = Math.sqrt(2) / 2 * -distanceFromCaster; distY = Math.sqrt(2) / 2 * -distanceFromCaster; break;
+        }
+        var x = this.x + distX;
+        var y = this.y + distY;
+        var rect = activeScene.add.rectangle(x, y, width, height, 0xff0000, .5);
+        rect.angle = this.direction * 45;
+        return rect;
     }
 }

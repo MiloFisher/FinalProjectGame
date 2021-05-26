@@ -15,10 +15,11 @@ class Necromancer extends Player {
                 }
             }
             this.isAttacking = true;
+            this.clearTint();
             player.anims.play(playerClass + '_basic', true);
 
             var duration = 500;
-            var attack = new Projectile(activeScene, this, this.direction, 20, 30, 5, 6, 'void_bolt');
+            var attack = new Projectile(activeScene, this, this.direction, 20, 30, 30, 5, 6, 'void_bolt');
             projectiles.push(attack);
             playerAttacks.push(attack);
 

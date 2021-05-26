@@ -1,6 +1,6 @@
 class Projectile extends Attack {
-    constructor(scene, caster, direction, width, height, damage, moveSpeed, texture) {
-        super(scene, caster, direction, width, height, damage);
+    constructor(scene, caster, direction, width, height, distanceFromCaster, damage, moveSpeed, texture) {
+        super(scene, caster, direction, width, height, distanceFromCaster, damage);
         // Projectile Configuration
         switch(direction) {
             case 0: this.h = 0; this.v = -moveSpeed; break;

@@ -28,7 +28,7 @@ class Slime extends Enemy {
             var attack;
             // Start Attack
             activeScene.time.delayedCall(duration/4, () => {
-                attack = new Attack(activeScene, this, this.direction, 20, 70, 5);
+                attack = new Attack(activeScene, this, this.direction, 140, 140, 0, 5);
                 enemyAttacks.push(attack);
             }, null, activeScene);
             // On Attack stop

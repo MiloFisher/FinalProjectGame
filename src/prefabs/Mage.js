@@ -15,11 +15,12 @@ class Mage extends Player {
                 }
             }
             this.isAttacking = true;
+            this.clearTint();
             player.anims.play(playerClass + '_basic', true);
             this.setOffset(0, 40);
 
             var duration = 500;
-            var attack = new Projectile(activeScene, this, this.direction, 20, 30, 5, 6, 'arcane_bolt');
+            var attack = new Projectile(activeScene, this, this.direction, 20, 30, 30, 5, 6, 'arcane_bolt');
             projectiles.push(attack);
             playerAttacks.push(attack);
 

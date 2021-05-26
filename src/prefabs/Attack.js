@@ -1,16 +1,16 @@
 class Attack extends Phaser.GameObjects.Rectangle {
-    constructor(scene, caster, direction, width, height, damage) {
+    constructor(scene, caster, direction, width, height, distanceFromCaster, damage) {
         var distX = 0;
         var distY = 0;
-        switch(direction) {
-            case 0: distX = 0; distY = -height; break;
-            case 1: distX = Math.sqrt(2) / 2 * height; distY = Math.sqrt(2) / 2 * -height; break;
-            case 2: distX = height; distY = 0; break;
-            case 3: distX = Math.sqrt(2) / 2 * height; distY = Math.sqrt(2) / 2 * height; break;
-            case 4: distX = 0; distY = height; break;
-            case 5: distX = Math.sqrt(2) / 2 * -height; distY = Math.sqrt(2) / 2 * height; break;
-            case 6: distX = -height; distY = 0; break;
-            case 7: distX = Math.sqrt(2) / 2 * -height; distY = Math.sqrt(2) / 2 * -height; break;
+        switch (direction) {
+            case 0: distX = 0; distY = -distanceFromCaster; break;
+            case 1: distX = Math.sqrt(2) / 2 * distanceFromCaster; distY = Math.sqrt(2) / 2 * -distanceFromCaster; break;
+            case 2: distX = distanceFromCaster; distY = 0; break;
+            case 3: distX = Math.sqrt(2) / 2 * distanceFromCaster; distY = Math.sqrt(2) / 2 * distanceFromCaster; break;
+            case 4: distX = 0; distY = distanceFromCaster; break;
+            case 5: distX = Math.sqrt(2) / 2 * -distanceFromCaster; distY = Math.sqrt(2) / 2 * distanceFromCaster; break;
+            case 6: distX = -distanceFromCaster; distY = 0; break;
+            case 7: distX = Math.sqrt(2) / 2 * -distanceFromCaster; distY = Math.sqrt(2) / 2 * -distanceFromCaster; break;
         }
         var x = caster.x + distX;
         var y = caster.y + distY;

@@ -40,7 +40,7 @@ let playerClass = 'warrior';        // holds player's class
 let secretUnlocked = true;         // hold if secret character has been unlocked
 
 // reserve keyboard vars
-let keyW, keyA, keyS, keyD, keyUP, keyLEFT, keyDOWN, keyRIGHT, keyENTER, keyESCAPE;
+let keyW, keyA, keyS, keyD, keyUP, keyLEFT, keyDOWN, keyRIGHT, keyENTER, keyESCAPE, keyE, keyC, key1, key2, key3, key4;
 
 // global functions
 function addTriangles() {
@@ -318,21 +318,38 @@ function loadPlayerSpritesheets(scene) {
     scene.load.spritesheet('warrior_walking', './assets/warrior/warrior_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('warrior_idle', './assets/warrior/warrior_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
     scene.load.spritesheet('warrior_basic', './assets/warrior/warrior_basic.png', { frameWidth: 80, frameHeight: 240, startFrame: 0, endFrame: 0 });
+    scene.load.spritesheet('warrior_ground_slam', './assets/warrior/warrior_ground_slam.png', { frameWidth: 160, frameHeight: 160, startFrame: 0, endFrame: 2 });
+    scene.load.image('warrior_icon_0', 'assets/skills/warrior/ground_slam_ability.png');
+    scene.load.image('warrior_icon_1', 'assets/skills/warrior/charge_ability.png');
+    scene.load.image('warrior_icon_2', 'assets/skills/warrior/whirlwind_ability.png');
+    scene.load.image('warrior_icon_3', 'assets/skills/warrior/battlecry_ability.png');
 
     scene.load.spritesheet('rogue_walking', './assets/rogue/rogue_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('rogue_idle', './assets/rogue/rogue_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
     scene.load.spritesheet('rogue_basic', './assets/rogue/rogue_basic.png', { frameWidth: 80, frameHeight: 160, startFrame: 0, endFrame: 1 });
     scene.load.image('arrow', 'assets/rogue/projectile_arrow.png');
+    scene.load.image('rogue_icon_0', 'assets/skills/rogue/backstab_ability.png');
+    scene.load.image('rogue_icon_1', 'assets/skills/rogue/lockpick_ability.png');
+    scene.load.image('rogue_icon_2', 'assets/skills/rogue/stealth_ability.png');
+    scene.load.image('rogue_icon_3', 'assets/skills/rogue/flurry_ability.png');
     
     scene.load.spritesheet('mage_walking', './assets/mage/mage_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('mage_idle', './assets/mage/mage_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
     scene.load.spritesheet('mage_basic', './assets/mage/mage_basic.png', { frameWidth: 80, frameHeight: 160, startFrame: 0, endFrame: 1 });
     scene.load.image('arcane_bolt', 'assets/mage/projectile_arcane.png');
+    scene.load.image('mage_icon_0', 'assets/skills/mage/fireball_ability.png');
+    scene.load.image('mage_icon_1', 'assets/skills/mage/lightning_ability.png');
+    scene.load.image('mage_icon_2', 'assets/skills/mage/freeze_ability.png');
+    scene.load.image('mage_icon_3', 'assets/skills/mage/meteor_ability.png');
     
     scene.load.spritesheet('necromancer_walking', './assets/necromancer/necromancer_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('necromancer_idle', './assets/necromancer/necromancer_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
     scene.load.spritesheet('necromancer_basic', './assets/necromancer/necromancer_basic.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.image('void_bolt', 'assets/necromancer/projectile_void.png');
+    scene.load.image('necromancer_icon_0', 'assets/skills/necromancer/drain_ability.png');
+    scene.load.image('necromancer_icon_1', 'assets/skills/necromancer/animate_dead_ability.png');
+    scene.load.image('necromancer_icon_2', 'assets/skills/necromancer/curse_ability.png');
+    scene.load.image('necromancer_icon_3', 'assets/skills/necromancer/fear_ability.png');
 }
 
 function createPlayerAnimations() {
@@ -353,6 +370,11 @@ function createPlayerAnimations() {
         key: 'warrior_basic',
         frames: activeScene.anims.generateFrameNumbers('warrior_basic', { start: 0, end: 0, first: 0 }),
         frameRate: 0,
+    });
+    activeScene.anims.create({
+        key: 'warrior_ground_slam',
+        frames: activeScene.anims.generateFrameNumbers('warrior_ground_slam', { start: 0, end: 2, first: 0 }),
+        frameRate: 4,
     });
 
     // Rogue Animations
@@ -421,7 +443,7 @@ function createHUD() {
     hud.setScale(hudScale);
     hudComponents.push(hud);
     var fontSize = 40;
-    var cellY = hud.y + (hud.height * hudScale) / 6;
+    var cellY = hud.y + (hud.height * hudScale) * .145;
     var cellX = [];
     for(var i = 0; i < 6; i++) {
         cellX.push(hud.x + (-2 + 0.8 * i) * (hud.width * hudScale) / 6);
@@ -434,18 +456,18 @@ function createHUD() {
     for(var i = 0; i < hudIcons.length; i++) {
         hudComponents.push(hudIcons[i]);
     }
-    hudComponents.push(activeScene.add.text(cellX[0], cellY, 'E', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff" }).setOrigin(0.5).setScrollFactor(0));
-    hudComponents.push(activeScene.add.text(cellX[1], cellY, 'C', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff" }).setOrigin(0.5).setScrollFactor(0));
-    hudComponents.push(activeScene.add.text(cellX[2], cellY, '1', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff" }).setOrigin(0.5).setScrollFactor(0));
-    hudComponents.push(activeScene.add.text(cellX[3], cellY, '2', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff" }).setOrigin(0.5).setScrollFactor(0));
-    hudComponents.push(activeScene.add.text(cellX[4], cellY, '3', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff" }).setOrigin(0.5).setScrollFactor(0));
-    hudComponents.push(activeScene.add.text(cellX[5], cellY, '4', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff" }).setOrigin(0.5).setScrollFactor(0));
-    healthBar = activeScene.add.rectangle(hud.x, hud.y - (hud.height * hudScale) * 0.37, 550 * hudScale, 32 * hudScale, 0xff0000, 1).setOrigin(0.5).setScrollFactor(0);
+    hudComponents.push(activeScene.add.text(cellX[0], cellY, 'E', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: fontSize * hudScale * .1 }).setOrigin(0.5).setScrollFactor(0));
+    hudComponents.push(activeScene.add.text(cellX[1], cellY, 'C', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: fontSize * hudScale * .1 }).setOrigin(0.5).setScrollFactor(0));
+    hudComponents.push(activeScene.add.text(cellX[2], cellY, '1', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: fontSize * hudScale * .1 }).setOrigin(0.5).setScrollFactor(0));
+    hudComponents.push(activeScene.add.text(cellX[3], cellY, '2', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: fontSize * hudScale * .1 }).setOrigin(0.5).setScrollFactor(0));
+    hudComponents.push(activeScene.add.text(cellX[4], cellY, '3', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: fontSize * hudScale * .1 }).setOrigin(0.5).setScrollFactor(0));
+    hudComponents.push(activeScene.add.text(cellX[5], cellY, '4', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: fontSize * hudScale * .1 }).setOrigin(0.5).setScrollFactor(0));
+    healthBar = activeScene.add.rectangle(hud.x, hud.y - (hud.height * hudScale) * 0.37, 548 * hudScale, 30 * hudScale, 0xff0000, 1).setOrigin(0.5).setScrollFactor(0);
     hudComponents.push(healthBar);
 }
 
 function updateHealthBar() {
     var percent = player.health / player.maxHealth;
-    healthBar.setSize(550 * hudScale * percent,32 * hudScale);
-    healthBar.x = hud.x + ((550 * hudScale) - (550 * hudScale * percent));
+    healthBar.setSize(548 * hudScale * percent,30 * hudScale);
+    healthBar.x = hud.x + ((548 * hudScale) - (548 * hudScale * percent));
 }
