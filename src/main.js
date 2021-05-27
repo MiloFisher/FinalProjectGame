@@ -491,7 +491,7 @@ function createSounds() {
     });
     activeScene.swordSwing = activeScene.sound.add('sword_swing', {
         rate: 1,
-        volume: 1,
+        volume: .75,
         loop: false
     });
     activeScene.groundSlam = activeScene.sound.add('ground_slam', {
@@ -511,7 +511,7 @@ function createSounds() {
     });
     activeScene.whirlwind = activeScene.sound.add('sword_swing', {
         rate: 2,
-        volume: 2,
+        volume: 1,
         loop: false
     });
     activeScene.battlecry = activeScene.sound.add('battlecry', {
