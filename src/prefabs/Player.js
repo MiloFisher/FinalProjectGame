@@ -79,6 +79,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             var type = this.ability0Type();
             if (type == 'single_use') {
                 this.ability0();
+                this.selectedAbility = -1;
             } else if (type == 'toggle_and_aim' && !this.cooldown0) {
                 if (this.selectedAbility == 0) {
                     this.selectedAbility = -1;
@@ -95,6 +96,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             var type = this.ability1Type();
             if (type == 'single_use') {
                 this.ability1();
+                this.selectedAbility = -1;
             } else if (type == 'toggle_and_aim' && !this.cooldown1) {
                 if (this.selectedAbility == 1) {
                     this.selectedAbility = -1;
@@ -111,6 +113,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             var type = this.ability2Type();
             if (type == 'single_use') {
                 this.ability2();
+                this.selectedAbility = -1;
             } else if (type == 'toggle_and_aim' && !this.cooldown2) {
                 if (this.selectedAbility == 2) {
                     this.selectedAbility = -1;
@@ -127,6 +130,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             var type = this.ability3Type();
             if (type == 'single_use') {
                 this.ability3();
+                this.selectedAbility = -1;
             } else if (type == 'toggle_and_aim' && !this.cooldown3) {
                 if (this.selectedAbility == 3) {
                     this.selectedAbility = -1;
@@ -365,7 +369,6 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             }
         }
         this.isAttacking = true;
-        this.clearTint();
         if (freezePlayer) {
             this.setVelocity(0, 0);
             this.lockMovement = true;

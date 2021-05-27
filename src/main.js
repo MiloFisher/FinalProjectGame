@@ -339,6 +339,7 @@ function loadPlayerSpritesheets(scene) {
     scene.load.spritesheet('warrior_basic', './assets/warrior/warrior_basic.png', { frameWidth: 80, frameHeight: 240, startFrame: 0, endFrame: 0 });
     scene.load.spritesheet('warrior_ground_slam', './assets/warrior/warrior_ground_slam.png', { frameWidth: 160, frameHeight: 160, startFrame: 0, endFrame: 2 });
     scene.load.spritesheet('warrior_charge', './assets/warrior/warrior_charge.png', { frameWidth: 160, frameHeight: 320, startFrame: 0, endFrame: 1 });
+    scene.load.spritesheet('warrior_whirlwind', './assets/warrior/warrior_whirlwind.png', { frameWidth: 80, frameHeight: 320, startFrame: 0, endFrame: 0 });
     scene.load.image('warrior_icon_0', 'assets/skills/warrior/ground_slam_ability.png');
     scene.load.image('warrior_icon_1', 'assets/skills/warrior/charge_ability.png');
     scene.load.image('warrior_icon_2', 'assets/skills/warrior/whirlwind_ability.png');
@@ -402,13 +403,23 @@ function createPlayerAnimations() {
         frameRate: 8,
     });
     activeScene.anims.create({
+        key: 'warrior_whirlwind',
+        frames: activeScene.anims.generateFrameNumbers('warrior_whirlwind', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
+    });
+    activeScene.anims.create({
         key: 'warrior_ability_0',
-        frames: activeScene.anims.generateFrameNumbers('warrior_ground_slam', { start: 0, end: 0, first: 0 }),
+        frames: activeScene.anims.generateFrameNumbers('warrior_ground_slam', { start: 0, end: 2, first: 2 }),
         frameRate: 0,
     });
     activeScene.anims.create({
         key: 'warrior_ability_1',
         frames: activeScene.anims.generateFrameNumbers('warrior_charge', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
+    });
+    activeScene.anims.create({
+        key: 'warrior_ability_2',
+        frames: activeScene.anims.generateFrameNumbers('warrior_whirlwind', { start: 0, end: 0, first: 0 }),
         frameRate: 0,
     });
 
@@ -464,11 +475,49 @@ function createPlayerAnimations() {
     });
 }
 
+function loadSounds(scene) {
+    scene.load.audio('walk', './assets/Running.mp3');
+    scene.load.audio('sword_swing', './assets/Warrior/SwordSwing.mp3');
+    scene.load.audio('thud', './assets/Warrior/Thud.mp3');
+    scene.load.audio('ground_slam', './assets/Warrior/GroundSlam.mp3');
+    scene.load.audio('battlecry', './assets/Warrior/Battlecry.mp3');
+}
+
 function createSounds() {
     activeScene.walkSound = activeScene.sound.add('walk', {
         rate: 1,
         volume: 2,
         loop: true
+    });
+    activeScene.swordSwing = activeScene.sound.add('sword_swing', {
+        rate: 1,
+        volume: 1,
+        loop: false
+    });
+    activeScene.groundSlam = activeScene.sound.add('ground_slam', {
+        rate: 1.5,
+        volume: .25,
+        loop: false
+    });
+    activeScene.charge = activeScene.sound.add('walk', {
+        rate: 2,
+        volume: 4,
+        loop: true
+    });
+    activeScene.thud = activeScene.sound.add('thud', {
+        rate: .25,
+        volume: 2,
+        loop: false
+    });
+    activeScene.whirlwind = activeScene.sound.add('sword_swing', {
+        rate: 2,
+        volume: 2,
+        loop: false
+    });
+    activeScene.battlecry = activeScene.sound.add('battlecry', {
+        rate: 2.5,
+        volume: .25,
+        loop: false
     });
 }
 

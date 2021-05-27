@@ -12,7 +12,8 @@ class Level01 extends Phaser.Scene {
         this.load.tilemapTiledJSON('map', 'assets/temp_tilemap.json');
         this.load.image('tiles', 'assets/temp_tilegrid.png');
 
-        this.load.audio('walk', './assets/Running.mp3');
+        // sounds
+        loadSounds(this);
 
         // sprite sheets
         loadPlayerSpritesheets(this);
