@@ -32,7 +32,7 @@ let map = null;                     // holds current tilemap
 let playerAttacks = [];             // holds player's attack objects
 let enemyAttacks = [];              // holds enemies' attack objects
 let projectiles = [];               // holds all projectile objects
-let enableHitboxes = true;          // controls if attack hitboxes are shown
+let enableHitboxes = false;          // controls if attack hitboxes are shown
 
 // data for save file
 let saveName = 'saveData';          // holds name of saved data
@@ -104,19 +104,38 @@ function separate(object, intersections, diagonal) {
     var v1 = new Phaser.Math.Vector2(midX, midY);
     
     var scale;
+    var mult1 = 0.00075;//0.000484;
+    var mult2 = 0.0005;//0.000337;
     if (object.body.velocity.x != 0 && object.body.velocity.y != 0) {
         if(diagonal) {
-            scale = .145;
+            if (Math.abs(object.body.velocity.x) > Math.abs(object.body.velocity.y)) {
+                scale = Math.abs(object.body.velocity.x * mult1 / diagonalSpeed);
+            } else {
+                scale = Math.abs(object.body.velocity.y * mult1 / diagonalSpeed);
+            }
         } else {
-            scale = .101;
+            if (Math.abs(object.body.velocity.x) > Math.abs(object.body.velocity.y)) {
+                scale = Math.abs(object.body.velocity.x * mult2 / diagonalSpeed);
+            } else {
+                scale = Math.abs(object.body.velocity.y * mult2 / diagonalSpeed);
+            }
         }
     } else {
         if (diagonal) {
-            scale = .101;
+            if (Math.abs(object.body.velocity.x) > Math.abs(object.body.velocity.y)) {
+                scale = Math.abs(object.body.velocity.x * mult2);
+            } else {
+                scale = Math.abs(object.body.velocity.y * mult2);
+            }
         } else {
-            scale = .145;
+            if (Math.abs(object.body.velocity.x) > Math.abs(object.body.velocity.y)) {
+                scale = Math.abs(object.body.velocity.x * mult1);
+            } else {
+                scale = Math.abs(object.body.velocity.y * mult1);
+            }
         }
     }
+
     var v2 = v1.scale(scale);
     object.body.position.subtract(v2);
 }
@@ -319,6 +338,7 @@ function loadPlayerSpritesheets(scene) {
     scene.load.spritesheet('warrior_idle', './assets/warrior/warrior_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
     scene.load.spritesheet('warrior_basic', './assets/warrior/warrior_basic.png', { frameWidth: 80, frameHeight: 240, startFrame: 0, endFrame: 0 });
     scene.load.spritesheet('warrior_ground_slam', './assets/warrior/warrior_ground_slam.png', { frameWidth: 160, frameHeight: 160, startFrame: 0, endFrame: 2 });
+    scene.load.spritesheet('warrior_charge', './assets/warrior/warrior_charge.png', { frameWidth: 160, frameHeight: 320, startFrame: 0, endFrame: 1 });
     scene.load.image('warrior_icon_0', 'assets/skills/warrior/ground_slam_ability.png');
     scene.load.image('warrior_icon_1', 'assets/skills/warrior/charge_ability.png');
     scene.load.image('warrior_icon_2', 'assets/skills/warrior/whirlwind_ability.png');
@@ -375,6 +395,21 @@ function createPlayerAnimations() {
         key: 'warrior_ground_slam',
         frames: activeScene.anims.generateFrameNumbers('warrior_ground_slam', { start: 0, end: 2, first: 0 }),
         frameRate: 4,
+    });
+    activeScene.anims.create({
+        key: 'warrior_charge',
+        frames: activeScene.anims.generateFrameNumbers('warrior_charge', { start: 0, end: 1, first: 0 }),
+        frameRate: 8,
+    });
+    activeScene.anims.create({
+        key: 'warrior_ability_0',
+        frames: activeScene.anims.generateFrameNumbers('warrior_ground_slam', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
+    });
+    activeScene.anims.create({
+        key: 'warrior_ability_1',
+        frames: activeScene.anims.generateFrameNumbers('warrior_charge', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
     });
 
     // Rogue Animations
@@ -464,6 +499,9 @@ function createHUD() {
     hudComponents.push(activeScene.add.text(cellX[5], cellY, '4', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: fontSize * hudScale * .1 }).setOrigin(0.5).setScrollFactor(0));
     healthBar = activeScene.add.rectangle(hud.x, hud.y - (hud.height * hudScale) * 0.37, 548 * hudScale, 30 * hudScale, 0xff0000, 1).setOrigin(0.5).setScrollFactor(0);
     hudComponents.push(healthBar);
+    for(var i = 0; i < hudComponents.length; i++) {
+        hudComponents[i].depth = 1;
+    }
 }
 
 function updateHealthBar() {

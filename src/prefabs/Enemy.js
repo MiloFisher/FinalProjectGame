@@ -17,23 +17,25 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.takingDamage = false;
         this.hitColor = hitColor;
         this.isAttacking = false;
+        this.invincible = false;
         this.direction = 0;
     }
 
     takeDamage(damage) {
-        this.takingDamage = true;
-        this.setTint(this.hitColor, this.hitColor, this.hitColor, this.hitColor);
-        this.tint = this.hitColor;
-        this.health -= damage;
-        if (this.health <= 0) {
-            this.die();
-        }
-        activeScene.time.delayedCall(250, () => {
-            if(this) {
-                this.clearTint();
-                this.takingDamage = false;
+        if(!this.invincible) {
+            this.takingDamage = true;
+            this.setTint(this.hitColor, this.hitColor, this.hitColor, this.hitColor);
+            this.health -= damage;
+            if (this.health <= 0) {
+                this.die();
             }
-        }, null, activeScene);
+            activeScene.time.delayedCall(250, () => {
+                if(this) {
+                    this.clearTint();
+                    this.takingDamage = false;
+                }
+            }, null, activeScene);
+        }
     }
 
     die() {

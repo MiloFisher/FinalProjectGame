@@ -4,6 +4,10 @@ class Rogue extends Player {
 
     }
 
+    classSpecial() {
+
+    }
+
     basicAttack(pointer, gameObject) {
         if (!this.isAttacking) {
             // On Attack start

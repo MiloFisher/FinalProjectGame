@@ -6,9 +6,10 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         activeScene.physics.add.existing(this);
         this.body.collideWorldBounds = true;
         this.setCircle(colliderRadius);
-        this.depth = 1;
+        this.depth = 2;
         this.movementSpeed = playerSpeed;
         this.isAttacking = false;
+        this.invincible = false;
         this.direction = 0;
         this.lockMovement = false;
         this.hitColor = 0xff0000;
@@ -43,6 +44,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             player.selectedAbility = -1;
             if (player.displayHitArea != undefined) {
                 player.displayHitArea.destroy();
+                player.displayHitArea = undefined;
             }
         }, activeScene);
         activeScene.input.on('gameobjectdown', (pointer, gameObject, event) => {
@@ -56,73 +58,85 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             player.selectedAbility = -1;
             if (player.displayHitArea != undefined) {
                 player.displayHitArea.destroy();
+                player.displayHitArea = undefined;
             }
         });
     }
 
     update() {
-        if(!this.lockMovement) {
+        if(!this.lockMovement && this.displayHitArea == undefined) {
             this.movement();
+        }else if(this.displayHitArea != undefined) {
+            this.lookAt(activeScene.cameras.main.worldView.x + game.input.mousePointer.x, activeScene.cameras.main.worldView.y + game.input.mousePointer.y);
         }
+        this.classSpecial();
         this.abilities();
         this.displayHitAreas();
     }
 
     abilities() {
         if (Phaser.Input.Keyboard.JustDown(key1)) {
-            switch(this.ability0Type()) {
-                case 'single_use':
-                    this.ability0();
-                    break;
-                case 'toggle_and_aim':
-                    if (this.selectedAbility == 0) {
-                        this.selectedAbility = -1;
-                    } else {
-                        this.selectedAbility = 0;
-                    }
-                    break;
+            var type = this.ability0Type();
+            if (type == 'single_use') {
+                this.ability0();
+            } else if (type == 'toggle_and_aim' && !this.cooldown0) {
+                if (this.selectedAbility == 0) {
+                    this.selectedAbility = -1;
+                } else {
+                    this.selectedAbility = 0;
+                    this.anims.play(playerClass + '_ability_0', false);
+                    this.ability0Offset();
+                    this.setVelocity(0);
+                    activeScene.walkSound.stop();
+                }
             }
         }
         if (Phaser.Input.Keyboard.JustDown(key2)) {
-            switch (this.ability1Type()) {
-                case 'single_use':
-                    this.ability1();
-                    break;
-                case 'toggle_and_aim':
-                    if (this.selectedAbility == 1) {
-                        this.selectedAbility = -1;
-                    } else {
-                        this.selectedAbility = 1;
-                    }
-                    break;
+            var type = this.ability1Type();
+            if (type == 'single_use') {
+                this.ability1();
+            } else if (type == 'toggle_and_aim' && !this.cooldown1) {
+                if (this.selectedAbility == 1) {
+                    this.selectedAbility = -1;
+                } else {
+                    this.selectedAbility = 1;
+                    this.anims.play(playerClass + '_ability_1', false);
+                    this.ability1Offset();
+                    this.setVelocity(0);
+                    activeScene.walkSound.stop();
+                }
             }
         }
         if (Phaser.Input.Keyboard.JustDown(key3)) {
-            switch (this.ability2Type()) {
-                case 'single_use':
-                    this.ability2();
-                    break;
-                case 'toggle_and_aim':
-                    if (this.selectedAbility == 2) {
-                        this.selectedAbility = -1;
-                    } else {
-                        this.selectedAbility = 2;
-                    }
-                    break;
+            var type = this.ability2Type();
+            if (type == 'single_use') {
+                this.ability2();
+            } else if (type == 'toggle_and_aim' && !this.cooldown2) {
+                if (this.selectedAbility == 2) {
+                    this.selectedAbility = -1;
+                } else {
+                    this.selectedAbility = 2;
+                    this.anims.play(playerClass + '_ability_2', false);
+                    this.ability2Offset();
+                    this.setVelocity(0);
+                    activeScene.walkSound.stop();
+                }
             }
         }
         if (Phaser.Input.Keyboard.JustDown(key4)) {
-            switch (this.ability3Type()) {
-                case 'single_use':
-                    this.ability3();
-                    break;
-                case 'toggle_and_aim':
-                    if (this.selectedAbility == 3) {
-                        this.selectedAbility = -1;
-                    } else {
-                        this.selectedAbility = 3;
-                    }
-                    break;
+            var type = this.ability3Type();
+            if (type == 'single_use') {
+                this.ability3();
+            } else if (type == 'toggle_and_aim' && !this.cooldown3) {
+                if (this.selectedAbility == 3) {
+                    this.selectedAbility = -1;
+                } else {
+                    this.selectedAbility = 3;
+                    this.anims.play(playerClass + '_ability_3', false);
+                    this.ability3Offset();
+                    this.setVelocity(0);
+                    activeScene.walkSound.stop();
+                }
             }
         }
     }
@@ -132,29 +146,34 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             case -1:
                 if (this.displayHitArea != undefined) {
                     this.displayHitArea.destroy();
+                    this.displayHitArea = undefined;
                 }
                 break;
             case 0:
                 if (this.displayHitArea != undefined) {
                     this.displayHitArea.destroy();
+                    this.displayHitArea = undefined;
                 }
                 this.displayHitArea = this.ability0DisplayHitArea();
                 break;
             case 1:
                 if (this.displayHitArea != undefined) {
                     this.displayHitArea.destroy();
+                    this.displayHitArea = undefined;
                 }
                 this.displayHitArea = this.ability1DisplayHitArea();
                 break;
             case 2:
                 if (this.displayHitArea != undefined) {
                     this.displayHitArea.destroy();
+                    this.displayHitArea = undefined;
                 }
                 this.displayHitArea = this.ability2DisplayHitArea();
                 break;
             case 3:
                 if (this.displayHitArea != undefined) {
                     this.displayHitArea.destroy();
+                    this.displayHitArea = undefined;
                 }
                 this.displayHitArea = this.ability3DisplayHitArea();
                 break;
@@ -274,23 +293,25 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     takeDamage(damage) {
-        this.takingDamage = true;
-        if(!this.isAttacking) {
-            this.setTint(this.hitColor, this.hitColor, this.hitColor, this.hitColor);
-        } else {
-            this.clearTint();
-        }
-        this.health -= damage;
-        updateHealthBar();
-        if (this.health <= 0) {
-            this.die();
-        }
-        activeScene.time.delayedCall(250, () => {
-            if (this) {
+        if (!this.invincible) {
+            this.takingDamage = true;
+            if(!this.isAttacking) {
+                this.setTint(this.hitColor, this.hitColor, this.hitColor, this.hitColor);
+            } else {
                 this.clearTint();
-                this.takingDamage = false;
             }
-        }, null, activeScene);
+            this.health -= damage;
+            updateHealthBar();
+            if (this.health <= 0) {
+                this.die();
+            }
+            activeScene.time.delayedCall(250, () => {
+                if (this) {
+                    this.clearTint();
+                    this.takingDamage = false;
+                }
+            }, null, activeScene);
+        }
     }
 
     die() {
@@ -333,5 +354,66 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         var rect = activeScene.add.rectangle(x, y, width, height, 0xff0000, .5);
         rect.angle = this.direction * 45;
         return rect;
+    }
+
+    setupAttack(pointer, gameObject, freezePlayer) {
+        if (pointer != undefined) {
+            if (gameObject == undefined) {
+                this.lookAt(activeScene.cameras.main.worldView.x + pointer.x, activeScene.cameras.main.worldView.y + pointer.y);
+            } else {
+                this.lookAt(gameObject.x, gameObject.y);
+            }
+        }
+        this.isAttacking = true;
+        this.clearTint();
+        if (freezePlayer) {
+            this.setVelocity(0, 0);
+            this.lockMovement = true;
+        }
+    }
+
+    endAttack(attack, duration) {
+        activeScene.time.delayedCall(duration, () => {
+            this.isAttacking = false;
+            this.lockMovement = false;
+            if (attack != null) {
+                for (var i = 0; i < playerAttacks.length; i++) {
+                    if (playerAttacks[i] == attack) {
+                        playerAttacks.splice(i, 1);
+                        attack.destroy();
+                    }
+                }
+            }
+        }, null, activeScene);
+    }
+
+    setCooldown(cooldown, abilityId) {
+        switch (abilityId) {
+            case 0: this.cooldown0 = true; break;
+            case 1: this.cooldown1 = true; break;
+            case 2: this.cooldown2 = true; break;
+            case 3: this.cooldown3 = true; break;
+        }
+
+        var cooldownSquare = activeScene.add.rectangle(hudIcons[abilityId + 2].x, hudIcons[abilityId + 2].y, hudIcons[abilityId + 2].width * hudScale, hudIcons[abilityId + 2].height * hudScale, 0xffffff, .5).setScrollFactor(0);
+        cooldownSquare.depth = 1;
+        activeScene.tweens.add({
+            targets: cooldownSquare,
+            y: hudIcons[abilityId + 2].y + hudIcons[abilityId + 2].height * hudScale / 2,
+            scaleY: 0,
+            duration: cooldown,
+            delay: 0
+        });
+
+        // On Cooldown over
+        activeScene.time.delayedCall(cooldown, () => {
+            switch (abilityId) {
+                case 0: this.cooldown0 = false; break;
+                case 1: this.cooldown1 = false; break;
+                case 2: this.cooldown2 = false; break;
+                case 3: this.cooldown3 = false; break;
+            }
+            cooldownSquare.destroy();
+        }, null, activeScene);
     }
 }
