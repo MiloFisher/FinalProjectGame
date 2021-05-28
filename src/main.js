@@ -477,10 +477,10 @@ function createPlayerAnimations() {
 
 function loadSounds(scene) {
     scene.load.audio('walk', './assets/Running.mp3');
-    scene.load.audio('sword_swing', './assets/Warrior/SwordSwing.mp3');
-    scene.load.audio('thud', './assets/Warrior/Thud.mp3');
-    scene.load.audio('ground_slam', './assets/Warrior/GroundSlam.mp3');
-    scene.load.audio('battlecry', './assets/Warrior/Battlecry.mp3');
+    scene.load.audio('sword_swing', './assets/SwordSwing.mp3');
+    scene.load.audio('thud', './assets/Thud.mp3');
+    scene.load.audio('ground_slam', './assets/GroundSlam.mp3');
+    scene.load.audio('battlecry', './assets/Battlecry.mp3');
 }
 
 function createSounds() {
