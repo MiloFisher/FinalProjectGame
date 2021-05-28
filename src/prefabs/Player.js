@@ -21,6 +21,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.cooldown1 = false;
         this.cooldown2 = false;
         this.cooldown3 = false;
+        this.stealth = false;
+        this.teleporting = false;
 
         // Player Input
         keyW = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -43,8 +45,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             }
             player.selectedAbility = -1;
             if (player.displayHitArea != undefined) {
-                player.displayHitArea.destroy();
-                player.displayHitArea = undefined;
+                player.destroyHitArea();
             }
         }, activeScene);
         activeScene.input.on('gameobjectdown', (pointer, gameObject, event) => {
@@ -57,8 +58,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             }
             player.selectedAbility = -1;
             if (player.displayHitArea != undefined) {
-                player.displayHitArea.destroy();
-                player.displayHitArea = undefined;
+                player.destroyHitArea();
             }
         });
     }
@@ -72,6 +72,13 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.classSpecial();
         this.abilities();
         this.displayHitAreas();
+    }
+
+    destroyHitArea() {
+        for(var i = 0; i < this.displayHitArea.length; i++) {
+            this.displayHitArea[i].destroy();
+        }
+        this.displayHitArea = undefined;
     }
 
     abilities() {
@@ -149,35 +156,30 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         switch (this.selectedAbility) {
             case -1:
                 if (this.displayHitArea != undefined) {
-                    this.displayHitArea.destroy();
-                    this.displayHitArea = undefined;
+                    this.destroyHitArea();
                 }
                 break;
             case 0:
                 if (this.displayHitArea != undefined) {
-                    this.displayHitArea.destroy();
-                    this.displayHitArea = undefined;
+                    this.destroyHitArea();
                 }
                 this.displayHitArea = this.ability0DisplayHitArea();
                 break;
             case 1:
                 if (this.displayHitArea != undefined) {
-                    this.displayHitArea.destroy();
-                    this.displayHitArea = undefined;
+                    this.destroyHitArea();
                 }
                 this.displayHitArea = this.ability1DisplayHitArea();
                 break;
             case 2:
                 if (this.displayHitArea != undefined) {
-                    this.displayHitArea.destroy();
-                    this.displayHitArea = undefined;
+                    this.destroyHitArea();
                 }
                 this.displayHitArea = this.ability2DisplayHitArea();
                 break;
             case 3:
                 if (this.displayHitArea != undefined) {
-                    this.displayHitArea.destroy();
-                    this.displayHitArea = undefined;
+                    this.destroyHitArea();
                 }
                 this.displayHitArea = this.ability3DisplayHitArea();
                 break;
@@ -340,10 +342,13 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         return activeScene.add.circle(x, y, radius, 0xff0000, .5);
     }
 
-    displayHitAreaRectangle(width, height, distanceFromCaster) {
+    displayHitAreaRectangle(width, height, distanceFromCaster, direction) {
         var distX = 0;
         var distY = 0;
-        switch (this.direction) {
+        if(direction == undefined) {
+            direction = this.direction;
+        }
+        switch (direction) {
             case 0: distX = 0; distY = -distanceFromCaster; break;
             case 1: distX = Math.sqrt(2) / 2 * distanceFromCaster; distY = Math.sqrt(2) / 2 * -distanceFromCaster; break;
             case 2: distX = distanceFromCaster; distY = 0; break;
@@ -356,12 +361,27 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         var x = this.x + distX;
         var y = this.y + distY;
         var rect = activeScene.add.rectangle(x, y, width, height, 0xff0000, .5);
-        rect.angle = this.direction * 45;
+        rect.angle = direction * 45;
         return rect;
     }
 
+    displayHitAreaEnemies(radius) {
+        var targets = [];
+        if (enemies.length > 0) {
+            for (var i = 0; i < enemies.length; i++) {
+                if (findDistance(enemies[i].x, enemies[i].y, this.x, this.y) < radius) {
+                    targets.push(activeScene.add.circle(enemies[i].x, enemies[i].y, enemies[i].body.radius, 0xff0000, .5));
+                }
+            }
+            return targets;
+        } else {
+            this.selectedAbility = -1;
+            return undefined;
+        }
+    }
+
     setupAttack(pointer, gameObject, freezePlayer) {
-        if (pointer != undefined) {
+        if (pointer != undefined && this.body.velocity.x == 0 && this.body.velocity.y == 0) {
             if (gameObject == undefined) {
                 this.lookAt(activeScene.cameras.main.worldView.x + pointer.x, activeScene.cameras.main.worldView.y + pointer.y);
             } else {
@@ -375,7 +395,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    endAttack(attack, duration) {
+    endAttack(attack, duration, sprite) {
         activeScene.time.delayedCall(duration, () => {
             this.isAttacking = false;
             this.lockMovement = false;
@@ -386,6 +406,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                         attack.destroy();
                     }
                 }
+            }
+            if(sprite != undefined) {
+                sprite.destroy();
             }
         }, null, activeScene);
     }

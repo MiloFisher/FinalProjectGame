@@ -19,6 +19,14 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.isAttacking = false;
         this.invincible = false;
         this.direction = 0;
+        this.stunned = false;
+    }
+
+    stun(duration) {
+        this.stunned = true;
+        activeScene.time.delayedCall(duration, () => {
+            this.stunned = false;
+        }, null, activeScene);
     }
 
     takeDamage(damage) {
@@ -92,7 +100,9 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 }
                 this.lookAt(target);
                 this.anims.play(this.key + '_idle', true);
-                this.attack();
+                if (!this.target.stealth && !this.stunned && !this.target.teleporting) { // target is stealth or this is stunned
+                    this.attack();
+                }
                 return;
             } else if(this.adjacent){ // enemy is not in range of the target, but is still flagged as adjacent
                 this.adjacent = false;
@@ -109,6 +119,10 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 this.anims.play(this.key + '_walking', true);
                 return;
             }
+        }
+        if (this.target.stealth || this.stunned) { // target is stealth or this is stunned
+            this.anims.play(this.key + '_idle', true);
+            return;
         }
         // step 2: instantiate variables
         var startNode = getNodeIn(this);

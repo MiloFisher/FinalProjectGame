@@ -83,7 +83,7 @@ class Warrior extends Player {
     ability0DisplayHitArea() {
         var radius = 65;
         var distanceFromCaster = 20;
-        return this.displayHitAreaCircle(radius,distanceFromCaster);
+        return [this.displayHitAreaCircle(radius,distanceFromCaster)];
     }
     ability0Type() {
         return 'single_use';
@@ -150,7 +150,7 @@ class Warrior extends Player {
         var width = 80;
         var height = 530;
         var distanceFromCaster = 265;
-        return this.displayHitAreaRectangle(width, height, distanceFromCaster);
+        return [this.displayHitAreaRectangle(width, height, distanceFromCaster)];
     }
     ability1Type() {
         return 'toggle_and_aim';
@@ -219,7 +219,7 @@ class Warrior extends Player {
     ability2DisplayHitArea() {
         var radius = 135;
         var distanceFromCaster = 0;
-        return this.displayHitAreaCircle(radius, distanceFromCaster);
+        return [this.displayHitAreaCircle(radius, distanceFromCaster)];
     }
     ability2Type() {
         return 'single_use';
@@ -254,7 +254,7 @@ class Warrior extends Player {
     ability3DisplayHitArea() {
         var radius = 40;
         var distanceFromCaster = 0;
-        return this.displayHitAreaCircle(radius, distanceFromCaster);
+        return [this.displayHitAreaCircle(radius, distanceFromCaster)];
     }
     ability3Type() {
         return 'single_use';

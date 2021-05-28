@@ -348,7 +348,11 @@ function loadPlayerSpritesheets(scene) {
     scene.load.spritesheet('rogue_walking', './assets/rogue/rogue_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('rogue_idle', './assets/rogue/rogue_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
     scene.load.spritesheet('rogue_basic', './assets/rogue/rogue_basic.png', { frameWidth: 80, frameHeight: 160, startFrame: 0, endFrame: 1 });
+    scene.load.spritesheet('rogue_backstab', './assets/rogue/rogue_backstab.png', { frameWidth: 240, frameHeight: 160, startFrame: 0, endFrame: 0 });
+    scene.load.spritesheet('rogue_flurry', './assets/rogue/rogue_flurry.png', { frameWidth: 160, frameHeight: 80, startFrame: 0, endFrame: 0 });
     scene.load.image('arrow', 'assets/rogue/projectile_arrow.png');
+    scene.load.image('shuriken', 'assets/rogue/projectile_shuriken.png');
+    scene.load.image('slash', 'assets/rogue/effect_slash.png');
     scene.load.image('rogue_icon_0', 'assets/skills/rogue/backstab_ability.png');
     scene.load.image('rogue_icon_1', 'assets/skills/rogue/lockpick_ability.png');
     scene.load.image('rogue_icon_2', 'assets/skills/rogue/stealth_ability.png');
@@ -422,6 +426,11 @@ function createPlayerAnimations() {
         frames: activeScene.anims.generateFrameNumbers('warrior_whirlwind', { start: 0, end: 0, first: 0 }),
         frameRate: 0,
     });
+    activeScene.anims.create({
+        key: 'warrior_ability_3',
+        frames: activeScene.anims.generateFrameNumbers('warrior_idle', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
+    });
 
     // Rogue Animations
     activeScene.anims.create({
@@ -438,6 +447,36 @@ function createPlayerAnimations() {
         key: 'rogue_basic',
         frames: activeScene.anims.generateFrameNumbers('rogue_basic', { start: 0, end: 1, first: 0 }),
         frameRate: 4,
+    });
+    activeScene.anims.create({
+        key: 'rogue_backstab',
+        frames: activeScene.anims.generateFrameNumbers('rogue_backstab', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
+    });
+    activeScene.anims.create({
+        key: 'rogue_flurry',
+        frames: activeScene.anims.generateFrameNumbers('rogue_flurry', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
+    });
+    activeScene.anims.create({
+        key: 'rogue_ability_0',
+        frames: activeScene.anims.generateFrameNumbers('rogue_idle', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
+    });
+    activeScene.anims.create({
+        key: 'rogue_ability_1',
+        frames: activeScene.anims.generateFrameNumbers('rogue_idle', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
+    });
+    activeScene.anims.create({
+        key: 'rogue_ability_2',
+        frames: activeScene.anims.generateFrameNumbers('rogue_idle', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
+    });
+    activeScene.anims.create({
+        key: 'rogue_ability_3',
+        frames: activeScene.anims.generateFrameNumbers('rogue_flurry', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
     });
 
     // Mage Animations
@@ -481,6 +520,12 @@ function loadSounds(scene) {
     scene.load.audio('thud', './assets/Thud.mp3');
     scene.load.audio('ground_slam', './assets/GroundSlam.mp3');
     scene.load.audio('battlecry', './assets/Battlecry.mp3');
+
+    scene.load.audio('arrow_shot', './assets/ArrowShot.wav');
+    scene.load.audio('backstab', './assets/Backstab.mp3');
+    scene.load.audio('lockpick', './assets/Lockpick.mp3');
+    scene.load.audio('stealth', './assets/Stealth.mp3');
+    scene.load.audio('flurry', './assets/Flurry.mp3');
 }
 
 function createSounds() {
@@ -517,6 +562,31 @@ function createSounds() {
     activeScene.battlecry = activeScene.sound.add('battlecry', {
         rate: 2.5,
         volume: .25,
+        loop: false
+    });
+    activeScene.arrowShot = activeScene.sound.add('arrow_shot', {
+        rate: 1.5,
+        volume: .75,
+        loop: false
+    });
+    activeScene.backstab = activeScene.sound.add('backstab', {
+        rate: 1,
+        volume: 3,
+        loop: false
+    });
+    activeScene.lockpick = activeScene.sound.add('lockpick', {
+        rate: 1,
+        volume: 1,
+        loop: false
+    });
+    activeScene.stealth = activeScene.sound.add('stealth', {
+        rate: 2,
+        volume: .5,
+        loop: false
+    });
+    activeScene.flurry = activeScene.sound.add('flurry', {
+        rate: 1,
+        volume: .75,
         loop: false
     });
 }

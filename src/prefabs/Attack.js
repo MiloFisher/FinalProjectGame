@@ -1,5 +1,5 @@
 class Attack extends Phaser.GameObjects.Rectangle {
-    constructor(scene, caster, direction, width, height, distanceFromCaster, damage) {
+    constructor(scene, caster, direction, width, height, distanceFromCaster, damage, effect, duration) {
         var distX = 0;
         var distY = 0;
         switch (direction) {
@@ -27,6 +27,16 @@ class Attack extends Phaser.GameObjects.Rectangle {
             this.targets = enemies.slice(0);
         } else {
             this.targets = [ player ];
+        }
+        if(effect == undefined) {
+            this.effect = null;
+        } else {
+            this.effect = effect;
+        }
+        if (duration == undefined) {
+            this.duration = 500;
+        } else {
+            this.duration = duration;
         }
     }
 }

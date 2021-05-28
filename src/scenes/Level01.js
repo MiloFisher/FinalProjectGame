@@ -98,6 +98,9 @@ class Level01 extends Phaser.Scene {
                 for (var j = 0; j < playerAttacks[i].targets.length; j++) {
                     if (playerAttacks[i].targets[j].body != undefined && circleToRotatedRectOverlap(playerAttacks[i].targets[j].x, playerAttacks[i].targets[j].y, playerAttacks[i].targets[j].body.radius, playerAttacks[i].width, playerAttacks[i].height, playerAttacks[i].x, playerAttacks[i].y, playerAttacks[i].angle)) {
                         playerAttacks[i].targets[j].takeDamage(playerAttacks[i].damage);
+                        if(playerAttacks[i].effect == 'stun') {
+                            playerAttacks[i].targets[j].stun(playerAttacks[i].duration);
+                        }
                         playerAttacks[i].targets.splice(j,1);
                         for (var k = 0; k < projectiles.length; k++) {
                             var _projectile = projectiles[k];
