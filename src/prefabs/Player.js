@@ -82,7 +82,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     abilities() {
-        if (Phaser.Input.Keyboard.JustDown(key1)) {
+        if (Phaser.Input.Keyboard.JustDown(key1) && !this.isAttacking) {
             var type = this.ability0Type();
             if (type == 'single_use') {
                 this.ability0();
@@ -99,7 +99,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 }
             }
         }
-        if (Phaser.Input.Keyboard.JustDown(key2)) {
+        if (Phaser.Input.Keyboard.JustDown(key2) && !this.isAttacking) {
             var type = this.ability1Type();
             if (type == 'single_use') {
                 this.ability1();
@@ -116,7 +116,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 }
             }
         }
-        if (Phaser.Input.Keyboard.JustDown(key3)) {
+        if (Phaser.Input.Keyboard.JustDown(key3) && !this.isAttacking) {
             var type = this.ability2Type();
             if (type == 'single_use') {
                 this.ability2();
@@ -133,7 +133,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 }
             }
         }
-        if (Phaser.Input.Keyboard.JustDown(key4)) {
+        if (Phaser.Input.Keyboard.JustDown(key4) && !this.isAttacking) {
             var type = this.ability3Type();
             if (type == 'single_use') {
                 this.ability3();
