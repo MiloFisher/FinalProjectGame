@@ -475,7 +475,7 @@ function createPlayerAnimations() {
     });
     activeScene.anims.create({
         key: 'rogue_ability_3',
-        frames: activeScene.anims.generateFrameNumbers('rogue_flurry', { start: 0, end: 0, first: 0 }),
+        frames: activeScene.anims.generateFrameNumbers('rogue_idle', { start: 0, end: 0, first: 0 }),
         frameRate: 0,
     });
 

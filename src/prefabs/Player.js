@@ -373,6 +373,10 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                     targets.push(activeScene.add.circle(enemies[i].x, enemies[i].y, enemies[i].body.radius, 0xff0000, .5));
                 }
             }
+            if(targets.length == 0) {
+                this.selectedAbility = -1;
+                return undefined;
+            }
             return targets;
         } else {
             this.selectedAbility = -1;

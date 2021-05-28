@@ -219,7 +219,7 @@ class Rogue extends Player {
             // Call helper functions
             this.setupAttack(pointer, gameObject, true);
             this.setCooldown(cooldown, abilityId);
-            this.ability3Offset();
+            this.setOffset(40, 0);
 
             // Play attack animation
             activeScene.flurry.play();
@@ -238,7 +238,7 @@ class Rogue extends Player {
         }
     }
     ability3Offset() {
-        this.setOffset(40, 0);
+        this.setOffset(0, 0);
     }
     ability3DisplayHitArea() {
         var width = 20;
