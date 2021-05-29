@@ -10,7 +10,7 @@ class Level01 extends Phaser.Scene {
         this.load.image('pathNode', 'assets/pathNode.png');
 
         this.load.tilemapTiledJSON('map', 'assets/tilemap.json');
-        this.load.image('tiles', 'assets/tiles/tileset.png');
+        this.load.image('tiles', 'assets/tiles/stage_1_tileset.png');
 
         // sounds
         loadSounds(this);
