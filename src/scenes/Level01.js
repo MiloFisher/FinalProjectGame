@@ -9,8 +9,8 @@ class Level01 extends Phaser.Scene {
         this.load.image('zombie', 'assets/temp_zombie.png');
         this.load.image('pathNode', 'assets/pathNode.png');
 
-        this.load.tilemapTiledJSON('map', 'assets/temp_tilemap.json');
-        this.load.image('tiles', 'assets/temp_tilegrid.png');
+        this.load.tilemapTiledJSON('map', 'assets/tilemap.json');
+        this.load.image('tiles', 'assets/tiles/tileset.png');
 
         // sounds
         loadSounds(this);
@@ -34,7 +34,7 @@ class Level01 extends Phaser.Scene {
         // Create tile map
         map = this.make.tilemap({ key: 'map' });
         map.setCollisionByProperty({ walkable: false });
-        var tileset = map.addTilesetImage('temp_tilegrid','tiles');
+        var tileset = map.addTilesetImage('stage_1_tileset','tiles');
         var layer = map.createLayer('Tile Layer 1', tileset, 0, 0);
 
         // Generate Path
