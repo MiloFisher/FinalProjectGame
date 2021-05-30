@@ -1,5 +1,5 @@
 class Enemy extends Phaser.Physics.Arcade.Sprite {
-    constructor(x, y, texture, colliderRadius, health, movementSpeed, target, key, hitColor) {
+    constructor(x, y, texture, colliderRadius, health, movementSpeed, target, key, hitColor, sound) {
         super(activeScene, x, y, texture);
         // Enemy Configuration
         activeScene.add.existing(this);
@@ -16,10 +16,53 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.key = key;
         this.takingDamage = false;
         this.hitColor = hitColor;
+        this.sound = sound;
         this.isAttacking = false;
         this.invincible = false;
         this.direction = 0;
         this.stunned = false;
+        this.frozen = false;
+        this.frozenEffect;
+        this.lightningEffect;
+    }
+
+    update() {
+        this.pathfind(this.target);
+        this.effects();
+    }
+
+    effects() {
+        if (this.frozenEffect != undefined) {
+            this.frozenEffect.x = this.x;
+            this.frozenEffect.y = this.y;
+        }
+        if (this.lightningEffect != undefined) {
+            this.lightningEffect.x = this.x;
+            this.lightningEffect.y = this.y - 55;
+        }
+    }
+
+    lightning(duration) {
+        this.lightningEffect = new Phaser.GameObjects.Sprite(activeScene, this.x, this.y - 55, 'lightning')
+        activeScene.add.existing(this.lightningEffect);
+
+        this.stun(duration * 4);
+
+        activeScene.time.delayedCall(duration, () => {
+            this.lightningEffect.destroy();
+        }, null, activeScene);
+    }
+
+    freeze(duration) {
+        this.frozen = true;
+        this.frozenEffect = new Phaser.GameObjects.Sprite(activeScene, this.x, this.y, 'frozen');
+        this.frozenEffect.alpha = .75;
+        activeScene.add.existing(this.frozenEffect);
+
+        activeScene.time.delayedCall(duration, () => {
+            this.frozen = false;
+            this.frozenEffect.destroy();
+        }, null, activeScene);
     }
 
     stun(duration) {
@@ -31,6 +74,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     takeDamage(damage) {
         if(!this.invincible) {
+            this.sound.play();
             this.takingDamage = true;
             this.setTint(this.hitColor, this.hitColor, this.hitColor, this.hitColor);
             this.health -= damage;
@@ -50,6 +94,9 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         for(var i = 0; i < enemies.length; i++) {
             if(enemies[i] == this) {
                 enemies.splice(i,1);
+                if (this.statusEffect != undefined) {
+                    this.statusEffect.destroy();
+                }
                 this.destroy();
             }
         }
@@ -100,7 +147,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 }
                 this.lookAt(target);
                 this.anims.play(this.key + '_idle', true);
-                if (!this.target.stealth && !this.stunned && !this.target.teleporting) { // target is stealth or this is stunned
+                if (!this.target.stealth && !this.stunned && !this.frozen && !this.target.teleporting) { // target is stealth or this is stunned
                     this.attack();
                 }
                 return;
@@ -117,10 +164,13 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 this.anims.play(this.key + '_idle', true);
             } else { // enemy is still en route to target node
                 this.anims.play(this.key + '_walking', true);
+                if(!this.sound.isPlaying) {
+                    this.sound.play();
+                }
                 return;
             }
         }
-        if (this.target.stealth || this.stunned) { // target is stealth or this is stunned
+        if (this.target.stealth || this.stunned || this.frozen) { // target is stealth or this is stunned or frozen
             this.anims.play(this.key + '_idle', true);
             return;
         }

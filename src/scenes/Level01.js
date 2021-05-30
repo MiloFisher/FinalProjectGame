@@ -13,7 +13,8 @@ class Level01 extends Phaser.Scene {
         this.load.image('tiles', 'assets/tiles/stage_1_tileset.png');
 
         // sounds
-        loadSounds(this);
+        loadPlayerSounds(this);
+        this.load.audio('slime_hurt', './assets/SlimeHurt.mp3');
 
         // sprite sheets
         loadPlayerSpritesheets(this);
@@ -54,7 +55,12 @@ class Level01 extends Phaser.Scene {
         });
 
         // Sound
-        createSounds();
+        createPlayerSounds();
+        this.slimeSound = activeScene.sound.add('slime_hurt', {
+            rate: 1,
+            volume: 1,
+            loop: false
+        });
 
         // Create Player
         switch(playerClass) {
@@ -97,9 +103,23 @@ class Level01 extends Phaser.Scene {
                 targetLoop:
                 for (var j = 0; j < playerAttacks[i].targets.length; j++) {
                     if (playerAttacks[i].targets[j].body != undefined && circleToRotatedRectOverlap(playerAttacks[i].targets[j].x, playerAttacks[i].targets[j].y, playerAttacks[i].targets[j].body.radius, playerAttacks[i].width, playerAttacks[i].height, playerAttacks[i].x, playerAttacks[i].y, playerAttacks[i].angle)) {
+                        if (playerAttacks[i].effect == 'lightning') {
+                            if (findDistance(playerAttacks[i].x, playerAttacks[i].y, playerAttacks[i].targets[j].x, playerAttacks[i].targets[j].y) < playerAttacks[i].width) {
+                                playerAttacks[i].targets[j].lightning(playerAttacks[i].duration);
+                            } else {
+                                playerAttacks[i].targets.splice(j, 1);
+                                break;
+                            }
+                        }
                         playerAttacks[i].targets[j].takeDamage(playerAttacks[i].damage);
-                        if(playerAttacks[i].effect == 'stun') {
+                        if (playerAttacks[i].effect == 'stun') {
                             playerAttacks[i].targets[j].stun(playerAttacks[i].duration);
+                        }
+                        if (playerAttacks[i].effect == 'freeze') {
+                            playerAttacks[i].targets[j].freeze(playerAttacks[i].duration);
+                        }
+                        if (playerAttacks[i].effect == 'explosion') {
+                            explosion(playerAttacks[i], playerAttacks, playerAttacks[i].duration);
                         }
                         playerAttacks[i].targets.splice(j,1);
                         for (var k = 0; k < projectiles.length; k++) {
@@ -120,6 +140,9 @@ class Level01 extends Phaser.Scene {
                 for (var j = 0; j < enemyAttacks[i].targets.length; j++) {
                     if (enemyAttacks[i].targets[j].body != undefined && circleToRotatedRectOverlap(enemyAttacks[i].targets[j].x, enemyAttacks[i].targets[j].y, enemyAttacks[i].targets[j].body.radius, enemyAttacks[i].width, enemyAttacks[i].height, enemyAttacks[i].x, enemyAttacks[i].y, enemyAttacks[i].angle)) {
                         enemyAttacks[i].targets[j].takeDamage(enemyAttacks[i].damage);
+                        if (enemyAttacks[i].effect == 'explosion') {
+                            explosion(enemyAttacks[i], enemyAttacks, enemyAttacks[i].duration);
+                        }
                         enemyAttacks[i].targets.splice(j, 1);
                         for (var k = 0; k < projectiles.length; k++) {
                             var _projectile = projectiles[k];
@@ -137,6 +160,9 @@ class Level01 extends Phaser.Scene {
             for(var i = 0; i < projectiles.length; i++) {
                 if(projectileTerrainCollision(projectiles[i])) {
                     var _projectile = projectiles[i];
+                    if (_projectile.effect == 'explosion') {
+                        explosion(_projectile, playerAttacks, _projectile.duration);
+                    }
                     projectiles.splice(i, 1);
                     for (var j = 0; j < playerAttacks.length; j++) {
                         if (playerAttacks[j] == _projectile) {

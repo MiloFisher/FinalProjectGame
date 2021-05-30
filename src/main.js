@@ -250,7 +250,7 @@ function spawnZombie(x, y, target) {
 }
 
 function spawnSlime(x, y, target) {
-    var e = new Slime(x, y, 'slime_idle', 40, 20, 150, target);
+    var e = new Slime(x, y, 'slime_idle', 40, 20, 150, target, activeScene.slimeSound);
     snapToNode(e);
     enemies.push(e);
 }
@@ -361,7 +361,14 @@ function loadPlayerSpritesheets(scene) {
     scene.load.spritesheet('mage_walking', './assets/mage/mage_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('mage_idle', './assets/mage/mage_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
     scene.load.spritesheet('mage_basic', './assets/mage/mage_basic.png', { frameWidth: 80, frameHeight: 160, startFrame: 0, endFrame: 1 });
-    scene.load.image('arcane_bolt', 'assets/mage/projectile_arcane.png');
+    scene.load.image('fireball', 'assets/mage/projectile_fireball.png');
+    scene.load.image('cast_fireball', 'assets/mage/cast_fireball.png');
+    scene.load.image('lightning', 'assets/mage/effect_lightning.png');
+    scene.load.image('cast_lightning', 'assets/mage/cast_lightning.png');
+    scene.load.image('frozen', 'assets/mage/effect_frozen.png');
+    scene.load.image('cast_freeze', 'assets/mage/cast_freeze.png');
+    scene.load.image('meteor', 'assets/mage/effect_meteor.png');
+    scene.load.image('cast_meteor', 'assets/mage/cast_meteor.png');
     scene.load.image('mage_icon_0', 'assets/skills/mage/fireball_ability.png');
     scene.load.image('mage_icon_1', 'assets/skills/mage/lightning_ability.png');
     scene.load.image('mage_icon_2', 'assets/skills/mage/freeze_ability.png');
@@ -495,6 +502,31 @@ function createPlayerAnimations() {
         frames: activeScene.anims.generateFrameNumbers('mage_basic', { start: 0, end: 1, first: 0 }),
         frameRate: 4,
     });
+    activeScene.anims.create({
+        key: 'mage_attack',
+        frames: activeScene.anims.generateFrameNumbers('mage_basic', { start: 0, end: 1, first: 0 }),
+        frameRate: 0,
+    });
+    activeScene.anims.create({
+        key: 'mage_ability_0',
+        frames: activeScene.anims.generateFrameNumbers('mage_basic', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
+    });
+    activeScene.anims.create({
+        key: 'mage_ability_1',
+        frames: activeScene.anims.generateFrameNumbers('mage_basic', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
+    });
+    activeScene.anims.create({
+        key: 'mage_ability_2',
+        frames: activeScene.anims.generateFrameNumbers('mage_basic', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
+    });
+    activeScene.anims.create({
+        key: 'mage_ability_3',
+        frames: activeScene.anims.generateFrameNumbers('mage_basic', { start: 0, end: 0, first: 0 }),
+        frameRate: 0,
+    });
 
     // Necromancer Animations
     activeScene.anims.create({
@@ -514,7 +546,7 @@ function createPlayerAnimations() {
     });
 }
 
-function loadSounds(scene) {
+function loadPlayerSounds(scene) {
     scene.load.audio('walk', './assets/Running.mp3');
     scene.load.audio('sword_swing', './assets/SwordSwing.mp3');
     scene.load.audio('thud', './assets/Thud.mp3');
@@ -526,9 +558,15 @@ function loadSounds(scene) {
     scene.load.audio('lockpick', './assets/Lockpick.mp3');
     scene.load.audio('stealth', './assets/Stealth.mp3');
     scene.load.audio('flurry', './assets/Flurry.mp3');
+
+    scene.load.audio('staff_hit', './assets/MageAutoAttack.mp3');
+    scene.load.audio('fireball', './assets/Fireball.mp3');
+    scene.load.audio('lightning', './assets/LightningBolt.mp3');
+    scene.load.audio('freeze', './assets/Freeze.mp3');
+    scene.load.audio('meteor', './assets/Meteor.mp3');
 }
 
-function createSounds() {
+function createPlayerSounds() {
     activeScene.walkSound = activeScene.sound.add('walk', {
         rate: 1,
         volume: 2,
@@ -589,6 +627,31 @@ function createSounds() {
         volume: .75,
         loop: false
     });
+    activeScene.staffHit = activeScene.sound.add('staff_hit', {
+        rate: 1.5,
+        volume: .5,
+        loop: false
+    });
+    activeScene.fireball = activeScene.sound.add('fireball', {
+        rate: 1.2,
+        volume: .75,
+        loop: false
+    });
+    activeScene.lightning = activeScene.sound.add('lightning', {
+        rate: 1,
+        volume: .5,
+        loop: false
+    });
+    activeScene.freeze = activeScene.sound.add('freeze', {
+        rate: 2,
+        volume: .4,
+        loop: false
+    });
+    activeScene.meteor = activeScene.sound.add('meteor', {
+        rate: 2,
+        volume: .75,
+        loop: false
+    });
 }
 
 function createHUD() {
@@ -627,4 +690,26 @@ function updateHealthBar() {
     var percent = player.health / player.maxHealth;
     healthBar.setSize(548 * hudScale * percent,30 * hudScale);
     healthBar.x = hud.x + ((548 * hudScale) - (548 * hudScale * percent));
+}
+
+function explosion(old_attack, container, duration) {
+    var size;
+    if(old_attack.width > old_attack.height) {
+        size = old_attack.width;
+    } else {
+        size = old_attack.height;
+    }
+    var attack = new Attack(activeScene, old_attack.caster, old_attack.direction, size, size, 0, old_attack.damage);
+    attack.x = old_attack.x;
+    attack.y = old_attack.y;
+    container.push(attack);
+
+    activeScene.time.delayedCall(duration, () => {
+        for (var i = 0; i < container.length; i++) {
+            if (container[i] == attack) {
+                container.splice(i, 1);
+                attack.destroy();
+            }
+        }
+    }, null, activeScene);
 }
