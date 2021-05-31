@@ -1,5 +1,5 @@
 class Enemy extends Phaser.Physics.Arcade.Sprite {
-    constructor(x, y, texture, colliderRadius, health, movementSpeed, target, key, hitColor, sound) {
+    constructor(x, y, texture, colliderRadius, health, movementSpeed, target, key, hitColor, moveSound, hurtSound, attackSound) {
         super(activeScene, x, y, texture);
         // Enemy Configuration
         activeScene.add.existing(this);
@@ -16,7 +16,9 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.key = key;
         this.takingDamage = false;
         this.hitColor = hitColor;
-        this.sound = sound;
+        this.moveSound = moveSound;
+        this.hurtSound = hurtSound;
+        this.attackSound = attackSound;
         this.isAttacking = false;
         this.invincible = false;
         this.direction = 0;
@@ -74,7 +76,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     takeDamage(damage) {
         if(!this.invincible) {
-            this.sound.play();
+            this.hurtSound.play();
             this.takingDamage = true;
             this.setTint(this.hitColor, this.hitColor, this.hitColor, this.hitColor);
             this.health -= damage;
@@ -164,13 +166,13 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 this.anims.play(this.key + '_idle', true);
             } else { // enemy is still en route to target node
                 this.anims.play(this.key + '_walking', true);
-                if(!this.sound.isPlaying) {
-                    this.sound.play();
+                if(!this.moveSound.isPlaying) {
+                    this.moveSound.play();
                 }
                 return;
             }
         }
-        if (this.target.stealth || this.stunned || this.frozen) { // target is stealth or this is stunned or frozen
+        if (this.target.stealth || this.stunned || this.frozen || findDistance(this.x, this.y, player.x, player.y) > 720) { // cannot act
             this.anims.play(this.key + '_idle', true);
             return;
         }

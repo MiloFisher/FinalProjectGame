@@ -29,14 +29,14 @@ class Level01 extends Phaser.Scene {
         // Save game
         saveGame();
 
-        // Set up level bounds
-        this.physics.world.setBounds(0,0,2400,1440);
-
         // Create tile map
         map = this.make.tilemap({ key: 'map' });
         map.setCollisionByProperty({ walkable: false });
         var tileset = map.addTilesetImage('stage_1_tileset','tiles');
         var layer = map.createLayer('Tile Layer 1', tileset, 0, 0);
+
+        // Set up level bounds
+        this.physics.world.setBounds(0, 0, map.width * 80, map.height * 80);
 
         // Generate Path
         generatePathNodes();
@@ -56,30 +56,48 @@ class Level01 extends Phaser.Scene {
 
         // Sound
         createPlayerSounds();
-        this.slimeSound = activeScene.sound.add('slime_hurt', {
+        this.slimeMoveSound = activeScene.sound.add('slime_hurt', {
             rate: 1,
-            volume: 1,
+            volume: .75,
+            loop: false
+        });
+        this.slimeHurtSound = activeScene.sound.add('slime_hurt', {
+            rate: .5,
+            volume: 1.5,
+            loop: false
+        });
+        this.slimeAttackSound = activeScene.sound.add('slime_hurt', {
+            rate: 2,
+            volume: 1.5,
             loop: false
         });
 
         // Create Player
+        var posX = 2 * 80;
+        var posY = 6 * 80;
         switch(playerClass) {
-            case 'warrior': player = new Warrior(600, 380, playerClass + '_idle', 40, 100); break;
-            case 'rogue': player = new Rogue(600, 380, playerClass + '_idle', 40, 100); break;
-            case 'mage': player = new Mage(600, 380, playerClass + '_idle', 40, 100); break;
-            case 'necromancer': player = new Necromancer(600, 380, playerClass + '_idle', 40, 100); break;
+            case 'warrior': player = new Warrior(posX, posY, playerClass + '_idle', 40, 100); break;
+            case 'rogue': player = new Rogue(posX, posY, playerClass + '_idle', 40, 100); break;
+            case 'mage': player = new Mage(posX, posY, playerClass + '_idle', 40, 100); break;
+            case 'necromancer': player = new Necromancer(posX, posY, playerClass + '_idle', 40, 100); break;
         }
-        this.cameras.main.setBounds(0,0,2400,1440);
+        this.cameras.main.setBounds(0,0,map.width * 80,map.height * 80);
         this.cameras.main.startFollow(player);
 
         // Create Entites
         enemies = [];
-        spawnSlime(100,100, player);
-        spawnSlime(100,500, player);
+        spawnSlime(16 * 80, 11 * 80, player);
+        spawnSlime(17 * 80, 23 * 80, player);
+        spawnSlime(6 * 80, 34 * 80, player);
+        spawnSlime(29 * 80, 35 * 80, player);
+        spawnSlime(38 * 80, 29 * 80, player);
+        spawnSlime(50 * 80, 17 * 80, player);
+        spawnSlime(54 * 80, 10 * 80, player);
+        spawnSlime(57 * 80, 29 * 80, player);
 
         // Collisions
         addTriangles();
-        this.physics.add.collider(player, layer, () => {}, diagonalCollision);
+        this.physics.add.collider(player, layer, () => { }); //diagonalCollision
 
         // HUD
         createHUD();

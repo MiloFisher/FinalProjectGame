@@ -250,7 +250,7 @@ function spawnZombie(x, y, target) {
 }
 
 function spawnSlime(x, y, target) {
-    var e = new Slime(x, y, 'slime_idle', 40, 20, 150, target, activeScene.slimeSound);
+    var e = new Slime(x, y, 'slime_idle', 40, 20, 150, target, activeScene.slimeMoveSound, activeScene.slimeHurtSound, activeScene.slimeAttackSound);
     snapToNode(e);
     enemies.push(e);
 }

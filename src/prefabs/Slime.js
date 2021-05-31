@@ -1,13 +1,13 @@
 class Slime extends Enemy {
-    constructor(x, y, texture, colliderRadius, health, movementSpeed, target, sound) {
-        super(x, y, texture, colliderRadius, health, movementSpeed, target, 'slime', 0x00c0f0, sound);
+    constructor(x, y, texture, colliderRadius, health, movementSpeed, target, moveSound, hurtSound, attackSound) {
+        super(x, y, texture, colliderRadius, health, movementSpeed, target, 'slime', 0x00c0f0, moveSound, hurtSound, attackSound);
     }
 
     attack() {
         if (!this.isAttacking) {
             // On Attack start
             this.isAttacking = true;
-            this.sound.play();
+            this.attackSound.play();
             
             // Set animation
             var duration = 600;
