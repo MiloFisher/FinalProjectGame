@@ -84,6 +84,28 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         if (Phaser.Input.Keyboard.JustDown(keyE)) {
             setInventoryActive(!this.blockInput);
         }
+        if (Phaser.Input.Keyboard.JustDown(keyC) && !this.blockInput) {
+            this.useItem();
+        }
+    }
+
+    useItem() {
+        if (inventory[5][2] == undefined) {
+            return;
+        }
+        var item = inventory[5][2].item;
+        var type = inventory[5][2].type;
+        var quantity = inventory[5][2].quantity;
+        switch(item) {
+            case 'health_potion': 
+                this.heal(25);
+                destroyItem(5, 2);
+                if(quantity > 1) {
+                    createItem(item,type,quantity - 1, 5, 2);
+                    setInventoryActive(this.blockInput);
+                }
+            break;
+        }
     }
 
     destroyHitArea() {
@@ -333,6 +355,14 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 }
             }, null, activeScene);
         }
+    }
+
+    heal(amount) {
+        this.health += amount;
+        if(this.health > this.maxHealth){
+            this.health = this.maxHealth;
+        } 
+        updateHealthBar();
     }
 
     die() {

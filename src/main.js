@@ -35,7 +35,7 @@ let map = null;                     // holds current tilemap
 let playerAttacks = [];             // holds player's attack objects
 let enemyAttacks = [];              // holds enemies' attack objects
 let projectiles = [];               // holds all projectile objects
-let enableHitboxes = false;          // controls if attack hitboxes are shown
+let enableHitboxes = false;         // controls if attack hitboxes are shown
 
 // data for save file
 let saveName = 'saveData';          // holds name of saved data
@@ -674,46 +674,98 @@ function createPlayerSounds() {
     });
 }
 
-function createItem(item, row, column) {
+function createItem(item, type, quantity, row, column) {
     inventory[row][column] = activeScene.add.sprite(inventorySlots[row][column].x, inventorySlots[row][column].y, item + '_icon').setScrollFactor(0).setInteractive({
         draggable: true
     });
     inventory[row][column].item = item;
+    inventory[row][column].type = type;
+    inventory[row][column].quantity = quantity;
+    var offsetX = 25;
+    var offsetY = 25;
+    if(quantity > 1) { 
+        inventory[row][column].quantityText = activeScene.add.text(inventorySlots[row][column].x + offsetX, inventorySlots[row][column].y + offsetY, quantity, { font: 25 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5).setScrollFactor(0);
+        inventory[row][column].quantityText.depth = 4;
+    }
+    if(row == 5 && column == 2) {
+        hudIcons[1].setTexture(inventory[row][column].texture);
+    }
     inventory[row][column].depth = 4;
     inventory[row][column].drag = inventory[row][column].on('drag', (pointer, dragX, dragY) => {
         inventory[row][column].x = dragX;
         inventory[row][column].y = dragY;
+        if (inventory[row][column].quantityText != undefined) {
+            inventory[row][column].quantityText.x = dragX + offsetX;
+            inventory[row][column].quantityText.y = dragY + offsetY;
+        }
     });
     inventory[row][column].drop = inventory[row][column].on('drop', (pointer, target) => {
         var rowCol = findRowCol(target);
         var r = rowCol[0];
         var c = rowCol[1];
 
-        var old = inventory[row][column].item;
-
-        inventory[row][column].drag.destroy();
-        inventory[row][column].drop.destroy();
-        inventory[row][column].dragend.destroy();
-        inventory[row][column].destroy();
-        inventory[row][column] = undefined;
-        if (inventory[r][c] != undefined) {
-            var old2 = inventory[r][c].item;
-            inventory[r][c].drag.destroy();
-            inventory[r][c].drop.destroy();
-            inventory[r][c].dragend.destroy();
-            inventory[r][c].destroy();
-            inventory[r][c] = undefined;
-            createItem(old2, row, column);
+        if (r == 5 && c == 0 && inventory[row][column].type != 'weapon') {
+            return;
+        } 
+        if (r == 5 && c == 1 && inventory[row][column].type != 'armor') {
+            return;
         }
-        createItem(old, r, c);
+        if (r == 5 && c == 2 && inventory[row][column].type != 'item') {
+            return;
+        }
+        var old = [inventory[row][column].item, inventory[row][column].type, inventory[row][column].quantity];
+        if (row == 5 && column == 2) {
+            hudIcons[1].setTexture('inventory_slot');
+        }
+        destroyItem(row,column);
+        if (inventory[r][c] != undefined) {
+            var old2 = [inventory[r][c].item, inventory[r][c].type, inventory[r][c].quantity];
+            destroyItem(r, c);
+            if(old[0] == old2[0] && old[1] == 'item' && old2[1] == 'item') {
+                // Stack like items
+                old[2] = old[2] + old2[2];
+            } else {
+                // Swap different items
+                createItem(old2[0], old2[1], old2[2], row, column);
+            }
+        }
+        createItem(old[0], old[1], old[2], r, c);
     });
     inventory[row][column].dragend = inventory[row][column].on('dragend', (pointer, dragX, dragY) => {
         inventory[row][column].x = inventorySlots[row][column].x;
         inventory[row][column].y = inventorySlots[row][column].y;
+        if (inventory[row][column].quantityText != undefined) {
+            inventory[row][column].quantityText.x = inventorySlots[row][column].x + offsetX;
+            inventory[row][column].quantityText.y = inventorySlots[row][column].y + offsetY;
+        }
     });
 }
 
+function destroyItem(row, column) {
+    if (row == 5 && column == 2) {
+        hudIcons[1].setTexture('inventory_slot');
+        hudIcons[1].quantityText.text = '\0';
+    }
+    inventory[row][column].drag.destroy();
+    inventory[row][column].drop.destroy();
+    inventory[row][column].dragend.destroy();
+    if (inventory[row][column].quantityText != undefined) {
+        inventory[row][column].quantityText.destroy();
+    }
+    inventory[row][column].destroy();
+    inventory[row][column] = undefined;
+}
+
 function findRowCol(target) {
+    if (inventorySlots[5][0] == target) {
+        return [5,0];
+    }
+    if (inventorySlots[5][1] == target) {
+        return [5, 1];
+    }
+    if (inventorySlots[5][2] == target) {
+        return [5, 2];
+    }
     for(var r = 0; r < 5; r++) {
         for(var c = 0; c < 11; c++) {
             if(inventorySlots[r][c] == target) {
@@ -747,11 +799,28 @@ function createInventory() {
             inventoryComponents.push(inventorySlots[r][c]);
         }
     }
+    inventorySlots.push([]);
+    inventory.push([]);
+    inventorySlots[5].push(activeScene.add.sprite(x + 3 * 90 - 45, y + 4 * 90 + 120, 'inventory_slot').setScrollFactor(0).setInteractive({
+        dropZone: true
+    }));
+    inventory[5].push(undefined);
+    inventorySlots[5].push(activeScene.add.sprite(x + 5 * 90, y + 4 * 90 + 120, 'inventory_slot').setScrollFactor(0).setInteractive({
+        dropZone: true
+    }));
+    inventory[5].push(undefined);
+    inventorySlots[5].push(activeScene.add.sprite(x + 7 * 90 + 45, y + 4 * 90 + 120, 'inventory_slot').setScrollFactor(0).setInteractive({
+        dropZone: true
+    }));
+    inventory[5].push(undefined);
+    inventoryComponents.push(inventorySlots[5][0]);
+    inventoryComponents.push(inventorySlots[5][1]);
+    inventoryComponents.push(inventorySlots[5][2]);
     for (var i = 0; i < inventoryComponents.length; i++) {
         inventoryComponents[i].depth = 4;
     }
-    createItem('health_potion', 0,0);
-    createItem('health_potion', 4, 3);
+    createItem('health_potion', 'item', 1, 0, 0);
+    createItem('health_potion', 'item', 1, 4, 3);
     setInventoryActive(false);
 }
 
@@ -764,10 +833,36 @@ function setInventoryActive(active) {
     }
     for(var r = 0; r < 5; r++) {
         for(var c = 0; c < 11; c++) {
-            if(inventory[r][c] != null) {
+            if(inventory[r][c] != undefined) {
                 inventory[r][c].visible = active;
+                if (inventory[r][c].quantityText != undefined) {
+                    inventory[r][c].quantityText.visible = active;
+                }
             }
         }
+    }
+    if (inventory[5][0] != undefined) {
+        inventory[5][0].visible = active;
+        if (inventory[5][0].quantityText != undefined) {
+            inventory[5][0].quantityText.visible = active;
+        }
+    }
+    if (inventory[5][1] != undefined) {
+        inventory[5][1].visible = active;
+        if (inventory[5][1].quantityText != undefined) {
+            inventory[5][1].quantityText.visible = active;
+        }
+    }
+    if (inventory[5][2] != undefined) {
+        inventory[5][2].visible = active;
+        if (inventory[5][2].quantityText != undefined) {
+            inventory[5][2].quantityText.visible = active;
+            hudIcons[1].quantityText.text = inventory[5][2].quantityText.text;
+        } else {
+            hudIcons[1].quantityText.text = '\0';
+        }
+    } else {
+        hudIcons[1].quantityText.text = '\0';
     }
     player.blockInput = active;
 }
@@ -784,13 +879,15 @@ function createHUD() {
         cellX.push(hud.x + (-2 + 0.8 * i) * (hud.width * hudScale) / 6);
     }
     hudIcons.push(activeScene.add.sprite(cellX[0], cellY, 'bag_icon').setOrigin(0.5).setScrollFactor(0).setScale(hudScale));
-    hudIcons.push(activeScene.add.sprite(cellX[1], cellY, 'consumable_icon').setOrigin(0.5).setScrollFactor(0).setScale(hudScale));
+    hudIcons.push(activeScene.add.sprite(cellX[1], cellY, 'inventory_slot').setOrigin(0.5).setScrollFactor(0).setScale(hudScale));
+    hudIcons[1].quantityText = activeScene.add.text(cellX[1] + 25 * hudScale, cellY + 25 * hudScale, '\0', { font: 25 * hudScale + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 * hudScale }).setOrigin(0.5).setScrollFactor(0);
     for(var i = 0; i < 4; i++) {
         hudIcons.push(activeScene.add.sprite(cellX[i+2], cellY, playerClass + '_icon_' + i).setOrigin(0.5).setScrollFactor(0).setScale(hudScale));
     }
     for(var i = 0; i < hudIcons.length; i++) {
         hudComponents.push(hudIcons[i]);
     }
+    hudComponents.push(hudIcons[1].quantityText);
     hudComponents.push(activeScene.add.text(cellX[0], cellY, 'E', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: fontSize * hudScale * .1 }).setOrigin(0.5).setScrollFactor(0));
     hudComponents.push(activeScene.add.text(cellX[1], cellY, 'C', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: fontSize * hudScale * .1 }).setOrigin(0.5).setScrollFactor(0));
     hudComponents.push(activeScene.add.text(cellX[2], cellY, '1', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: fontSize * hudScale * .1 }).setOrigin(0.5).setScrollFactor(0));

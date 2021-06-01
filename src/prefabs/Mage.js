@@ -232,6 +232,7 @@ class Mage extends Player {
 
         var fallDistance = 600;
         var effect = new Phaser.GameObjects.Sprite(activeScene, x, y - fallDistance, 'meteor')
+        effect.depth = 2;
         activeScene.add.existing(effect);
 
         var attack;
