@@ -101,6 +101,7 @@ class Level01 extends Phaser.Scene {
 
         // HUD
         createHUD();
+        createInventory();
 
         this.started = true;
     }

@@ -20,6 +20,9 @@ let hudComponents = [];             // holds all components of HUD
 let hudScale = .75;                 // scale of HUD overlay
 let healthBar;                      // holds health bar object
 let hudIcons = [];                  // holds icons on HUD
+let inventory = [[]];               // holds inventory
+let inventoryComponents = [];       // holds inventory components
+let inventorySlots = [[]];          // holds inventory slots
 let pathNodes = [[]];               // holds path nodes for enemy pathfinding
 let triangles = [[]];               // holds triangles for diagonal collision
 let player;                         // holds player
@@ -333,6 +336,10 @@ function findDistance(fromX, fromY, toX, toY) {
 
 function loadPlayerSpritesheets(scene) {
     scene.load.image('hud', 'assets/HUD.png');
+    scene.load.image('inventory', 'assets/Inventory.png');
+    scene.load.image('inventory_slot', 'assets/inventory_slot.png');
+    scene.load.image('bag_icon', 'assets/inventory_icon.png');
+    scene.load.image('health_potion_icon', 'assets/health_potion_icon.png');
 
     scene.load.spritesheet('warrior_walking', './assets/warrior/warrior_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('warrior_idle', './assets/warrior/warrior_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
@@ -665,6 +672,104 @@ function createPlayerSounds() {
         volume: 2,
         loop: false
     });
+}
+
+function createItem(item, row, column) {
+    inventory[row][column] = activeScene.add.sprite(inventorySlots[row][column].x, inventorySlots[row][column].y, item + '_icon').setScrollFactor(0).setInteractive({
+        draggable: true
+    });
+    inventory[row][column].item = item;
+    inventory[row][column].depth = 4;
+    inventory[row][column].drag = inventory[row][column].on('drag', (pointer, dragX, dragY) => {
+        inventory[row][column].x = dragX;
+        inventory[row][column].y = dragY;
+    });
+    inventory[row][column].drop = inventory[row][column].on('drop', (pointer, target) => {
+        var rowCol = findRowCol(target);
+        var r = rowCol[0];
+        var c = rowCol[1];
+
+        var old = inventory[row][column].item;
+
+        inventory[row][column].drag.destroy();
+        inventory[row][column].drop.destroy();
+        inventory[row][column].dragend.destroy();
+        inventory[row][column].destroy();
+        inventory[row][column] = undefined;
+        if (inventory[r][c] != undefined) {
+            var old2 = inventory[r][c].item;
+            inventory[r][c].drag.destroy();
+            inventory[r][c].drop.destroy();
+            inventory[r][c].dragend.destroy();
+            inventory[r][c].destroy();
+            inventory[r][c] = undefined;
+            createItem(old2, row, column);
+        }
+        createItem(old, r, c);
+    });
+    inventory[row][column].dragend = inventory[row][column].on('dragend', (pointer, dragX, dragY) => {
+        inventory[row][column].x = inventorySlots[row][column].x;
+        inventory[row][column].y = inventorySlots[row][column].y;
+    });
+}
+
+function findRowCol(target) {
+    for(var r = 0; r < 5; r++) {
+        for(var c = 0; c < 11; c++) {
+            if(inventorySlots[r][c] == target) {
+                return [r,c];
+            }
+        }
+    }
+}
+
+function createInventory() {
+    inventoryComponents.push(activeScene.add.sprite(600, 360, 'inventory').setOrigin(0.5).setScrollFactor(0));
+    inventoryComponents.push(activeScene.add.text(270, 590, 'Weapon', { font: 30 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5).setScrollFactor(0));
+    inventoryComponents.push(activeScene.add.text(505, 590, 'Armor', { font: 30 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5).setScrollFactor(0));
+    inventoryComponents.push(activeScene.add.text(740, 590, 'Item', { font: 30 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5).setScrollFactor(0));
+
+    inventorySlots = [[]];
+    var x = 600 - inventoryComponents[0].width / 2 + 51;
+    var y = 360 - inventoryComponents[0].height / 2 + 51;
+    for(var r = 0; r < 5; r++) {
+        inventory.push([]);
+        inventorySlots.push([]);
+        for(var c = 0; c < 11; c++) {
+            inventory[r].push(undefined);
+            inventorySlots[r].push(activeScene.add.sprite(x + c * 90, y + r * 90, 'inventory_slot').setScrollFactor(0).setInteractive({
+                dropZone: true
+            }));
+        }
+    }
+    for (var r = 0; r < 5; r++) {
+        for (var c = 0; c < 11; c++) {
+            inventoryComponents.push(inventorySlots[r][c]);
+        }
+    }
+    for (var i = 0; i < inventoryComponents.length; i++) {
+        inventoryComponents[i].depth = 4;
+    }
+    createItem('health_potion', 0,0);
+    createItem('health_potion', 4, 3);
+    setInventoryActive(false);
+}
+
+function setInventoryActive(active) {
+    for (var i = 0; i < inventoryComponents.length; i++) {
+        inventoryComponents[i].visible = active;
+    }
+    for (var i = 0; i < hudComponents.length; i++) {
+        hudComponents[i].visible = !active;
+    }
+    for(var r = 0; r < 5; r++) {
+        for(var c = 0; c < 11; c++) {
+            if(inventory[r][c] != null) {
+                inventory[r][c].visible = active;
+            }
+        }
+    }
+    player.blockInput = active;
 }
 
 function createHUD() {

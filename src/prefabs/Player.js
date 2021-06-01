@@ -23,6 +23,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.cooldown3 = false;
         this.stealth = false;
         this.teleporting = false;
+        this.blockInput = false;
 
         // Player Input
         keyW = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -36,29 +37,33 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         key3 = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
         key4 = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
         activeScene.input.on('pointerdown', function (pointer) {
-            switch(player.selectedAbility) {
-                case -1: player.basicAttack(pointer); break;
-                case 0: player.ability0(pointer); break;
-                case 1: player.ability1(pointer); break;
-                case 2: player.ability2(pointer); break;
-                case 3: player.ability3(pointer); break;
-            }
-            player.selectedAbility = -1;
-            if (player.displayHitArea != undefined) {
-                player.destroyHitArea();
+            if (!player.blockInput) {
+                switch(player.selectedAbility) {
+                    case -1: player.basicAttack(pointer); break;
+                    case 0: player.ability0(pointer); break;
+                    case 1: player.ability1(pointer); break;
+                    case 2: player.ability2(pointer); break;
+                    case 3: player.ability3(pointer); break;
+                }
+                player.selectedAbility = -1;
+                if (player.displayHitArea != undefined) {
+                    player.destroyHitArea();
+                }
             }
         }, activeScene);
         activeScene.input.on('gameobjectdown', (pointer, gameObject, event) => {
-            switch (player.selectedAbility) {
-                case -1: player.basicAttack(pointer, gameObject); break;
-                case 0: player.ability0(pointer, gameObject); break;
-                case 1: player.ability1(pointer, gameObject); break;
-                case 2: player.ability2(pointer, gameObject); break;
-                case 3: player.ability3(pointer, gameObject); break;
-            }
-            player.selectedAbility = -1;
-            if (player.displayHitArea != undefined) {
-                player.destroyHitArea();
+            if (!player.blockInput) {
+                switch (player.selectedAbility) {
+                    case -1: player.basicAttack(pointer, gameObject); break;
+                    case 0: player.ability0(pointer, gameObject); break;
+                    case 1: player.ability1(pointer, gameObject); break;
+                    case 2: player.ability2(pointer, gameObject); break;
+                    case 3: player.ability3(pointer, gameObject); break;
+                }
+                player.selectedAbility = -1;
+                if (player.displayHitArea != undefined) {
+                    player.destroyHitArea();
+                }
             }
         });
     }
@@ -72,6 +77,13 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.classSpecial();
         this.abilities();
         this.displayHitAreas();
+        this.inventory();
+    }
+
+    inventory() {
+        if (Phaser.Input.Keyboard.JustDown(keyE)) {
+            setInventoryActive(!this.blockInput);
+        }
     }
 
     destroyHitArea() {
@@ -82,6 +94,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     abilities() {
+        if(this.blockInput) {
+            return;
+        }
         if (Phaser.Input.Keyboard.JustDown(key1) && !this.isAttacking) {
             var type = this.ability0Type();
             if (type == 'single_use') {
@@ -195,16 +210,16 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         let h = 0;
         let v = 0;
         // Direction horizontal (h) & vertical (v) are set by combination of held keys
-        if (keyW.isDown) {
+        if (keyW.isDown && !this.blockInput) {
             v += -1;
         }
-        if (keyA.isDown) {
+        if (keyA.isDown && !this.blockInput) {
             h += -1;
         }
-        if (keyS.isDown) {
+        if (keyS.isDown && !this.blockInput) {
             v += 1;
         }
-        if (keyD.isDown) {
+        if (keyD.isDown && !this.blockInput) {
             h += 1;
         }
         this.lookDirection(h, v);
