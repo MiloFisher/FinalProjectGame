@@ -363,12 +363,14 @@ function loadPlayerSpritesheets(scene) {
     scene.load.spritesheet('mage_basic', './assets/mage/mage_basic.png', { frameWidth: 80, frameHeight: 160, startFrame: 0, endFrame: 1 });
     scene.load.image('fireball', 'assets/mage/projectile_fireball.png');
     scene.load.image('cast_fireball', 'assets/mage/cast_fireball.png');
+    scene.load.image('fireball_explosion', 'assets/mage/effect_fireball_explosion.png');
     scene.load.image('lightning', 'assets/mage/effect_lightning.png');
     scene.load.image('cast_lightning', 'assets/mage/cast_lightning.png');
     scene.load.image('frozen', 'assets/mage/effect_frozen.png');
     scene.load.image('cast_freeze', 'assets/mage/cast_freeze.png');
     scene.load.image('meteor', 'assets/mage/effect_meteor.png');
     scene.load.image('cast_meteor', 'assets/mage/cast_meteor.png');
+    scene.load.image('meteor_explosion', 'assets/mage/effect_meteor_explosion.png');
     scene.load.image('mage_icon_0', 'assets/skills/mage/fireball_ability.png');
     scene.load.image('mage_icon_1', 'assets/skills/mage/lightning_ability.png');
     scene.load.image('mage_icon_2', 'assets/skills/mage/freeze_ability.png');
@@ -564,6 +566,7 @@ function loadPlayerSounds(scene) {
     scene.load.audio('lightning', './assets/LightningBolt.mp3');
     scene.load.audio('freeze', './assets/Freeze.mp3');
     scene.load.audio('meteor', './assets/Meteor.mp3');
+    scene.load.audio('explosion', './assets/Explosion.wav');
 }
 
 function createPlayerSounds() {
@@ -652,6 +655,16 @@ function createPlayerSounds() {
         volume: .75,
         loop: false
     });
+    activeScene.fireballExplosion = activeScene.sound.add('explosion', {
+        rate: 1,
+        volume: 1,
+        loop: false
+    });
+    activeScene.meteorExplosion = activeScene.sound.add('explosion', {
+        rate: .5,
+        volume: 2,
+        loop: false
+    });
 }
 
 function createHUD() {
@@ -704,6 +717,11 @@ function explosion(old_attack, container, duration) {
     attack.y = old_attack.y;
     container.push(attack);
 
+    var sprite = new Phaser.GameObjects.Sprite(activeScene, old_attack.x, old_attack.y, 'fireball_explosion');
+    activeScene.add.existing(sprite);
+
+    activeScene.fireballExplosion.play();
+
     activeScene.time.delayedCall(duration, () => {
         for (var i = 0; i < container.length; i++) {
             if (container[i] == attack) {
@@ -711,5 +729,6 @@ function explosion(old_attack, container, duration) {
                 attack.destroy();
             }
         }
+        sprite.destroy();
     }, null, activeScene);
 }

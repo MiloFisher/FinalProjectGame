@@ -235,6 +235,7 @@ class Mage extends Player {
         activeScene.add.existing(effect);
 
         var attack;
+        var sprite;
         activeScene.tweens.add({
             targets: effect,
             y: y,
@@ -244,7 +245,12 @@ class Mage extends Player {
                 attack = new Attack(activeScene, this, this.direction, 200, 200, distanceFromCaster, damage);
                 playerAttacks.push(attack);
                 effect.destroy();
-                activeScene.cameras.main.shake(200, 0.02);
+                activeScene.cameras.main.shake(200, 0.04);
+
+                sprite = new Phaser.GameObjects.Sprite(activeScene, x, y, 'meteor_explosion');
+                activeScene.add.existing(sprite);
+
+                activeScene.meteorExplosion.play();
             }
         });
 
@@ -255,6 +261,7 @@ class Mage extends Player {
                     attack.destroy();
                 }
             }
+            sprite.destroy();
         }, null, activeScene);
     }
 }
