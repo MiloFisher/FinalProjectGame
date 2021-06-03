@@ -100,6 +100,7 @@ class Level01 extends Phaser.Scene {
         this.physics.add.collider(player, layer, () => { }); //diagonalCollision
 
         // HUD
+        createMenu();
         createHUD();
         createInventory();
 

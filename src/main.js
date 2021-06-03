@@ -19,6 +19,7 @@ let hud;                            // holds HUD background
 let hudComponents = [];             // holds all components of HUD
 let hudScale = .75;                 // scale of HUD overlay
 let healthBar;                      // holds health bar object
+let menuComponents = [];            // holds components of menu
 let hudIcons = [];                  // holds icons on HUD
 let inventory = [[]];               // holds inventory
 let inventoryComponents = [];       // holds inventory components
@@ -335,6 +336,8 @@ function findDistance(fromX, fromY, toX, toY) {
 }
 
 function loadPlayerSpritesheets(scene) {
+    scene.load.image('menu', 'assets/Menu.png');
+    scene.load.image('menu_button', 'assets/Menu_Button.png');
     scene.load.image('hud', 'assets/HUD.png');
     scene.load.image('inventory', 'assets/Inventory.png');
     scene.load.image('inventory_slot', 'assets/inventory_slot.png');
@@ -776,12 +779,14 @@ function findRowCol(target) {
 }
 
 function createInventory() {
+    inventoryComponents = [];
     inventoryComponents.push(activeScene.add.sprite(600, 360, 'inventory').setOrigin(0.5).setScrollFactor(0));
     inventoryComponents.push(activeScene.add.text(270, 590, 'Weapon', { font: 30 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5).setScrollFactor(0));
     inventoryComponents.push(activeScene.add.text(505, 590, 'Armor', { font: 30 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5).setScrollFactor(0));
     inventoryComponents.push(activeScene.add.text(740, 590, 'Item', { font: 30 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5).setScrollFactor(0));
 
     inventorySlots = [[]];
+    inventory = [[]];
     var x = 600 - inventoryComponents[0].width / 2 + 51;
     var y = 360 - inventoryComponents[0].height / 2 + 51;
     for(var r = 0; r < 5; r++) {
@@ -822,6 +827,48 @@ function createInventory() {
     createItem('health_potion', 'item', 1, 0, 0);
     createItem('health_potion', 'item', 1, 4, 3);
     setInventoryActive(false);
+}
+
+function createMenu() {
+    menuComponents = [];
+    menuComponents.push(activeScene.add.sprite(600, 360, 'menu').setOrigin(0.5).setScrollFactor(0));
+    var startY = 270;
+    var gap = 80;
+    menuComponents.push(activeScene.add.sprite(600, startY + gap * 0, 'menu_button').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    menuComponents[1].on('pointerup', function (pointer) {
+        setMenuActive(false); // Resume
+    });
+    menuComponents.push(activeScene.add.sprite(600, startY + gap * 1, 'menu_button').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    menuComponents[2].on('pointerup', function (pointer) {
+        console.log('Open Settings'); // Settings
+    });
+    menuComponents.push(activeScene.add.sprite(600, startY + gap * 2, 'menu_button').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    menuComponents[3].on('pointerup', function (pointer) {
+        console.log('Save Game'); // Save
+    });
+    menuComponents.push(activeScene.add.sprite(600, startY + gap * 3, 'menu_button').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    menuComponents[4].on('pointerup', function (pointer) {
+        activeScene.scene.start('menuScene'); // Quit
+    });
+
+    menuComponents.push(activeScene.add.text(600, 270 + 80 * -1, 'MENU', { font: 60 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0));
+    menuComponents.push(activeScene.add.text(600, 270 + 80 * 0, 'Resume', { font: 40 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0));
+    menuComponents.push(activeScene.add.text(600, 270 + 80 * 1, 'Settings', { font: 40 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0));
+    menuComponents.push(activeScene.add.text(600, 270 + 80 * 2, 'Save', { font: 40 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0));
+    menuComponents.push(activeScene.add.text(600, 270 + 80 * 3, 'Quit', { font: 40 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0));
+
+    for (var i = 0; i < menuComponents.length; i++) {
+        menuComponents[i].depth = 4;
+    }
+    setMenuActive(false);
+}
+
+function setMenuActive(active) {
+    for (var i = 0; i < menuComponents.length; i++) {
+        menuComponents[i].visible = active;
+    }
+    player.blockInput = active;
+    player.menuOpen = active;
 }
 
 function setInventoryActive(active) {
@@ -865,9 +912,11 @@ function setInventoryActive(active) {
         hudIcons[1].quantityText.text = '\0';
     }
     player.blockInput = active;
+    player.inventoryOpen = active;
 }
 
 function createHUD() {
+    hudComponents = [];
     hud = activeScene.add.sprite(600, 0, 'hud').setOrigin(0.5).setScrollFactor(0);
     hud.y = 630 + (hud.height - hud.height * hudScale) / 2;
     hud.setScale(hudScale);
@@ -878,6 +927,7 @@ function createHUD() {
     for(var i = 0; i < 6; i++) {
         cellX.push(hud.x + (-2 + 0.8 * i) * (hud.width * hudScale) / 6);
     }
+    hudIcons = [];
     hudIcons.push(activeScene.add.sprite(cellX[0], cellY, 'bag_icon').setOrigin(0.5).setScrollFactor(0).setScale(hudScale));
     hudIcons.push(activeScene.add.sprite(cellX[1], cellY, 'inventory_slot').setOrigin(0.5).setScrollFactor(0).setScale(hudScale));
     hudIcons[1].quantityText = activeScene.add.text(cellX[1] + 25 * hudScale, cellY + 25 * hudScale, '\0', { font: 25 * hudScale + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 * hudScale }).setOrigin(0.5).setScrollFactor(0);

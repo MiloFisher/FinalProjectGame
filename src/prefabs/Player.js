@@ -24,6 +24,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.stealth = false;
         this.teleporting = false;
         this.blockInput = false;
+        this.inventoryOpen = false;
+        this.menuOpen = false;
 
         // Player Input
         keyW = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -36,6 +38,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         key2 = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
         key3 = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
         key4 = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
+        keyESCAPE = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
         activeScene.input.on('pointerdown', function (pointer) {
             if (!player.blockInput) {
                 switch(player.selectedAbility) {
@@ -77,12 +80,19 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.classSpecial();
         this.abilities();
         this.displayHitAreas();
-        this.inventory();
+        this.getInput();
     }
 
-    inventory() {
-        if (Phaser.Input.Keyboard.JustDown(keyE)) {
-            setInventoryActive(!this.blockInput);
+    getInput() {
+        if (Phaser.Input.Keyboard.JustDown(keyESCAPE)) {
+            if(this.inventoryOpen) {
+                setInventoryActive(false);
+            } else {
+                setMenuActive(!this.menuOpen);
+            }
+        }
+        if (Phaser.Input.Keyboard.JustDown(keyE) && !this.menuOpen) {
+            setInventoryActive(!this.inventoryOpen);
         }
         if (Phaser.Input.Keyboard.JustDown(keyC) && !this.blockInput) {
             this.useItem();
