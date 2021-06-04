@@ -1,7 +1,15 @@
 class Slime extends Enemy {
-    constructor(x, y, texture, colliderRadius, health, movementSpeed, target, moveSound, hurtSound, attackSound) {
+    constructor(x, y, target) {
+        var texture = 'slime_idle';
+        var colliderRadius = 40;
+        var health = 20;
+        var movementSpeed = 150;
+        var moveSound = activeScene.slimeMoveSound;
+        var hurtSound = activeScene.slimeHurtSound;
+        var attackSound = activeScene.slimeAttackSound;
+
         super(x, y, texture, colliderRadius, health, movementSpeed, target, 'slime', 0x00c0f0, moveSound, hurtSound, attackSound);
-        this.lootTable = ['health_potion'];
+        this.lootTable = ['health_potion','key'];
         this.dropRate = .2;
     }
 

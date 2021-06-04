@@ -143,7 +143,7 @@ class Rogue extends Player {
             var abilityId = 1;
             var duration = 500;
             var cooldown = 1000;
-            var damageMultiplier = 2;
+            var range = 80;
 
             // Call helper functions
             this.ability1Offset();
@@ -151,6 +151,12 @@ class Rogue extends Player {
 
             // Effect
             activeScene.lockpick.play();
+            for(var i = 0; i < chests.length; i++) {
+                if (findDistance(this.x, this.y, chests[i].x, chests[i].y) <= range) {
+                    chests[i].open();
+                    break;
+                }
+            }
 
             // End attack
             this.endAttack(null, duration);

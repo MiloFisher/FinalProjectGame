@@ -26,6 +26,9 @@ class Level01 extends Phaser.Scene {
         // Set active scene
         activeScene = this;
 
+        // Reset
+        reset();
+
         // Save game
         saveGame();
 
@@ -87,14 +90,16 @@ class Level01 extends Phaser.Scene {
 
         // Create Entites
         enemies = [];
-        spawnSlime(16 * 80, 11 * 80, player);
-        spawnSlime(17 * 80, 23 * 80, player);
-        spawnSlime(6 * 80, 34 * 80, player);
-        spawnSlime(29 * 80, 35 * 80, player);
-        spawnSlime(38 * 80, 29 * 80, player);
-        spawnSlime(50 * 80, 17 * 80, player);
-        spawnSlime(54 * 80, 10 * 80, player);
-        spawnSlime(57 * 80, 29 * 80, player);
+        spawnSlime(16, 11, player);
+        spawnSlime(17, 23, player);
+        spawnSlime(6, 34, player);
+        spawnSlime(29, 35, player);
+        spawnSlime(38, 29, player);
+        spawnSlime(50, 17, player);
+        spawnSlime(54, 10, player);
+        spawnSlime(57, 29, player);
+
+        spawnChest(4, 6);
 
         // HUD
         createMenu();

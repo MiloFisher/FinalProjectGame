@@ -116,7 +116,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             activeScene.add.existing(item);
             activeScene.physics.add.existing(item);
             groundItems.push(item);
-            console.log(groundItems);
         }
     }
 

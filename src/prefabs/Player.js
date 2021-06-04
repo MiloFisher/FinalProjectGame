@@ -114,7 +114,24 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                     createItem(item,type,quantity - 1, 5, 2);
                     setInventoryActive(this.blockInput);
                 }
-            break;
+                break;
+            case 'key':
+                var foundChest = false;
+                for (var i = 0; i < chests.length; i++) {
+                    if (findDistance(this.x, this.y, chests[i].x, chests[i].y) <= 80) {
+                        chests[i].open();
+                        foundChest = true;
+                        break;
+                    }
+                }
+                if(foundChest) {
+                    destroyItem(5, 2);
+                    if (quantity > 1) {
+                        createItem(item, type, quantity - 1, 5, 2);
+                        setInventoryActive(this.blockInput);
+                    }
+                }
+                break;
         }
     }
 

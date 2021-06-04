@@ -40,6 +40,8 @@ let playerAttacks = [];             // holds player's attack objects
 let enemyAttacks = [];              // holds enemies' attack objects
 let projectiles = [];               // holds all projectile objects
 let groundItems = [];               // holds all ground items
+let chests = [];                    // holds all chests
+let inCutsceneTween = false;        // true when tweening cutscenes
 let enableHitboxes = false;         // controls if attack hitboxes are shown
 
 // data for save file
@@ -70,6 +72,12 @@ function addTriangles() {
             }
         }
     }
+}
+
+function reset() {
+    chests = [];
+    enemies = [];
+    projectiles = [];
 }
 
 function diagonalCollision(object1, object2) {
@@ -251,14 +259,17 @@ function spawnPathNode(tile) {
     pathNodes[tile.y][tile.x] = new PathNode(tile.x * tile.width + tile.width/2, tile.y * tile.height + tile.height/2, 'pathNode');
 }
 
-function spawnZombie(x, y, target) {
-    var e = new Zombie(x, y, 'zombie', 40, 50, 200, target);
-    snapToNode(e);
-    enemies.push(e);
+function spawnChest(x,y) {
+    x = x * 80 + 40;
+    y = y * 80 + 40;
+    var c = new Chest(x, y);
+    chests.push(c);
 }
 
 function spawnSlime(x, y, target) {
-    var e = new Slime(x, y, 'slime_idle', 40, 20, 150, target, activeScene.slimeMoveSound, activeScene.slimeHurtSound, activeScene.slimeAttackSound);
+    x = x * 80 + 40;
+    y = y * 80 + 40;
+    var e = new Slime(x, y, target);
     snapToNode(e);
     enemies.push(e);
 }
@@ -347,7 +358,11 @@ function loadPlayerSpritesheets(scene) {
     scene.load.image('inventory_slot', 'assets/inventory_slot.png');
     scene.load.image('bag_icon', 'assets/inventory_icon.png');
     scene.load.image('health_potion_icon', 'assets/health_potion_icon.png');
+    scene.load.image('key_icon', 'assets/key_icon.png');
     scene.load.image('cutscene_bar', 'assets/CutsceneBar.png');
+
+    scene.load.image('chest_closed', 'assets/chest_closed.png');
+    scene.load.image('chest_opened', 'assets/chest_opened.png');
 
     scene.load.spritesheet('warrior_walking', './assets/warrior/warrior_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('warrior_idle', './assets/warrior/warrior_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
@@ -787,6 +802,7 @@ function findRowCol(target) {
 
 function createInventory() {
     groundItems = [];
+
     inventoryComponents = [];
     inventoryComponents.push(activeScene.add.sprite(600, 360, 'inventory').setOrigin(0.5).setScrollFactor(0));
     inventoryComponents.push(activeScene.add.text(270, 590, 'Weapon', { font: 30 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5).setScrollFactor(0));
@@ -1015,15 +1031,15 @@ function cutscene(type, duration, wait, text) {
                 activeScene.tweens.add({
                     targets: cutsceneBars[1],
                     y: game.config.height - 70,
-                    duration: startEndTime
+                    duration: startEndTime,
                 });
                 activeScene.time.delayedCall(startEndTime, () => {
-                    if(inCutscene) {
+                    if (inCutscene && !inCutsceneTween) {
                         var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000' }).setOrigin(0.5).setScrollFactor(0);
                         displayText.depth = 5;
                         displayTexts.push(displayText);
                         activeScene.time.delayedCall(duration, () => {
-                            if(displayText != undefined) {
+                            if (displayText != undefined) {
                                 displayText.destroy();
                             }
                         }, null, activeScene);
@@ -1056,6 +1072,7 @@ function cutscene(type, duration, wait, text) {
                                 }
                             }
                             displayTexts = [];
+                            inCutsceneTween = true;
                             activeScene.tweens.add({
                                 targets: cutsceneBars[0],
                                 y: -70,
@@ -1067,7 +1084,14 @@ function cutscene(type, duration, wait, text) {
                                 duration: startEndTime,
                                 onComplete: function () {
                                     inCutscene = false;
+                                    inCutsceneTween = false;
                                     toggleUI(true);
+                                    for (var i = 0; i < displayTexts.length; i++) {
+                                        if (displayTexts[i] != undefined) {
+                                            displayTexts[i].destroy();
+                                        }
+                                    }
+                                    displayTexts = [];
                                 },
                             });
                         }
@@ -1247,5 +1271,6 @@ function collectItem(item) {
 function getType(item) { 
     switch(item) {
         case 'health_potion': return 'item';
+        case 'key': return 'item';
     }
 }
