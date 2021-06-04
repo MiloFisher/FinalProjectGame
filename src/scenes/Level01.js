@@ -5,9 +5,8 @@ class Level01 extends Phaser.Scene {
     }
 
     preload() {
-        //this.load.image('player', 'assets/temp_player.png');
-        this.load.image('zombie', 'assets/temp_zombie.png');
         this.load.image('pathNode', 'assets/pathNode.png');
+        this.load.image('tower', 'assets/tower.png');
         this.load.image('wispshot', 'assets/mobs1/projectile_wispshot.png');
 
         this.load.tilemapTiledJSON('map', 'assets/tilemap.json');
@@ -184,6 +183,24 @@ class Level01 extends Phaser.Scene {
 
         // Cutscenes
         keySPACE = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        this.tower = activeScene.add.sprite(600,360,'tower').setOrigin(0.5).setScrollFactor(0);
+        this.tower.depth = 4;
+        this.tower.setScale(.67);
+        activeScene.time.delayedCall(1000, () => {
+            activeScene.tweens.add({
+                targets: activeScene.tower,
+                scaleX: 1.2,
+                scaleY: 1.2,
+                y: 500,
+                duration: 25000,
+                //ease: 'Power2',
+                onComplete: function () {
+                    if (activeScene.tower != undefined) {
+                        activeScene.tower.destroy();
+                    }
+                }
+            });
+        }, null, activeScene);
         var wait = cutscene('start', 2000, 0,'The Tower of Dawn…');
         wait += cutscene('continue', 4000, wait, 'It has stood tall over these remote plains\nfor as long as history can recall.');
         wait += cutscene('continue', 2000, wait, 'Nobody knows who built it, or why...');
@@ -210,6 +227,9 @@ class Level01 extends Phaser.Scene {
                 checkCollisions();
             } else if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
                 cutscene('end', 0, 0, '');
+                if(this.tower != undefined) {
+                    this.tower.destroy();
+                }
             }
         }
     }
