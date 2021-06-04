@@ -73,14 +73,15 @@ class Level01 extends Phaser.Scene {
         });
 
         // Create Player
-        var posX = 2 * 80;
-        var posY = 6 * 80;
+        var posX = 2 * 80 + 40;
+        var posY = 6 * 80 + 40;
         switch(playerClass) {
             case 'warrior': player = new Warrior(posX, posY, playerClass + '_idle', 40, 100); break;
             case 'rogue': player = new Rogue(posX, posY, playerClass + '_idle', 40, 100); break;
             case 'mage': player = new Mage(posX, posY, playerClass + '_idle', 40, 100); break;
             case 'necromancer': player = new Necromancer(posX, posY, playerClass + '_idle', 40, 100); break;
         }
+        player.angle = 90;
         this.cameras.main.setBounds(0,0,map.width * 80,map.height * 80);
         this.cameras.main.startFollow(player);
 
@@ -105,105 +106,32 @@ class Level01 extends Phaser.Scene {
         createInventory();
 
         this.started = true;
+
+        // Cutscenes
+        var time = cutscene('start', 2000, 0,'The Tower of Dawn…');
+        time += cutscene('continue', 4000, time, 'It has stood tall over these remote plains\nfor as long as history can recall.');
+        time += cutscene('continue', 2000, time, 'Nobody knows who built it, or why...');
+        time += cutscene('continue', 4000, time, 'And there are few who would risk facing the monsters\nthat roam its halls in order to find out.');
+        time += cutscene('continue', 4000, time, 'Many stories and legends offer different\nexplanations for how the Tower came to be...');
+        time += cutscene('continue', 3000, time, 'But there is one detail that almost\nall the stories can agree on:');
+        time += cutscene('continue', 2000, time, 'Whoever manages to reach the tower\'s pinnacle...');
+        cutscene('end', 4000, time, 'Will be rewarded with the power to\nfulfill their wildest goals and ambitions.');
     }
 
     update() {
         if(this.started) {
             // Update Entities
-            player.update();
-            enemies.forEach(e => {
-                e.update();
-            });
-            projectiles.forEach(p => {
-                p.update();
-            });
+            if(!inCutscene) {
+                player.update();
+                enemies.forEach(e => {
+                    e.update();
+                });
+                projectiles.forEach(p => {
+                    p.update();
+                });
 
-            // Check Collisions
-            for(var i = 0; i < playerAttacks.length; i++) {
-                targetLoop:
-                for (var j = 0; j < playerAttacks[i].targets.length; j++) {
-                    if (playerAttacks[i].targets[j].body != undefined && circleToRotatedRectOverlap(playerAttacks[i].targets[j].x, playerAttacks[i].targets[j].y, playerAttacks[i].targets[j].body.radius, playerAttacks[i].width, playerAttacks[i].height, playerAttacks[i].x, playerAttacks[i].y, playerAttacks[i].angle)) {
-                        if (playerAttacks[i].effect == 'lightning') {
-                            if (findDistance(playerAttacks[i].x, playerAttacks[i].y, playerAttacks[i].targets[j].x, playerAttacks[i].targets[j].y) < playerAttacks[i].width) {
-                                playerAttacks[i].targets[j].lightning(playerAttacks[i].duration);
-                            } else {
-                                playerAttacks[i].targets.splice(j, 1);
-                                break;
-                            }
-                        }
-                        playerAttacks[i].targets[j].takeDamage(playerAttacks[i].damage);
-                        if (playerAttacks[i].effect == 'stun') {
-                            playerAttacks[i].targets[j].stun(playerAttacks[i].duration);
-                        }
-                        if (playerAttacks[i].effect == 'freeze') {
-                            playerAttacks[i].targets[j].freeze(playerAttacks[i].duration);
-                        }
-                        if (playerAttacks[i].effect == 'explosion') {
-                            explosion(playerAttacks[i], playerAttacks, playerAttacks[i].duration);
-                        }
-                        playerAttacks[i].targets.splice(j,1);
-                        for (var k = 0; k < projectiles.length; k++) {
-                            var _projectile = projectiles[k];
-                            if(playerAttacks[i] == _projectile) {
-                                playerAttacks.splice(i, 1);
-                                projectiles.splice(k, 1);
-                                _projectile.sprite.destroy();
-                                _projectile.destroy();
-                                break targetLoop;
-                            }
-                        }
-                    }
-                }
-            }
-            for (var i = 0; i < enemyAttacks.length; i++) {
-                targetLoop:
-                for (var j = 0; j < enemyAttacks[i].targets.length; j++) {
-                    if (enemyAttacks[i].targets[j].body != undefined && circleToRotatedRectOverlap(enemyAttacks[i].targets[j].x, enemyAttacks[i].targets[j].y, enemyAttacks[i].targets[j].body.radius, enemyAttacks[i].width, enemyAttacks[i].height, enemyAttacks[i].x, enemyAttacks[i].y, enemyAttacks[i].angle)) {
-                        enemyAttacks[i].targets[j].takeDamage(enemyAttacks[i].damage);
-                        if (enemyAttacks[i].effect == 'explosion') {
-                            explosion(enemyAttacks[i], enemyAttacks, enemyAttacks[i].duration);
-                        }
-                        enemyAttacks[i].targets.splice(j, 1);
-                        for (var k = 0; k < projectiles.length; k++) {
-                            var _projectile = projectiles[k];
-                            if (enemyAttacks[i] == _projectile) {
-                                enemyAttacks.splice(i, 1);
-                                projectiles.splice(k, 1);
-                                _projectile.sprite.destroy();
-                                _projectile.destroy();
-                                break targetLoop;
-                            }
-                        }
-                    }
-                }
-            }
-            for(var i = 0; i < projectiles.length; i++) {
-                if(projectileTerrainCollision(projectiles[i])) {
-                    var _projectile = projectiles[i];
-                    if (_projectile.effect == 'explosion') {
-                        explosion(_projectile, playerAttacks, _projectile.duration);
-                    }
-                    projectiles.splice(i, 1);
-                    for (var j = 0; j < playerAttacks.length; j++) {
-                        if (playerAttacks[j] == _projectile) {
-                            playerAttacks.splice(j, 1);
-                            break;
-                        }
-                    }
-                    _projectile.sprite.destroy();
-                    _projectile.destroy();
-                }
-            }
-            var circle = new Phaser.Geom.Circle(player.x, player.y, player.body.radius);
-            var rect = new Phaser.Geom.Rectangle(hud.x + this.cameras.main.worldView.x - hud.width * hudScale / 2, hud.y + this.cameras.main.worldView.y - hud.height * hudScale / 2, hud.width * hudScale, hud.height * hudScale);
-            if (Phaser.Geom.Intersects.CircleToRectangle(circle, rect)) {
-                hudComponents.forEach(h => {
-                    h.alpha = .25;
-                });
-            } else {
-                hudComponents.forEach(h => {
-                    h.alpha = 1;
-                });
+                // Check Collisions
+                checkCollisions();
             }
         }
     }

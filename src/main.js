@@ -15,6 +15,8 @@ let game = new Phaser.Game(config);
 // global variables
 let playerSpeed = 300;              // how fast the player will move
 let diagonalSpeed = .71;            // multiplier for how fast entities move diagonally
+let cutsceneBars = [];              // holds black cutscene bars
+let inCutscene = false;             // holds if player is in cutscene
 let hud;                            // holds HUD background
 let hudComponents = [];             // holds all components of HUD
 let hudScale = .75;                 // scale of HUD overlay
@@ -343,6 +345,7 @@ function loadPlayerSpritesheets(scene) {
     scene.load.image('inventory_slot', 'assets/inventory_slot.png');
     scene.load.image('bag_icon', 'assets/inventory_icon.png');
     scene.load.image('health_potion_icon', 'assets/health_potion_icon.png');
+    scene.load.image('cutscene_bar', 'assets/CutsceneBar.png');
 
     scene.load.spritesheet('warrior_walking', './assets/warrior/warrior_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('warrior_idle', './assets/warrior/warrior_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
@@ -949,6 +952,11 @@ function createHUD() {
     for(var i = 0; i < hudComponents.length; i++) {
         hudComponents[i].depth = 1;
     }
+    cutsceneBars = [];
+    cutsceneBars.push(activeScene.add.sprite(600, -70, 'cutscene_bar').setOrigin(0.5).setScrollFactor(0));
+    cutsceneBars.push(activeScene.add.sprite(600, game.config.height + 70, 'cutscene_bar').setOrigin(0.5).setScrollFactor(0));
+    cutsceneBars[0].depth = 5;
+    cutsceneBars[1].depth = 5;
 }
 
 function updateHealthBar() {
@@ -983,4 +991,163 @@ function explosion(old_attack, container, duration) {
         }
         sprite.destroy();
     }, null, activeScene);
+}
+
+function cutscene(type, duration, wait, text) {
+    var fontSize = 40;
+    var startEndTime = 1000;
+    activeScene.time.delayedCall(wait, () => {
+        switch(type) {
+            case 'start': 
+                inCutscene = true;
+                toggleUI(false);
+                activeScene.tweens.add({
+                    targets: cutsceneBars[0],
+                    y: 70,
+                    duration: startEndTime
+                });
+                activeScene.tweens.add({
+                    targets: cutsceneBars[1],
+                    y: game.config.height - 70,
+                    duration: startEndTime
+                });
+                activeScene.time.delayedCall(startEndTime, () => {
+                    var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000' }).setOrigin(0.5).setScrollFactor(0);
+                    displayText.depth = 5;
+                    activeScene.time.delayedCall(duration, () => {
+                        displayText.destroy();
+                    }, null, activeScene);
+                }, null, activeScene);
+                break;
+            case 'continue': 
+                var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000' }).setOrigin(0.5).setScrollFactor(0);
+                displayText.depth = 5;
+                activeScene.time.delayedCall(duration, () => {
+                    displayText.destroy();
+                }, null, activeScene);
+                break;
+            case 'end': 
+                var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000' }).setOrigin(0.5).setScrollFactor(0);
+                displayText.depth = 5;
+                activeScene.time.delayedCall(duration, () => {
+                    displayText.destroy();
+                    activeScene.tweens.add({
+                        targets: cutsceneBars[0],
+                        y: -70,
+                        duration: startEndTime
+                    });
+                    activeScene.tweens.add({
+                        targets: cutsceneBars[1],
+                        y: game.config.height + 70,
+                        duration: startEndTime,
+                        onComplete: function () {
+                            inCutscene = false;
+                            toggleUI(true);
+                        },
+                    });
+                }, null, activeScene);
+                break;
+        }
+    }, null, activeScene);
+    if(type == 'continue') {
+        return duration;
+    }
+    return duration + startEndTime;
+}
+
+function toggleUI(active) {
+    setMenuActive(false);
+    setInventoryActive(false);
+    for(var i = 0; i < hudComponents.length; i++) {
+        hudComponents[i].visible = active
+    }
+}
+
+function checkCollisions() {
+    for (var i = 0; i < playerAttacks.length; i++) {
+        targetLoop:
+        for (var j = 0; j < playerAttacks[i].targets.length; j++) {
+            if (playerAttacks[i].targets[j].body != undefined && circleToRotatedRectOverlap(playerAttacks[i].targets[j].x, playerAttacks[i].targets[j].y, playerAttacks[i].targets[j].body.radius, playerAttacks[i].width, playerAttacks[i].height, playerAttacks[i].x, playerAttacks[i].y, playerAttacks[i].angle)) {
+                if (playerAttacks[i].effect == 'lightning') {
+                    if (findDistance(playerAttacks[i].x, playerAttacks[i].y, playerAttacks[i].targets[j].x, playerAttacks[i].targets[j].y) < playerAttacks[i].width) {
+                        playerAttacks[i].targets[j].lightning(playerAttacks[i].duration);
+                    } else {
+                        playerAttacks[i].targets.splice(j, 1);
+                        break;
+                    }
+                }
+                playerAttacks[i].targets[j].takeDamage(playerAttacks[i].damage);
+                if (playerAttacks[i].effect == 'stun') {
+                    playerAttacks[i].targets[j].stun(playerAttacks[i].duration);
+                }
+                if (playerAttacks[i].effect == 'freeze') {
+                    playerAttacks[i].targets[j].freeze(playerAttacks[i].duration);
+                }
+                if (playerAttacks[i].effect == 'explosion') {
+                    explosion(playerAttacks[i], playerAttacks, playerAttacks[i].duration);
+                }
+                playerAttacks[i].targets.splice(j, 1);
+                for (var k = 0; k < projectiles.length; k++) {
+                    var _projectile = projectiles[k];
+                    if (playerAttacks[i] == _projectile) {
+                        playerAttacks.splice(i, 1);
+                        projectiles.splice(k, 1);
+                        _projectile.sprite.destroy();
+                        _projectile.destroy();
+                        break targetLoop;
+                    }
+                }
+            }
+        }
+    }
+    for (var i = 0; i < enemyAttacks.length; i++) {
+        targetLoop:
+        for (var j = 0; j < enemyAttacks[i].targets.length; j++) {
+            if (enemyAttacks[i].targets[j].body != undefined && circleToRotatedRectOverlap(enemyAttacks[i].targets[j].x, enemyAttacks[i].targets[j].y, enemyAttacks[i].targets[j].body.radius, enemyAttacks[i].width, enemyAttacks[i].height, enemyAttacks[i].x, enemyAttacks[i].y, enemyAttacks[i].angle)) {
+                enemyAttacks[i].targets[j].takeDamage(enemyAttacks[i].damage);
+                if (enemyAttacks[i].effect == 'explosion') {
+                    explosion(enemyAttacks[i], enemyAttacks, enemyAttacks[i].duration);
+                }
+                enemyAttacks[i].targets.splice(j, 1);
+                for (var k = 0; k < projectiles.length; k++) {
+                    var _projectile = projectiles[k];
+                    if (enemyAttacks[i] == _projectile) {
+                        enemyAttacks.splice(i, 1);
+                        projectiles.splice(k, 1);
+                        _projectile.sprite.destroy();
+                        _projectile.destroy();
+                        break targetLoop;
+                    }
+                }
+            }
+        }
+    }
+    for (var i = 0; i < projectiles.length; i++) {
+        if (projectileTerrainCollision(projectiles[i])) {
+            var _projectile = projectiles[i];
+            if (_projectile.effect == 'explosion') {
+                explosion(_projectile, playerAttacks, _projectile.duration);
+            }
+            projectiles.splice(i, 1);
+            for (var j = 0; j < playerAttacks.length; j++) {
+                if (playerAttacks[j] == _projectile) {
+                    playerAttacks.splice(j, 1);
+                    break;
+                }
+            }
+            _projectile.sprite.destroy();
+            _projectile.destroy();
+        }
+    }
+    var circle = new Phaser.Geom.Circle(player.x, player.y, player.body.radius);
+    var rect = new Phaser.Geom.Rectangle(hud.x + activeScene.cameras.main.worldView.x - hud.width * hudScale / 2, hud.y + activeScene.cameras.main.worldView.y - hud.height * hudScale / 2, hud.width * hudScale, hud.height * hudScale);
+    if (Phaser.Geom.Intersects.CircleToRectangle(circle, rect)) {
+        hudComponents.forEach(h => {
+            h.alpha = .25;
+        });
+    } else {
+        hudComponents.forEach(h => {
+            h.alpha = 1;
+        });
+    }
 }

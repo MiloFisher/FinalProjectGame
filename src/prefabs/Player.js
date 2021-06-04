@@ -40,7 +40,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         key4 = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
         keyESCAPE = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
         activeScene.input.on('pointerdown', function (pointer) {
-            if (!player.blockInput) {
+            if (!player.blockInput && !inCutscene) {
                 switch(player.selectedAbility) {
                     case -1: player.basicAttack(pointer); break;
                     case 0: player.ability0(pointer); break;
@@ -55,7 +55,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             }
         }, activeScene);
         activeScene.input.on('gameobjectdown', (pointer, gameObject, event) => {
-            if (!player.blockInput) {
+            if (!player.blockInput && !inCutscene) {
                 switch (player.selectedAbility) {
                     case -1: player.basicAttack(pointer, gameObject); break;
                     case 0: player.ability0(pointer, gameObject); break;
