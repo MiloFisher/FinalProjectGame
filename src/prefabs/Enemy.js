@@ -163,7 +163,9 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                     this.adjacent = true;
                 }
                 this.lookAt(target);
-                this.anims.play(this.key + '_idle', true);
+                if(!this.isAttacking) {
+                    this.anims.play(this.key + '_idle', true);
+                }
                 if (!this.target.stealth && !this.stunned && !this.frozen && !this.target.teleporting) { // target is stealth or this is stunned
                     this.attack();
                 }

@@ -15,11 +15,15 @@ class Level01 extends Phaser.Scene {
         // sounds
         loadPlayerSounds(this);
         this.load.audio('slime_hurt', './assets/SlimeHurt.mp3');
+        this.load.audio('bear_hurt', './assets/BearHurt.mp3');
 
         // sprite sheets
         loadPlayerSpritesheets(this);
         this.load.spritesheet('slime_walking', './assets/mobs1/slime_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
         this.load.spritesheet('slime_idle', './assets/mobs1/slime_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
+        this.load.spritesheet('bear_walking', './assets/mobs1/bear_walking.png', { frameWidth: 80, frameHeight: 211, startFrame: 0, endFrame: 1 });
+        this.load.spritesheet('bear_idle', './assets/mobs1/bear_idle.png', { frameWidth: 80, frameHeight: 211, startFrame: 0, endFrame: 0 });
+        this.load.spritesheet('bear_attacking', './assets/mobs1/bear_attack.png', { frameWidth: 80, frameHeight: 211, startFrame: 0, endFrame: 0 });
     }
 
     create() {
@@ -56,6 +60,21 @@ class Level01 extends Phaser.Scene {
             frames: this.anims.generateFrameNumbers('slime_idle', { start: 0, end: 0, first: 0 }),
             frameRate: 0,
         });
+        this.anims.create({
+            key: 'bear_walking',
+            frames: this.anims.generateFrameNumbers('bear_walking', { start: 0, end: 1, first: 0 }),
+            frameRate: 4,
+        });
+        this.anims.create({
+            key: 'bear_idle',
+            frames: this.anims.generateFrameNumbers('bear_idle', { start: 0, end: 0, first: 0 }),
+            frameRate: 0,
+        });
+        this.anims.create({
+            key: 'bear_attacking',
+            frames: this.anims.generateFrameNumbers('bear_attacking', { start: 0, end: 0, first: 0 }),
+            frameRate: 0,
+        });
 
         // Sound
         createPlayerSounds();
@@ -71,6 +90,21 @@ class Level01 extends Phaser.Scene {
         });
         this.slimeAttackSound = activeScene.sound.add('slime_hurt', {
             rate: 2,
+            volume: 1.5,
+            loop: false
+        });
+        this.bearMoveSound = activeScene.sound.add('thud', {
+            rate: 1.3,
+            volume: .5,
+            loop: false
+        });
+        this.bearHurtSound = activeScene.sound.add('bear_hurt', {
+            rate: .5,
+            volume: 1.5,
+            loop: false
+        });
+        this.bearAttackSound = activeScene.sound.add('bear_hurt', {
+            rate: 1,
             volume: 1.5,
             loop: false
         });
@@ -98,6 +132,8 @@ class Level01 extends Phaser.Scene {
         spawnSlime(50, 17, player);
         spawnSlime(54, 10, player);
         spawnSlime(57, 29, player);
+
+        spawnBear(5, 24, player);
 
         spawnChest(4, 6);
 

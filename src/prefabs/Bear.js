@@ -1,16 +1,16 @@
-class Slime extends Enemy {
+class Bear extends Enemy {
     constructor(x, y, target) {
-        var texture = 'slime_idle';
-        var hurtColor = 0x00c0f0;
-        var colliderRadius = 40;
+        var texture = 'bear_idle';
+        var hurtColor = 0xff0000;
+        var colliderRadius = 60;
         var health = 20;
         var movementSpeed = 150;
-        var moveSound = activeScene.slimeMoveSound;
-        var hurtSound = activeScene.slimeHurtSound;
-        var attackSound = activeScene.slimeAttackSound;
+        var moveSound = activeScene.bearMoveSound;
+        var hurtSound = activeScene.bearHurtSound;
+        var attackSound = activeScene.bearAttackSound;
 
-        super(x, y, texture, colliderRadius, health, movementSpeed, target, 'slime', hurtColor, moveSound, hurtSound, attackSound);
-        this.lootTable = ['health_potion','key'];
+        super(x, y, texture, colliderRadius, health, movementSpeed, target, 'bear', hurtColor, moveSound, hurtSound, attackSound);
+        this.lootTable = ['health_potion', 'key'];
         this.dropRate = .2;
     }
 
@@ -19,27 +19,20 @@ class Slime extends Enemy {
             // On Attack start
             this.isAttacking = true;
             this.attackSound.play();
-            
+
             // Set animation
             var duration = 600;
-            activeScene.tweens.add({
-                targets: this,
-                scaleX: 1.75,
-                scaleY: 1.75,
-                duration: duration/2,
-                ease: 'Power2',
-                yoyo: true,
-                delay: 0
-            });
+            this.anims.play(this.key + '_attacking', true);
 
             var attack;
             // Start Attack
-            activeScene.time.delayedCall(duration/4, () => {
+            activeScene.time.delayedCall(duration / 4, () => {
                 attack = new Attack(activeScene, this, this.direction, 140, 140, 0, 5);
                 enemyAttacks.push(attack);
             }, null, activeScene);
             // On Attack stop
             activeScene.time.delayedCall(duration, () => {
+                this.anims.play(this.key + '_idle', true);
                 for (var i = 0; i < enemyAttacks.length; i++) {
                     if (enemyAttacks[i] == attack) {
                         enemyAttacks.splice(i, 1);

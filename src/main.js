@@ -274,6 +274,14 @@ function spawnSlime(x, y, target) {
     enemies.push(e);
 }
 
+function spawnBear(x, y, target) {
+    x = x * 80 + 40;
+    y = y * 80 + 40;
+    var e = new Bear(x, y, target);
+    snapToNode(e);
+    enemies.push(e);
+}
+
 function saveGame() {
     var file = {
         class: playerClass,
