@@ -38,6 +38,7 @@ let map = null;                     // holds current tilemap
 let playerAttacks = [];             // holds player's attack objects
 let enemyAttacks = [];              // holds enemies' attack objects
 let projectiles = [];               // holds all projectile objects
+let groundItems = [];               // holds all ground items
 let enableHitboxes = false;         // controls if attack hitboxes are shown
 
 // data for save file
@@ -680,18 +681,20 @@ function createPlayerSounds() {
     });
 }
 
-function createItem(item, type, quantity, row, column) {
+function createItem(item, type, quantity, row, column, visible) {
     inventory[row][column] = activeScene.add.sprite(inventorySlots[row][column].x, inventorySlots[row][column].y, item + '_icon').setScrollFactor(0).setInteractive({
         draggable: true
     });
     inventory[row][column].item = item;
     inventory[row][column].type = type;
     inventory[row][column].quantity = quantity;
+    inventory[row][column].visible = visible;
     var offsetX = 25;
     var offsetY = 25;
     if(quantity > 1) { 
         inventory[row][column].quantityText = activeScene.add.text(inventorySlots[row][column].x + offsetX, inventorySlots[row][column].y + offsetY, quantity, { font: 25 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5).setScrollFactor(0);
         inventory[row][column].quantityText.depth = 4;
+        inventory[row][column].quantityText.visible = visible;
     }
     if(row == 5 && column == 2) {
         hudIcons[1].setTexture(inventory[row][column].texture);
@@ -732,10 +735,10 @@ function createItem(item, type, quantity, row, column) {
                 old[2] = old[2] + old2[2];
             } else {
                 // Swap different items
-                createItem(old2[0], old2[1], old2[2], row, column);
+                createItem(old2[0], old2[1], old2[2], row, column, true);
             }
         }
-        createItem(old[0], old[1], old[2], r, c);
+        createItem(old[0], old[1], old[2], r, c, true);
     });
     inventory[row][column].dragend = inventory[row][column].on('dragend', (pointer, dragX, dragY) => {
         inventory[row][column].x = inventorySlots[row][column].x;
@@ -782,6 +785,7 @@ function findRowCol(target) {
 }
 
 function createInventory() {
+    groundItems = [];
     inventoryComponents = [];
     inventoryComponents.push(activeScene.add.sprite(600, 360, 'inventory').setOrigin(0.5).setScrollFactor(0));
     inventoryComponents.push(activeScene.add.text(270, 590, 'Weapon', { font: 30 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5).setScrollFactor(0));
@@ -827,8 +831,8 @@ function createInventory() {
     for (var i = 0; i < inventoryComponents.length; i++) {
         inventoryComponents[i].depth = 4;
     }
-    createItem('health_potion', 'item', 1, 0, 0);
-    createItem('health_potion', 'item', 1, 4, 3);
+    createItem('health_potion', 'item', 1, 0, 0, false);
+    createItem('health_potion', 'item', 1, 4, 3, false);
     setInventoryActive(false);
 }
 
@@ -1149,5 +1153,76 @@ function checkCollisions() {
         hudComponents.forEach(h => {
             h.alpha = 1;
         });
+    }
+}
+
+function collectItem(item) {
+    // Try to stack item
+    var canStack = false;
+    var openSlot = [-1, -1];
+    outer:
+    for (var r = 0; r < 5; r++) {
+        for (var c = 0; c < 11; c++) {
+            if (inventory[r][c] != undefined && inventory[r][c].item == item.itemName && inventory[r][c].type == item.type) {
+                openSlot[0] = r;
+                openSlot[1] = c;
+                canStack = true;
+                break outer;
+            }
+        }
+        if (inventory[5][1] != undefined && inventory[5][1].item == item.itemName && inventory[5][1].type == item.type) {
+            openSlot[0] = 5;
+            openSlot[1] = 1;
+            canStack = true;
+        }
+        if (inventory[5][2] != undefined && inventory[5][2].item == item.itemName && inventory[5][2].type == item.type) {
+            openSlot[0] = 5;
+            openSlot[1] = 2;
+            canStack = true;
+        }
+        if (inventory[5][3] != undefined && inventory[5][3].item == item.itemName && inventory[5][3].type == item.type) {
+            openSlot[0] = 5;
+            openSlot[1] = 3;
+            canStack = true;
+        }
+    }
+    if(canStack) {
+        var quantity = inventory[openSlot[0]][openSlot[1]].quantity + 1;
+        destroyItem(openSlot[0], openSlot[1]);
+        createItem(item.itemName, item.type, quantity, openSlot[0], openSlot[1], false);
+        setInventoryActive(false);
+    } else {
+        // Add to open slot in inventory
+        outer:
+        for(var r = 0; r < 5; r++) {
+            for(var c = 0; c < 11; c++) {
+                if(inventory[r][c] == undefined) {
+                    openSlot[0] = r;
+                    openSlot[1] = c;
+                    break outer;
+                }
+            }
+        }
+        // Return if no open slots
+        if(openSlot[0] == -1 && openSlot[1] == -1) {
+            return;
+        }
+        // Otherwise add to inventory
+        createItem(item.itemName, item.type, 1, openSlot[0], openSlot[1], false);
+    }
+    // Remove from groundItems
+    for(var i = 0; i < groundItems.length; i++) {
+        if(groundItems[i] == item) {
+            groundItems.splice(i,1);
+            break;
+        }
+    }
+    // Destroy
+    item.destroy();
+}
+
+function getType(item) { 
+    switch(item) {
+        case 'health_potion': return 'item';
     }
 }

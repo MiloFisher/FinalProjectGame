@@ -96,26 +96,29 @@ class Level01 extends Phaser.Scene {
         spawnSlime(54 * 80, 10 * 80, player);
         spawnSlime(57 * 80, 29 * 80, player);
 
-        // Collisions
-        addTriangles();
-        this.physics.add.collider(player, layer, () => { }); //diagonalCollision
-
         // HUD
         createMenu();
         createHUD();
         createInventory();
 
+        // Collisions
+        addTriangles();
+        this.physics.add.collider(player, layer, () => { }); //, diagonalCollision (after {})
+        this.physics.add.overlap(player, groundItems, (_player, _item) => {
+            collectItem(_item);
+        });
+
         this.started = true;
 
         // Cutscenes
-        var time = cutscene('start', 2000, 0,'The Tower of Dawn…');
-        time += cutscene('continue', 4000, time, 'It has stood tall over these remote plains\nfor as long as history can recall.');
-        time += cutscene('continue', 2000, time, 'Nobody knows who built it, or why...');
-        time += cutscene('continue', 4000, time, 'And there are few who would risk facing the monsters\nthat roam its halls in order to find out.');
-        time += cutscene('continue', 4000, time, 'Many stories and legends offer different\nexplanations for how the Tower came to be...');
-        time += cutscene('continue', 3000, time, 'But there is one detail that almost\nall the stories can agree on:');
-        time += cutscene('continue', 2000, time, 'Whoever manages to reach the tower\'s pinnacle...');
-        cutscene('end', 4000, time, 'Will be rewarded with the power to\nfulfill their wildest goals and ambitions.');
+    //     var wait = cutscene('start', 2000, 0,'The Tower of Dawn…');
+    //     wait += cutscene('continue', 4000, wait, 'It has stood tall over these remote plains\nfor as long as history can recall.');
+    //     wait += cutscene('continue', 2000, wait, 'Nobody knows who built it, or why...');
+    //     wait += cutscene('continue', 4000, wait, 'And there are few who would risk facing the monsters\nthat roam its halls in order to find out.');
+    //     wait += cutscene('continue', 4000, wait, 'Many stories and legends offer different\nexplanations for how the Tower came to be...');
+    //     wait += cutscene('continue', 3000, wait, 'But there is one detail that almost\nall the stories can agree on:');
+    //     wait += cutscene('continue', 2000, wait, 'Whoever manages to reach the tower\'s pinnacle...');
+    //     cutscene('end', 4000, wait, 'Will be rewarded with the power to\nfulfill their wildest goals and ambitions.');
     }
 
     update() {

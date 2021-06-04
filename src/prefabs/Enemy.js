@@ -99,8 +99,24 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 if (this.statusEffect != undefined) {
                     this.statusEffect.destroy();
                 }
+                this.dropLoot();
                 this.destroy();
             }
+        }
+    }
+
+    dropLoot() {
+        var value = Phaser.Math.Between(0, 100);
+        if(value <= this.dropRate * 100) {
+            var tableIndex = Phaser.Math.Between(0, this.lootTable.length - 1);
+            var item = new Phaser.Physics.Arcade.Sprite(activeScene, this.x, this.y, this.lootTable[tableIndex] + '_icon');
+            item.setScale(.5);
+            item.itemName = this.lootTable[tableIndex];
+            item.type = getType(this.lootTable[tableIndex]);
+            activeScene.add.existing(item);
+            activeScene.physics.add.existing(item);
+            groundItems.push(item);
+            console.log(groundItems);
         }
     }
 
