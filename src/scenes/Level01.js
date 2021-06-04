@@ -111,14 +111,15 @@ class Level01 extends Phaser.Scene {
         this.started = true;
 
         // Cutscenes
-    //     var wait = cutscene('start', 2000, 0,'The Tower of Dawn…');
-    //     wait += cutscene('continue', 4000, wait, 'It has stood tall over these remote plains\nfor as long as history can recall.');
-    //     wait += cutscene('continue', 2000, wait, 'Nobody knows who built it, or why...');
-    //     wait += cutscene('continue', 4000, wait, 'And there are few who would risk facing the monsters\nthat roam its halls in order to find out.');
-    //     wait += cutscene('continue', 4000, wait, 'Many stories and legends offer different\nexplanations for how the Tower came to be...');
-    //     wait += cutscene('continue', 3000, wait, 'But there is one detail that almost\nall the stories can agree on:');
-    //     wait += cutscene('continue', 2000, wait, 'Whoever manages to reach the tower\'s pinnacle...');
-    //     cutscene('end', 4000, wait, 'Will be rewarded with the power to\nfulfill their wildest goals and ambitions.');
+        keySPACE = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        var wait = cutscene('start', 2000, 0,'The Tower of Dawn…');
+        wait += cutscene('continue', 4000, wait, 'It has stood tall over these remote plains\nfor as long as history can recall.');
+        wait += cutscene('continue', 2000, wait, 'Nobody knows who built it, or why...');
+        wait += cutscene('continue', 4000, wait, 'And there are few who would risk facing the monsters\nthat roam its halls in order to find out.');
+        wait += cutscene('continue', 4000, wait, 'Many stories and legends offer different\nexplanations for how the Tower came to be...');
+        wait += cutscene('continue', 3000, wait, 'But there is one detail that almost\nall the stories can agree on:');
+        wait += cutscene('continue', 2000, wait, 'Whoever manages to reach the tower\'s pinnacle...');
+        cutscene('end', 4000, wait, 'Will be rewarded with the power to\nfulfill their wildest goals and ambitions.');
     }
 
     update() {
@@ -135,6 +136,8 @@ class Level01 extends Phaser.Scene {
 
                 // Check Collisions
                 checkCollisions();
+            } else if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
+                cutscene('end', 0, 0, '');
             }
         }
     }

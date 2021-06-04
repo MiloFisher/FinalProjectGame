@@ -16,6 +16,7 @@ let game = new Phaser.Game(config);
 let playerSpeed = 300;              // how fast the player will move
 let diagonalSpeed = .71;            // multiplier for how fast entities move diagonally
 let cutsceneBars = [];              // holds black cutscene bars
+let displayTexts = [];              // holds display texts during cutscenes
 let inCutscene = false;             // holds if player is in cutscene
 let hud;                            // holds HUD background
 let hudComponents = [];             // holds all components of HUD
@@ -44,10 +45,10 @@ let enableHitboxes = false;         // controls if attack hitboxes are shown
 // data for save file
 let saveName = 'saveData';          // holds name of saved data
 let playerClass = 'warrior';        // holds player's class
-let secretUnlocked = true;         // hold if secret character has been unlocked
+let secretUnlocked = true;          // hold if secret character has been unlocked
 
 // reserve keyboard vars
-let keyW, keyA, keyS, keyD, keyUP, keyLEFT, keyDOWN, keyRIGHT, keyENTER, keyESCAPE, keyE, keyC, key1, key2, key3, key4;
+let keyW, keyA, keyS, keyD, keyUP, keyLEFT, keyDOWN, keyRIGHT, keyENTER, keyESCAPE, keySPACE, keyE, keyC, key1, key2, key3, key4;
 
 // global functions
 function addTriangles() {
@@ -1003,6 +1004,7 @@ function cutscene(type, duration, wait, text) {
     activeScene.time.delayedCall(wait, () => {
         switch(type) {
             case 'start': 
+                displayTexts = [];
                 inCutscene = true;
                 toggleUI(false);
                 activeScene.tweens.add({
@@ -1016,40 +1018,61 @@ function cutscene(type, duration, wait, text) {
                     duration: startEndTime
                 });
                 activeScene.time.delayedCall(startEndTime, () => {
-                    var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000' }).setOrigin(0.5).setScrollFactor(0);
-                    displayText.depth = 5;
-                    activeScene.time.delayedCall(duration, () => {
-                        displayText.destroy();
-                    }, null, activeScene);
+                    if(inCutscene) {
+                        var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000' }).setOrigin(0.5).setScrollFactor(0);
+                        displayText.depth = 5;
+                        displayTexts.push(displayText);
+                        activeScene.time.delayedCall(duration, () => {
+                            if(displayText != undefined) {
+                                displayText.destroy();
+                            }
+                        }, null, activeScene);
+                    }
                 }, null, activeScene);
                 break;
             case 'continue': 
-                var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000' }).setOrigin(0.5).setScrollFactor(0);
-                displayText.depth = 5;
-                activeScene.time.delayedCall(duration, () => {
-                    displayText.destroy();
-                }, null, activeScene);
+                if(inCutscene) {
+                    var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000' }).setOrigin(0.5).setScrollFactor(0);
+                    displayText.depth = 5;
+                    displayTexts.push(displayText);
+                    activeScene.time.delayedCall(duration, () => {
+                        if (displayText != undefined) {
+                            displayText.destroy();
+                        }
+                    }, null, activeScene);
+                }
                 break;
             case 'end': 
-                var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000' }).setOrigin(0.5).setScrollFactor(0);
-                displayText.depth = 5;
-                activeScene.time.delayedCall(duration, () => {
-                    displayText.destroy();
-                    activeScene.tweens.add({
-                        targets: cutsceneBars[0],
-                        y: -70,
-                        duration: startEndTime
-                    });
-                    activeScene.tweens.add({
-                        targets: cutsceneBars[1],
-                        y: game.config.height + 70,
-                        duration: startEndTime,
-                        onComplete: function () {
-                            inCutscene = false;
-                            toggleUI(true);
-                        },
-                    });
-                }, null, activeScene);
+                if(inCutscene) {
+                    var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000' }).setOrigin(0.5).setScrollFactor(0);
+                    displayText.depth = 5;
+                    displayTexts.push(displayText);
+                    activeScene.time.delayedCall(duration, () => {
+                        if (displayText != undefined)
+                        {
+                            for (var i = 0; i < displayTexts.length; i++) {
+                                if (displayTexts[i] != undefined) {
+                                    displayTexts[i].destroy();
+                                }
+                            }
+                            displayTexts = [];
+                            activeScene.tweens.add({
+                                targets: cutsceneBars[0],
+                                y: -70,
+                                duration: startEndTime
+                            });
+                            activeScene.tweens.add({
+                                targets: cutsceneBars[1],
+                                y: game.config.height + 70,
+                                duration: startEndTime,
+                                onComplete: function () {
+                                    inCutscene = false;
+                                    toggleUI(true);
+                                },
+                            });
+                        }
+                    }, null, activeScene);
+                }
                 break;
         }
     }, null, activeScene);
