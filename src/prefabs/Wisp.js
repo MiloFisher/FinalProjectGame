@@ -1,18 +1,18 @@
-class Slime extends Enemy {
+class Wisp extends Enemy {
     constructor(x, y, target) {
-        var key = 'slime';
+        var key = 'wisp';
         var texture = key + '_idle';
-        var hurtColor = 0x00c0f0;
+        var hurtColor = 0x00ff00;
         var colliderRadius = 40;
-        var range = 90;
+        var range = 110;
         var health = 20;
         var movementSpeed = 150;
-        var moveSound = activeScene.slimeMoveSound;
-        var hurtSound = activeScene.slimeHurtSound;
-        var attackSound = activeScene.slimeAttackSound;
+        var moveSound = activeScene.wispMoveSound;
+        var hurtSound = activeScene.wispHurtSound;
+        var attackSound = activeScene.wispAttackSound;
 
         super(x, y, texture, colliderRadius, range, health, movementSpeed, target, key, hurtColor, moveSound, hurtSound, attackSound);
-        this.lootTable = ['health_potion','key'];
+        this.lootTable = ['health_potion', 'key'];
         this.dropRate = .2;
     }
 
@@ -21,14 +21,14 @@ class Slime extends Enemy {
             // On Attack start
             this.isAttacking = true;
             this.attackSound.play();
-            
+
             // Set animation
             var duration = 600;
             activeScene.tweens.add({
                 targets: this,
                 scaleX: 1.75,
                 scaleY: 1.75,
-                duration: duration/2,
+                duration: duration / 2,
                 ease: 'Power2',
                 yoyo: true,
                 delay: 0
@@ -36,18 +36,10 @@ class Slime extends Enemy {
 
             var attack;
             // Start Attack
-            activeScene.time.delayedCall(duration/4, () => {
-                attack = new Attack(activeScene, this, this.direction, 140, 140, 0, 5);
+            activeScene.time.delayedCall(duration / 4, () => {
+                attack = new Projectile(activeScene, this, this.direction, 11, 30, 0, 5, 6, 'wispshot');
                 enemyAttacks.push(attack);
-            }, null, activeScene);
-            // On Attack stop
-            activeScene.time.delayedCall(duration, () => {
-                for (var i = 0; i < enemyAttacks.length; i++) {
-                    if (enemyAttacks[i] == attack) {
-                        enemyAttacks.splice(i, 1);
-                        attack.destroy();
-                    }
-                }
+                projectiles.push(attack);
             }, null, activeScene);
             // Attack cooldown over
             activeScene.time.delayedCall(duration * 2, () => {

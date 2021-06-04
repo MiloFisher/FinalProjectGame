@@ -1,15 +1,17 @@
 class Bear extends Enemy {
     constructor(x, y, target) {
-        var texture = 'bear_idle';
+        var key = 'bear';
+        var texture = key + '_idle';
         var hurtColor = 0xff0000;
         var colliderRadius = 60;
+        var range = 90;
         var health = 20;
         var movementSpeed = 150;
         var moveSound = activeScene.bearMoveSound;
         var hurtSound = activeScene.bearHurtSound;
         var attackSound = activeScene.bearAttackSound;
 
-        super(x, y, texture, colliderRadius, health, movementSpeed, target, 'bear', hurtColor, moveSound, hurtSound, attackSound);
+        super(x, y, texture, colliderRadius, range, health, movementSpeed, target, key, hurtColor, moveSound, hurtSound, attackSound);
         this.lootTable = ['health_potion', 'key'];
         this.dropRate = .2;
     }
@@ -32,7 +34,9 @@ class Bear extends Enemy {
             }, null, activeScene);
             // On Attack stop
             activeScene.time.delayedCall(duration, () => {
-                this.anims.play(this.key + '_idle', true);
+                if(this.anims != undefined) {
+                    this.anims.play(this.key + '_idle', true);
+                }
                 for (var i = 0; i < enemyAttacks.length; i++) {
                     if (enemyAttacks[i] == attack) {
                         enemyAttacks.splice(i, 1);

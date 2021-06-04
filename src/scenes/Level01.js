@@ -8,6 +8,7 @@ class Level01 extends Phaser.Scene {
         //this.load.image('player', 'assets/temp_player.png');
         this.load.image('zombie', 'assets/temp_zombie.png');
         this.load.image('pathNode', 'assets/pathNode.png');
+        this.load.image('wispshot', 'assets/mobs1/projectile_wispshot.png');
 
         this.load.tilemapTiledJSON('map', 'assets/tilemap.json');
         this.load.image('tiles', 'assets/tiles/stage_1_tileset.png');
@@ -16,6 +17,7 @@ class Level01 extends Phaser.Scene {
         loadPlayerSounds(this);
         this.load.audio('slime_hurt', './assets/SlimeHurt.mp3');
         this.load.audio('bear_hurt', './assets/BearHurt.mp3');
+        this.load.audio('wisp_hurt', './assets/WispHurt.mp3');
 
         // sprite sheets
         loadPlayerSpritesheets(this);
@@ -24,6 +26,8 @@ class Level01 extends Phaser.Scene {
         this.load.spritesheet('bear_walking', './assets/mobs1/bear_walking.png', { frameWidth: 80, frameHeight: 211, startFrame: 0, endFrame: 1 });
         this.load.spritesheet('bear_idle', './assets/mobs1/bear_idle.png', { frameWidth: 80, frameHeight: 211, startFrame: 0, endFrame: 0 });
         this.load.spritesheet('bear_attacking', './assets/mobs1/bear_attack.png', { frameWidth: 80, frameHeight: 211, startFrame: 0, endFrame: 0 });
+        this.load.spritesheet('wisp_walking', './assets/mobs1/wisp_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
+        this.load.spritesheet('wisp_idle', './assets/mobs1/wisp_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
     }
 
     create() {
@@ -75,6 +79,16 @@ class Level01 extends Phaser.Scene {
             frames: this.anims.generateFrameNumbers('bear_attacking', { start: 0, end: 0, first: 0 }),
             frameRate: 0,
         });
+        this.anims.create({
+            key: 'wisp_walking',
+            frames: this.anims.generateFrameNumbers('wisp_walking', { start: 0, end: 1, first: 0 }),
+            frameRate: 4,
+        });
+        this.anims.create({
+            key: 'wisp_idle',
+            frames: this.anims.generateFrameNumbers('wisp_idle', { start: 0, end: 0, first: 0 }),
+            frameRate: 0,
+        });
 
         // Sound
         createPlayerSounds();
@@ -108,6 +122,21 @@ class Level01 extends Phaser.Scene {
             volume: 1.5,
             loop: false
         });
+        this.wispMoveSound = activeScene.sound.add('wisp_hurt', {
+            rate: 1.25,
+            volume: .75,
+            loop: false
+        });
+        this.wispHurtSound = activeScene.sound.add('wisp_hurt', {
+            rate: .75,
+            volume: 1.5,
+            loop: false
+        });
+        this.wispAttackSound = activeScene.sound.add('wisp_hurt', {
+            rate: 2.5,
+            volume: 1.5,
+            loop: false
+        });
 
         // Create Player
         var posX = 2 * 80 + 40;
@@ -134,6 +163,8 @@ class Level01 extends Phaser.Scene {
         spawnSlime(57, 29, player);
 
         spawnBear(5, 24, player);
+
+        spawnWisp(15, 20, player);
 
         spawnChest(4, 6);
 

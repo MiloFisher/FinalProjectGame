@@ -282,6 +282,14 @@ function spawnBear(x, y, target) {
     enemies.push(e);
 }
 
+function spawnWisp(x, y, target) {
+    x = x * 80 + 40;
+    y = y * 80 + 40;
+    var e = new Wisp(x, y, target);
+    snapToNode(e);
+    enemies.push(e);
+}
+
 function saveGame() {
     var file = {
         class: playerClass,

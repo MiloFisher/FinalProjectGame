@@ -1,11 +1,12 @@
 class Enemy extends Phaser.Physics.Arcade.Sprite {
-    constructor(x, y, texture, colliderRadius, health, movementSpeed, target, key, hitColor, moveSound, hurtSound, attackSound) {
+    constructor(x, y, texture, colliderRadius, range, health, movementSpeed, target, key, hitColor, moveSound, hurtSound, attackSound) {
         super(activeScene, x, y, texture);
         // Enemy Configuration
         activeScene.add.existing(this);
         activeScene.physics.add.existing(this);
         this.setCircle(colliderRadius);
         this.setInteractive();
+        this.range = range;
         this.health = health;
         this.maxHealth = health;
         this.movementSpeed = movementSpeed;
@@ -157,7 +158,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             return;
         }
         if (this.targetNode != null) { // enemy no longer has a target node
-            if (Math.abs(this.x - target.x) <= 90 && Math.abs(this.y - target.y) <= 90) { // enemy is within range of it's target
+            if (Math.abs(this.x - target.x) <= this.range && Math.abs(this.y - target.y) <= this.range) { // enemy is within range of it's target
                 if(!this.adjacent) { // enemy has not been flagged as adjacent yet
                     this.setVelocity(0, 0);
                     this.adjacent = true;
