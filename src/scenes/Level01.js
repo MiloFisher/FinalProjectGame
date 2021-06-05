@@ -158,10 +158,11 @@ class Level01 extends Phaser.Scene {
             volume: .5,
             loop: true,
         });
-        musicEffects.push(activeScene.backgroundMusic);
+        musicEffects.push(activeScene.cutsceneMusic);
 
         // Update Volumes
         createVolumes();
+        loadVolumes();
         updateMasterVolume();
         updateMusicVolume();
 
@@ -263,7 +264,7 @@ class Level01 extends Phaser.Scene {
                     this.backgroundMusic.play();
                 }
             } else if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
-                cutscene('end', 0, 0, '');
+                cutscene('end', 0, 0, '', this.cutsceneMusic);
                 if(this.tower != undefined) {
                     this.tower.destroy();
                 }

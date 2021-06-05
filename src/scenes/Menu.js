@@ -12,6 +12,9 @@ class Menu extends Phaser.Scene {
         // Set active scene
         activeScene = this;
 
+        // Load volumes
+        loadVolumes();
+
         // Set title & background
         var tower = activeScene.add.sprite(600, 360, 'tower').setOrigin(0.5);
         tower.setScale(.67);

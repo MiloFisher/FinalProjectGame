@@ -301,8 +301,6 @@ function saveGame() {
         class: playerClass,
         level: activeSceneKey,
         secret: secretUnlocked,
-        masterVolume: masterVolume,
-        musicVolume: musicVolume,
         cutscene1: watchedCutscene1,
     };
     localStorage.setItem(saveName, JSON.stringify(file));
@@ -311,10 +309,26 @@ function saveGame() {
 function loadGame() {
     var file = JSON.parse(localStorage.getItem(saveName));
     playerClass = file.class;
-    masterVolume = file.masterVolume;
-    musicVolume = file.musicVolume;
+    secretUnlocked = file.secret;
     watchedCutscene1 = file.cutscene1;
     activeScene.scene.start(file.level);
+}
+
+function saveVolumes() {
+    var file = {
+        masterVolume: masterVolume,
+        musicVolume: musicVolume,
+    };
+    localStorage.setItem('volumes', JSON.stringify(file));
+}
+
+
+function loadVolumes() {
+    if(volumeFileExists()) {
+        var file = JSON.parse(localStorage.getItem('volumes'));
+        masterVolume = file.masterVolume;
+        musicVolume  = file.musicVolume;
+    }
 }
 
 function removeGame() {
@@ -323,6 +337,11 @@ function removeGame() {
 
 function fileExists() {
     var file = JSON.parse(localStorage.getItem(saveName));
+    return file != null;
+}
+
+function volumeFileExists() {
+    var file = JSON.parse(localStorage.getItem('volumes'));
     return file != null;
 }
 
@@ -761,12 +780,16 @@ function updateMasterVolume(){
     for(var i = 0; i < soundEffects.length; i++) {
         soundEffects[i].setVolume(soundEffects[i].original * masterVolume);
     }
+    console.log(masterVolume);
+    saveVolumes();
 }
 
 function updateMusicVolume() {
     for (var i = 0; i < musicEffects.length; i++) {
         musicEffects[i].setVolume(musicEffects[i].original * musicVolume);
     }
+    console.log(musicVolume);
+    saveVolumes();
 }
 
 function createInfoPanel(x, y, item, type, level, r, c) {
@@ -1228,8 +1251,8 @@ function createSettings() {
     for (var i = 0; i < settingsComponents.length; i++) {
         settingsComponents[i].depth = 4;
     }
-    setTint(1, 2 * masterVolume / .2 + 1);
-    setTint(21, 2 * musicVolume / .2 + 21);
+    setTint(1, 2 * Math.trunc(masterVolume / .2) + 1);
+    setTint(21, 2 * Math.trunc(musicVolume / .2) + 21);
     setSettingsActive(false);
 }
 
