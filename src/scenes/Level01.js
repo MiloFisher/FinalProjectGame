@@ -17,6 +17,7 @@ class Level01 extends Phaser.Scene {
         this.load.audio('slime_hurt', './assets/SlimeHurt.mp3');
         this.load.audio('bear_hurt', './assets/BearHurt.mp3');
         this.load.audio('wisp_hurt', './assets/WispHurt.mp3');
+        this.load.audio('background_music', './assets/BackgroundMusic1.wav');
 
         // sprite sheets
         loadPlayerSpritesheets(this);
@@ -96,46 +97,66 @@ class Level01 extends Phaser.Scene {
             volume: .75,
             loop: false
         });
+        soundEffects.push(activeScene.slimeMoveSound);
         this.slimeHurtSound = activeScene.sound.add('slime_hurt', {
             rate: .5,
             volume: 1.5,
             loop: false
         });
+        soundEffects.push(activeScene.slimeHurtSound);
         this.slimeAttackSound = activeScene.sound.add('slime_hurt', {
             rate: 2,
             volume: 1.5,
             loop: false
         });
+        soundEffects.push(activeScene.slimeAttackSound);
         this.bearMoveSound = activeScene.sound.add('thud', {
             rate: 1.3,
             volume: .5,
             loop: false
         });
+        soundEffects.push(activeScene.bearMoveSound);
         this.bearHurtSound = activeScene.sound.add('bear_hurt', {
             rate: .5,
             volume: 1.5,
             loop: false
         });
+        soundEffects.push(activeScene.bearHurtSound);
         this.bearAttackSound = activeScene.sound.add('bear_hurt', {
             rate: 1,
             volume: 1.5,
             loop: false
         });
+        soundEffects.push(activeScene.bearAttackSound);
         this.wispMoveSound = activeScene.sound.add('wisp_hurt', {
             rate: 1.25,
             volume: .75,
             loop: false
         });
+        soundEffects.push(activeScene.wispMoveSound);
         this.wispHurtSound = activeScene.sound.add('wisp_hurt', {
             rate: .75,
             volume: 1.5,
             loop: false
         });
+        soundEffects.push(activeScene.wispHurtSound);
         this.wispAttackSound = activeScene.sound.add('wisp_hurt', {
             rate: 2.5,
             volume: 1.5,
             loop: false
         });
+        soundEffects.push(activeScene.wispAttackSound);
+        this.backgroundMusic = activeScene.sound.add('background_music', {
+            rate: 1,
+            volume: .2,
+            loop: true,
+        });
+        musicEffects.push(activeScene.backgroundMusic);
+
+        // Update Volumes
+        createVolumes();
+        updateMasterVolume();
+        updateMusicVolume();
 
         // Create Player
         var posX = 2 * 80 + 40;
@@ -169,6 +190,7 @@ class Level01 extends Phaser.Scene {
 
         // HUD
         createMenu();
+        createSettings();
         createHUD();
         createInventory();
 
@@ -228,6 +250,11 @@ class Level01 extends Phaser.Scene {
 
                 // Check Collisions
                 checkCollisions();
+
+                // Music
+                if(!this.backgroundMusic.isPlaying) {
+                    this.backgroundMusic.play();
+                }
             } else if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
                 cutscene('end', 0, 0, '');
                 if(this.tower != undefined) {

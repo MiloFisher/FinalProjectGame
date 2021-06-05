@@ -21,8 +21,13 @@ let inCutscene = false;             // holds if player is in cutscene
 let hud;                            // holds HUD background
 let hudComponents = [];             // holds all components of HUD
 let hudScale = .75;                 // scale of HUD overlay
+let masterVolume = 1;               // holds master volume (-5, 5)
+let soundEffects = [];              // holds all sound effects
+let musicVolume = 1;                // holds music volume (-5, 5)
+let musicEffects = [];              // holds all music effects
 let healthBar;                      // holds health bar object
 let menuComponents = [];            // holds components of menu
+let settingsComponents = [];        // holds components of settings
 let hudIcons = [];                  // holds icons on HUD
 let inventory = [[]];               // holds inventory
 let inventoryComponents = [];       // holds inventory components
@@ -296,6 +301,8 @@ function saveGame() {
         class: playerClass,
         level: activeSceneKey,
         secret: secretUnlocked,
+        masterVolume: masterVolume,
+        musicVolume: musicVolume,
         cutscene1: watchedCutscene1,
     };
     localStorage.setItem(saveName, JSON.stringify(file));
@@ -304,6 +311,8 @@ function saveGame() {
 function loadGame() {
     var file = JSON.parse(localStorage.getItem(saveName));
     playerClass = file.class;
+    masterVolume = file.masterVolume;
+    musicVolume = file.musicVolume;
     watchedCutscene1 = file.cutscene1;
     activeScene.scene.start(file.level);
 }
@@ -380,6 +389,7 @@ function loadPlayerSpritesheets(scene) {
     scene.load.image('staff_icon', 'assets/staff_icon.png');
     scene.load.image('cutscene_bar', 'assets/CutsceneBar.png');
     scene.load.image('info_panel', 'assets/infoPanel.png');
+    scene.load.image('volume_tab', 'assets/VolumeTab.png');
 
     scene.load.image('chest_closed', 'assets/chest_closed.png');
     scene.load.image('chest_opened', 'assets/chest_opened.png');
@@ -620,101 +630,143 @@ function loadPlayerSounds(scene) {
 }
 
 function createPlayerSounds() {
+    soundEffects = [];
+    musicEffects = [];
     activeScene.walkSound = activeScene.sound.add('walk', {
         rate: 1,
         volume: 2,
         loop: true
     });
+    soundEffects.push(activeScene.walkSound);
     activeScene.swordSwing = activeScene.sound.add('sword_swing', {
         rate: 1,
         volume: .75,
         loop: false
     });
+    soundEffects.push(activeScene.swordSwing);
     activeScene.groundSlam = activeScene.sound.add('ground_slam', {
         rate: 1.5,
         volume: .25,
         loop: false
     });
+    soundEffects.push(activeScene.groundSlam);
     activeScene.charge = activeScene.sound.add('walk', {
         rate: 2,
         volume: 4,
         loop: true
     });
+    soundEffects.push(activeScene.charge);
     activeScene.thud = activeScene.sound.add('thud', {
         rate: .25,
         volume: 2,
         loop: false
     });
+    soundEffects.push(activeScene.thud);
     activeScene.whirlwind = activeScene.sound.add('sword_swing', {
         rate: 2,
         volume: 1,
         loop: false
     });
+    soundEffects.push(activeScene.whirlwind);
     activeScene.battlecry = activeScene.sound.add('battlecry', {
         rate: 2.5,
         volume: .25,
         loop: false
     });
+    soundEffects.push(activeScene.battlecry);
     activeScene.arrowShot = activeScene.sound.add('arrow_shot', {
         rate: 1.5,
         volume: .75,
         loop: false
     });
+    soundEffects.push(activeScene.arrowShot);
     activeScene.backstab = activeScene.sound.add('backstab', {
         rate: 1,
         volume: 3,
         loop: false
     });
+    soundEffects.push(activeScene.backstab);
     activeScene.lockpick = activeScene.sound.add('lockpick', {
         rate: 1,
         volume: 1,
         loop: false
     });
+    soundEffects.push(activeScene.lockpick);
     activeScene.stealth = activeScene.sound.add('stealth', {
         rate: 2,
         volume: .5,
         loop: false
     });
+    soundEffects.push(activeScene.stealth);
     activeScene.flurry = activeScene.sound.add('flurry', {
         rate: 1,
         volume: .75,
         loop: false
     });
+    soundEffects.push(activeScene.flurry);
     activeScene.staffHit = activeScene.sound.add('staff_hit', {
         rate: 1.5,
         volume: .5,
         loop: false
     });
+    soundEffects.push(activeScene.staffHit);
     activeScene.fireball = activeScene.sound.add('fireball', {
         rate: 1.2,
         volume: .75,
         loop: false
     });
+    soundEffects.push(activeScene.fireball);
     activeScene.lightning = activeScene.sound.add('lightning', {
         rate: 1,
         volume: .5,
         loop: false
     });
+    soundEffects.push(activeScene.lightning);
     activeScene.freeze = activeScene.sound.add('freeze', {
         rate: 2,
         volume: .4,
         loop: false
     });
+    soundEffects.push(activeScene.freeze);
     activeScene.meteor = activeScene.sound.add('meteor', {
         rate: 2,
         volume: .75,
         loop: false
     });
+    soundEffects.push(activeScene.meteor);
     activeScene.fireballExplosion = activeScene.sound.add('explosion', {
         rate: 1,
         volume: 1,
         loop: false
     });
+    soundEffects.push(activeScene.fireballExplosion);
     activeScene.meteorExplosion = activeScene.sound.add('explosion', {
         rate: .5,
         volume: 2,
         loop: false
     });
+    soundEffects.push(activeScene.meteorExplosion);
+}
+
+function createVolumes() {
+    for (var i = 0; i < soundEffects.length; i++) {
+        soundEffects[i].original = soundEffects[i].config.volume;
+    }
+    for (var i = 0; i < musicEffects.length; i++) {
+        musicEffects[i].original = musicEffects[i].config.volume;
+    }
+}
+
+function updateMasterVolume(){
+    for(var i = 0; i < soundEffects.length; i++) {
+        soundEffects[i].setVolume(soundEffects[i].original * masterVolume);
+    }
+}
+
+function updateMusicVolume() {
+    for (var i = 0; i < musicEffects.length; i++) {
+        musicEffects[i].setVolume(musicEffects[i].original * musicVolume);
+    }
 }
 
 function createInfoPanel(x, y, item, type, level, r, c) {
@@ -974,7 +1026,8 @@ function createMenu() {
     });
     menuComponents.push(activeScene.add.sprite(600, startY + gap * 1, 'menu_button').setOrigin(0.5).setInteractive().setScrollFactor(0));
     menuComponents[2].on('pointerup', function (pointer) {
-        console.log('Open Settings'); // Settings
+        setSettingsActive(true); // Settings 
+        hideMenu(true);
     });
     menuComponents.push(activeScene.add.sprite(600, startY + gap * 2, 'menu_button').setOrigin(0.5).setInteractive().setScrollFactor(0));
     menuComponents[3].on('pointerup', function (pointer) {
@@ -987,6 +1040,7 @@ function createMenu() {
     });
     menuComponents.push(activeScene.add.sprite(600, startY + gap * 3, 'menu_button').setOrigin(0.5).setInteractive().setScrollFactor(0));
     menuComponents[4].on('pointerup', function (pointer) {
+        game.sound.stopAll();
         activeScene.scene.start('menuScene'); // Quit
     });
 
@@ -1002,12 +1056,202 @@ function createMenu() {
     setMenuActive(false);
 }
 
+function setTint(start, value) {
+    for(var i = start; i < 20 + start; i+=2){
+        settingsComponents[i].clearTint();
+    }
+    settingsComponents[value].setTintFill(0xffff00);
+}
+
+function createSettings() {
+    settingsComponents = [];
+    settingsComponents.push(activeScene.add.sprite(600, 360, 'menu').setOrigin(0.5).setScrollFactor(0));
+
+    // Master Volume
+    var masterHeight = 290;
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 0, masterHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 0, masterHeight, '0', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[1].on('pointerup', function (pointer) {
+        setTint(1, 1);
+        masterVolume = 0 * .2;
+        updateMasterVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 1, masterHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 1, masterHeight, '1', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[3].on('pointerup', function (pointer) {
+        setTint(1, 3);
+        masterVolume = 1 * .2;
+        updateMasterVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 2, masterHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 2, masterHeight, '2', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[5].on('pointerup', function (pointer) {
+        setTint(1, 5);
+        masterVolume = 2 * .2;
+        updateMasterVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 3, masterHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 3, masterHeight, '3', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[7].on('pointerup', function (pointer) {
+        setTint(1, 7);
+        masterVolume = 3 * .2;
+        updateMasterVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 4, masterHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 4, masterHeight, '4', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[9].on('pointerup', function (pointer) {
+        setTint(1, 9);
+        masterVolume = 4 * .2;
+        updateMasterVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 5, masterHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 5, masterHeight, '5', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[11].on('pointerup', function (pointer) {
+        setTint(1, 11);
+        masterVolume = 5 * .2;
+        updateMasterVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 6, masterHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 6, masterHeight, '6', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[13].on('pointerup', function (pointer) {
+        setTint(1, 13);
+        masterVolume = 6 * .2;
+        updateMasterVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 7, masterHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 7, masterHeight, '7', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[15].on('pointerup', function (pointer) {
+        setTint(1, 15);
+        masterVolume = 7 * .2;
+        updateMasterVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 8, masterHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 8, masterHeight, '8', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[17].on('pointerup', function (pointer) {
+        setTint(1, 17);
+        masterVolume = 8 * .2;
+        updateMasterVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 9, masterHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 9, masterHeight, '9', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[19].on('pointerup', function (pointer) {
+        setTint(1, 19);
+        masterVolume = 9 * .2;
+        updateMasterVolume();
+    });
+
+    // Music Volume
+    var musicHeight = 410;
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 0, musicHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 0, musicHeight, '0', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[21].on('pointerup', function (pointer) {
+        setTint(21, 21);
+        musicVolume = 0 * .2;
+        updateMusicVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 1, musicHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 1, musicHeight, '1', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[23].on('pointerup', function (pointer) {
+        setTint(21, 23);
+        musicVolume = 1 * .2;
+        updateMusicVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 2, musicHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 2, musicHeight, '2', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[25].on('pointerup', function (pointer) {
+        setTint(21, 25);
+        musicVolume = 2 * .2;
+        updateMusicVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 3, musicHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 3, musicHeight, '3', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[27].on('pointerup', function (pointer) {
+        setTint(21, 27);
+        musicVolume = 3 * .2;
+        updateMusicVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 4, musicHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 4, musicHeight, '4', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[29].on('pointerup', function (pointer) {
+        setTint(21, 29);
+        musicVolume = 4 * .2;
+        updateMusicVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 5, musicHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 5, musicHeight, '5', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[31].on('pointerup', function (pointer) {
+        setTint(21, 31);
+        musicVolume = 5 * .2;
+        updateMusicVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 6, musicHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 6, musicHeight, '6', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[33].on('pointerup', function (pointer) {
+        setTint(21, 33);
+        musicVolume = 6 * .2;
+        updateMusicVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 7, musicHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 7, musicHeight, '7', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[35].on('pointerup', function (pointer) {
+        setTint(21, 35);
+        musicVolume = 7 * .2;
+        updateMusicVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 8, musicHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 8, musicHeight, '8', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[37].on('pointerup', function (pointer) {
+        setTint(21, 37);
+        musicVolume = 8 * .2;
+        updateMusicVolume();
+    });
+    settingsComponents.push(activeScene.add.sprite(465 + 30 * 9, musicHeight, 'volume_tab').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(465 + 30 * 9, musicHeight, '9', { font: 30 + "px Gothic", fill: "#000000" }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents[39].on('pointerup', function (pointer) {
+        setTint(21, 39);
+        musicVolume = 9 * .2;
+        updateMusicVolume();
+    });
+
+    // Back
+    settingsComponents.push(activeScene.add.sprite(600, 510, 'menu_button').setOrigin(0.5).setInteractive().setScrollFactor(0));
+    settingsComponents[41].on('pointerup', function (pointer) {
+        hideMenu(false);
+        setSettingsActive(false);
+    });
+
+    settingsComponents.push(activeScene.add.text(600, 180, 'Settings', { font: 60 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(600, 240, 'Master Volume', { font: 40 + "px Gothic", fill: "#000000"}).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(600, 360, 'Music Volume', { font: 40 + "px Gothic", fill: "#000000"}).setOrigin(0.5).setScrollFactor(0));
+    settingsComponents.push(activeScene.add.text(600, 510, 'Back', { font: 40 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0));
+
+    for (var i = 0; i < settingsComponents.length; i++) {
+        settingsComponents[i].depth = 4;
+    }
+    setTint(1, 2 * masterVolume / .2 + 1);
+    setTint(21, 2 * musicVolume / .2 + 21);
+    setSettingsActive(false);
+}
+
 function setMenuActive(active) {
     for (var i = 0; i < menuComponents.length; i++) {
         menuComponents[i].visible = active;
     }
     player.blockInput = active;
     player.menuOpen = active;
+    setSettingsActive(false);
+}
+
+function hideMenu(active){
+    for (var i = 0; i < menuComponents.length; i++) {
+        menuComponents[i].visible = !active;
+    }
+}
+
+function setSettingsActive(active) {
+    for (var i = 0; i < settingsComponents.length; i++) {
+        settingsComponents[i].visible = active;
+    }
 }
 
 function setInventoryActive(active) {

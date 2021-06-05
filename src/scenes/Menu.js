@@ -15,7 +15,7 @@ class Menu extends Phaser.Scene {
         // Set title & background
         var tower = activeScene.add.sprite(600, 360, 'tower').setOrigin(0.5);
         tower.setScale(.67);
-        this.add.text(600, 100, 'TOWER OF DAWN', { font: "80px Gothic", fill: "#a8a8a8", stroke: '#000000', strokeThickness: 6 }).setOrigin(0.5);
+        this.add.text(600, 100, 'TOWER OF DAWN', { font: "80px Gothic", fill: "#9e8035", stroke: '#000000', strokeThickness: 6 }).setOrigin(0.5);
 
         // Define Input
         keyW = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
