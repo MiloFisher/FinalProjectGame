@@ -724,9 +724,10 @@ function createInfoPanel(x, y, item, type, level, r, c) {
     panel.header.depth = 5;
     panel.icon = activeScene.add.sprite(x, y - 40, item + '_icon').setOrigin(0.5).setScrollFactor(0);
     panel.icon.depth = 5;
-    panel.type = activeScene.add.text(x, y + 30, 'Type: ' + getTypeName(type), { font: "25px Gothic", fill: "#000000", align: 'center' }).setOrigin(0.5).setScrollFactor(0);
+    panel.icon.setScale(1.4);
+    panel.type = activeScene.add.text(x, y + 35, 'Type: ' + getTypeName(type), { font: "25px Gothic", fill: "#000000", align: 'center' }).setOrigin(0.5).setScrollFactor(0);
     panel.type.depth = 5;
-    panel.description = activeScene.add.text(x, y + 90, getDescription(item, level), { font: "25px Gothic", fill: "#000000", align: 'center' }).setOrigin(0.5).setScrollFactor(0);
+    panel.description = activeScene.add.text(x, y + 95, getDescription(item, level), { font: "25px Gothic", fill: "#000000", align: 'center' }).setOrigin(0.5).setScrollFactor(0);
     panel.description.depth = 5;
     panel.r = r;
     panel.c = c;
@@ -761,9 +762,9 @@ function setInfoPanelActive(infoPanel, active) {
         infoPanel.icon.x = x;
         infoPanel.icon.y = y - 40;
         infoPanel.type.x = x;
-        infoPanel.type.y = y + 30;
+        infoPanel.type.y = y + 35;
         infoPanel.description.x = x;
-        infoPanel.description.y = y + 90;
+        infoPanel.description.y = y + 95;
     }
 }
 
@@ -806,6 +807,10 @@ function createItem(item, type, quantity, row, column, visible, level) {
         setInfoPanelActive(inventory[row][column].infoPanel, false);
     });
     inventory[row][column].drag = inventory[row][column].on('drag', (pointer, dragX, dragY) => {
+        inventory[row][column].depth = 5;
+        if(quantity > 1){
+            inventory[row][column].quantityText.depth = 5;
+        }
         setInfoPanelActive(inventory[row][column].infoPanel, false);
         inventory[row][column].x = dragX;
         inventory[row][column].y = dragY;
@@ -815,6 +820,10 @@ function createItem(item, type, quantity, row, column, visible, level) {
         }
     });
     inventory[row][column].drop = inventory[row][column].on('drop', (pointer, target) => {
+        inventory[row][column].depth = 4;
+        if (quantity > 1) {
+            inventory[row][column].quantityText.depth = 4;
+        }
         var rowCol = findRowCol(target);
         var r = rowCol[0];
         var c = rowCol[1];
@@ -847,6 +856,10 @@ function createItem(item, type, quantity, row, column, visible, level) {
         createItem(old[0], old[1], old[2], r, c, true);
     });
     inventory[row][column].dragend = inventory[row][column].on('dragend', (pointer, dragX, dragY) => {
+        inventory[row][column].depth = 4;
+        if (quantity > 1) {
+            inventory[row][column].quantityText.depth = 4;
+        }
         inventory[row][column].x = inventorySlots[row][column].x;
         inventory[row][column].y = inventorySlots[row][column].y;
         if (inventory[row][column].quantityText != undefined) {
@@ -1339,7 +1352,7 @@ function collectItem(item) {
             canStack = true;
         }
     }
-    if(canStack) {
+    if(canStack && item.type == 'item') {
         var quantity = inventory[openSlot[0]][openSlot[1]].quantity + 1;
         destroyItem(openSlot[0], openSlot[1]);
         createItem(item.itemName, item.type, quantity, openSlot[0], openSlot[1], false);
