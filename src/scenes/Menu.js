@@ -5,12 +5,17 @@ class Menu extends Phaser.Scene {
     }
 
     preload() {
-       
+        this.load.image('tower', 'assets/tower.png');
     }
 
     create() {
         // Set active scene
         activeScene = this;
+
+        // Set title & background
+        var tower = activeScene.add.sprite(600, 360, 'tower').setOrigin(0.5);
+        tower.setScale(.67);
+        this.add.text(600, 100, 'TOWER OF DAWN', { font: "80px Gothic", fill: "#a8a8a8", stroke: '#000000', strokeThickness: 6 }).setOrigin(0.5);
 
         // Define Input
         keyW = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -27,7 +32,7 @@ class Menu extends Phaser.Scene {
         var gap = 70;
         var offset = 0;
         if(fileExists()) {
-            this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'Continue', { font: "50px Gothic", fill: "#ffffff" }).setOrigin(0.5).setInteractive());
+            this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'Continue', { font: "50px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 5 }).setOrigin(0.5).setInteractive());
             offset = 1;
             this.options[0].on('pointerdown', function (pointer) { 
                 if(activeScene.selected == 0) { 
@@ -36,21 +41,21 @@ class Menu extends Phaser.Scene {
                 activeScene.selected = 0;
             });
         }
-        this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'New Game', { font: "50px Gothic", fill: "#ffffff" }).setOrigin(0.5).setInteractive());
+        this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'New Game', { font: "50px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 5}).setOrigin(0.5).setInteractive());
         this.options[0 + offset].on('pointerdown', function (pointer) { 
             if (activeScene.selected == 0 + offset) {
                 activeScene.select();
             }
             activeScene.selected = 0 + offset;
         });
-        this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'Settings', { font: "50px Gothic", fill: "#ffffff" }).setOrigin(0.5).setInteractive());
+        this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'Settings', { font: "50px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 5}).setOrigin(0.5).setInteractive());
         this.options[1 + offset].on('pointerdown', function (pointer) { 
             if (activeScene.selected == 1 + offset) {
                 activeScene.select();
             }
             activeScene.selected = 1 + offset;
         });
-        this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'Credits', { font: "50px Gothic", fill: "#ffffff" }).setOrigin(0.5).setInteractive());
+        this.options.push(this.add.text(centerX, centerY + gap * this.options.length, 'Credits', { font: "50px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 5}).setOrigin(0.5).setInteractive());
         this.options[2 + offset].on('pointerdown', function (pointer) {
             if (activeScene.selected == 2 + offset) {
                 activeScene.select();

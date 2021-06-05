@@ -102,6 +102,7 @@ class NewGame extends Phaser.Scene {
     select() {
         var classes = ['warrior', 'rogue','mage','necromancer'];
         playerClass = classes[this.selected];
+        watchedCutscene1 = false;
         this.scene.start('level01Scene');
     }
 

@@ -42,6 +42,7 @@ let projectiles = [];               // holds all projectile objects
 let groundItems = [];               // holds all ground items
 let chests = [];                    // holds all chests
 let inCutsceneTween = false;        // true when tweening cutscenes
+let watchedCutscene1 = false;       // true if watched cutscene 1
 let enableHitboxes = false;         // controls if attack hitboxes are shown
 
 // data for save file
@@ -295,16 +296,15 @@ function saveGame() {
         class: playerClass,
         level: activeSceneKey,
         secret: secretUnlocked,
+        cutscene1: watchedCutscene1,
     };
     localStorage.setItem(saveName, JSON.stringify(file));
 }
 
 function loadGame() {
     var file = JSON.parse(localStorage.getItem(saveName));
-    console.log(file.class);
-    console.log(file.level);
-    console.log(file.secret);
     playerClass = file.class;
+    watchedCutscene1 = file.cutscene1;
     activeScene.scene.start(file.level);
 }
 
@@ -375,7 +375,11 @@ function loadPlayerSpritesheets(scene) {
     scene.load.image('bag_icon', 'assets/inventory_icon.png');
     scene.load.image('health_potion_icon', 'assets/health_potion_icon.png');
     scene.load.image('key_icon', 'assets/key_icon.png');
+    scene.load.image('crossbow_icon', 'assets/crossbow_icon.png');
+    scene.load.image('sword_icon', 'assets/sword_icon.png');
+    scene.load.image('staff_icon', 'assets/staff_icon.png');
     scene.load.image('cutscene_bar', 'assets/CutsceneBar.png');
+    scene.load.image('info_panel', 'assets/infoPanel.png');
 
     scene.load.image('chest_closed', 'assets/chest_closed.png');
     scene.load.image('chest_opened', 'assets/chest_opened.png');
@@ -713,7 +717,65 @@ function createPlayerSounds() {
     });
 }
 
-function createItem(item, type, quantity, row, column, visible) {
+function createInfoPanel(x, y, item, type, level, r, c) {
+    var panel = activeScene.add.sprite(x, y, 'info_panel').setOrigin(0.5).setScrollFactor(0);
+    panel.depth = 5;
+    panel.header = activeScene.add.text(x, y - 120, getName(item, level), { font: "35px Gothic", fill: "#808080", align: 'center', stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5).setScrollFactor(0);
+    panel.header.depth = 5;
+    panel.icon = activeScene.add.sprite(x, y - 40, item + '_icon').setOrigin(0.5).setScrollFactor(0);
+    panel.icon.depth = 5;
+    panel.type = activeScene.add.text(x, y + 30, 'Type: ' + getTypeName(type), { font: "25px Gothic", fill: "#000000", align: 'center' }).setOrigin(0.5).setScrollFactor(0);
+    panel.type.depth = 5;
+    panel.description = activeScene.add.text(x, y + 90, getDescription(item, level), { font: "25px Gothic", fill: "#000000", align: 'center' }).setOrigin(0.5).setScrollFactor(0);
+    panel.description.depth = 5;
+    panel.r = r;
+    panel.c = c;
+    setInfoPanelActive(panel, false);
+    return panel;
+}
+
+function setInfoPanelActive(infoPanel, active) {
+    infoPanel.visible = active;
+    infoPanel.header.visible = active;
+    infoPanel.icon.visible = active;
+    infoPanel.type.visible = active;
+    infoPanel.description.visible = active;
+
+    if(active) {
+        var x = inventory[infoPanel.r][infoPanel.c].x;
+        var y = inventory[infoPanel.r][infoPanel.c].y;
+        if (infoPanel.c > 5) {
+            x -= 180;
+        } else {
+            x += 180;
+        }
+        if (infoPanel.r == 0) {
+            y += 90;
+        } else if(infoPanel.r >= 4){
+            y -= 90;
+        }
+        infoPanel.x = x;
+        infoPanel.y = y;
+        infoPanel.header.x = x;
+        infoPanel.header.y = y - 120;
+        infoPanel.icon.x = x;
+        infoPanel.icon.y = y - 40;
+        infoPanel.type.x = x;
+        infoPanel.type.y = y + 30;
+        infoPanel.description.x = x;
+        infoPanel.description.y = y + 90;
+    }
+}
+
+function destroyInfoPanel(infoPanel) {
+    infoPanel.header.destroy();
+    infoPanel.icon.destroy();
+    infoPanel.type.destroy();
+    infoPanel.description.destroy();
+    infoPanel.destroy();
+}
+
+function createItem(item, type, quantity, row, column, visible, level) {
     inventory[row][column] = activeScene.add.sprite(inventorySlots[row][column].x, inventorySlots[row][column].y, item + '_icon').setScrollFactor(0).setInteractive({
         draggable: true
     });
@@ -721,6 +783,10 @@ function createItem(item, type, quantity, row, column, visible) {
     inventory[row][column].type = type;
     inventory[row][column].quantity = quantity;
     inventory[row][column].visible = visible;
+    if(level == undefined) {
+        level = 1;
+    }
+    inventory[row][column].level = level;
     var offsetX = 25;
     var offsetY = 25;
     if(quantity > 1) { 
@@ -732,7 +798,15 @@ function createItem(item, type, quantity, row, column, visible) {
         hudIcons[1].setTexture(inventory[row][column].texture);
     }
     inventory[row][column].depth = 4;
+    inventory[row][column].infoPanel = createInfoPanel(inventory[row][column].x, inventory[row][column].y, item, type, level, row, column);
+    inventory[row][column].hover = inventory[row][column].on('pointerover', function (pointer) {
+        setInfoPanelActive(inventory[row][column].infoPanel, true);
+    });
+    inventory[row][column].hoverOut = inventory[row][column].on('pointerout', function (pointer) {
+        setInfoPanelActive(inventory[row][column].infoPanel, false);
+    });
     inventory[row][column].drag = inventory[row][column].on('drag', (pointer, dragX, dragY) => {
+        setInfoPanelActive(inventory[row][column].infoPanel, false);
         inventory[row][column].x = dragX;
         inventory[row][column].y = dragY;
         if (inventory[row][column].quantityText != undefined) {
@@ -744,7 +818,7 @@ function createItem(item, type, quantity, row, column, visible) {
         var rowCol = findRowCol(target);
         var r = rowCol[0];
         var c = rowCol[1];
-
+        setInfoPanelActive(inventory[row][column].infoPanel, false);
         if (r == 5 && c == 0 && inventory[row][column].type != 'weapon') {
             return;
         } 
@@ -779,6 +853,7 @@ function createItem(item, type, quantity, row, column, visible) {
             inventory[row][column].quantityText.x = inventorySlots[row][column].x + offsetX;
             inventory[row][column].quantityText.y = inventorySlots[row][column].y + offsetY;
         }
+        setInfoPanelActive(inventory[row][column].infoPanel, false);
     });
 }
 
@@ -787,9 +862,12 @@ function destroyItem(row, column) {
         hudIcons[1].setTexture('inventory_slot');
         hudIcons[1].quantityText.text = '\0';
     }
+    inventory[row][column].hover.destroy();
+    inventory[row][column].hoverOut.destroy();
     inventory[row][column].drag.destroy();
     inventory[row][column].drop.destroy();
     inventory[row][column].dragend.destroy();
+    destroyInfoPanel(inventory[row][column].infoPanel);
     if (inventory[row][column].quantityText != undefined) {
         inventory[row][column].quantityText.destroy();
     }
@@ -865,7 +943,10 @@ function createInventory() {
         inventoryComponents[i].depth = 4;
     }
     createItem('health_potion', 'item', 1, 0, 0, false);
-    createItem('health_potion', 'item', 1, 4, 3, false);
+    createItem('key', 'item', 1, 0, 1, false);
+    createItem('sword', 'weapon', 1, 0, 2, false);
+    createItem('crossbow', 'weapon', 1, 0, 3, false);
+    createItem('staff', 'weapon', 1, 0, 4, false);
     setInventoryActive(false);
 }
 
@@ -884,7 +965,12 @@ function createMenu() {
     });
     menuComponents.push(activeScene.add.sprite(600, startY + gap * 2, 'menu_button').setOrigin(0.5).setInteractive().setScrollFactor(0));
     menuComponents[3].on('pointerup', function (pointer) {
-        console.log('Save Game'); // Save
+        saveGame(); // Save Game
+        var text = activeScene.add.text(1050, 680, 'Saving...', { font: "40px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4, stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0);
+        text.depth = 5;
+        activeScene.time.delayedCall(1000, () => {
+            text.destroy();
+        }, null, activeScene);
     });
     menuComponents.push(activeScene.add.sprite(600, startY + gap * 3, 'menu_button').setOrigin(0.5).setInteractive().setScrollFactor(0));
     menuComponents[4].on('pointerup', function (pointer) {
@@ -922,6 +1008,7 @@ function setInventoryActive(active) {
         for(var c = 0; c < 11; c++) {
             if(inventory[r][c] != undefined) {
                 inventory[r][c].visible = active;
+                setInfoPanelActive(inventory[r][c].infoPanel, false);
                 if (inventory[r][c].quantityText != undefined) {
                     inventory[r][c].quantityText.visible = active;
                 }
@@ -930,18 +1017,21 @@ function setInventoryActive(active) {
     }
     if (inventory[5][0] != undefined) {
         inventory[5][0].visible = active;
+        setInfoPanelActive(inventory[5][0].infoPanel, false);
         if (inventory[5][0].quantityText != undefined) {
             inventory[5][0].quantityText.visible = active;
         }
     }
     if (inventory[5][1] != undefined) {
         inventory[5][1].visible = active;
+        setInfoPanelActive(inventory[5][1].infoPanel, false);
         if (inventory[5][1].quantityText != undefined) {
             inventory[5][1].quantityText.visible = active;
         }
     }
     if (inventory[5][2] != undefined) {
         inventory[5][2].visible = active;
+        setInfoPanelActive(inventory[5][2].infoPanel, false);
         if (inventory[5][2].quantityText != undefined) {
             inventory[5][2].quantityText.visible = active;
             hudIcons[1].quantityText.text = inventory[5][2].quantityText.text;
@@ -1051,7 +1141,7 @@ function cutscene(type, duration, wait, text) {
                 });
                 activeScene.time.delayedCall(startEndTime, () => {
                     if (inCutscene && !inCutsceneTween) {
-                        var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000' }).setOrigin(0.5).setScrollFactor(0);
+                        var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000', align: 'center' }).setOrigin(0.5).setScrollFactor(0);
                         displayText.depth = 5;
                         displayTexts.push(displayText);
                         activeScene.time.delayedCall(duration, () => {
@@ -1064,7 +1154,7 @@ function cutscene(type, duration, wait, text) {
                 break;
             case 'continue': 
                 if(inCutscene) {
-                    var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000' }).setOrigin(0.5).setScrollFactor(0);
+                    var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000', align: 'center' }).setOrigin(0.5).setScrollFactor(0);
                     displayText.depth = 5;
                     displayTexts.push(displayText);
                     activeScene.time.delayedCall(duration, () => {
@@ -1076,7 +1166,7 @@ function cutscene(type, duration, wait, text) {
                 break;
             case 'end': 
                 if(inCutscene) {
-                    var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000' }).setOrigin(0.5).setScrollFactor(0);
+                    var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000', align: 'center' }).setOrigin(0.5).setScrollFactor(0);
                     displayText.depth = 5;
                     displayTexts.push(displayText);
                     activeScene.time.delayedCall(duration, () => {
@@ -1284,9 +1374,44 @@ function collectItem(item) {
     item.destroy();
 }
 
+function sumTo(value) {
+    return value * (value + 1) / 2;
+}
+
+function getTypeName(type) {
+    switch (type) {
+        case 'item': return 'Item';
+        case 'weapon': return 'Weapon';
+        case 'armor': return 'Armor';
+    }
+}
+
+function getName(item, level) {
+    switch (item) {
+        case 'health_potion': return 'Health Potion';
+        case 'key': return 'Key';
+        case 'crossbow': return 'Crossbow + ' + level;
+        case 'sword': return 'Sword + ' + level;
+        case 'staff': return 'Staff + ' + level;
+    }
+}
+
 function getType(item) { 
     switch(item) {
         case 'health_potion': return 'item';
         case 'key': return 'item';
+        case 'crossbow': return 'weapon';
+        case 'sword': return 'weapon';
+        case 'staff': return 'weapon';
+    }
+}
+
+function getDescription(item, level) {
+    switch (item) {
+        case 'health_potion': return 'Effect: Restores\n25 health';
+        case 'key': return 'Effect: Opens a\nlocked chest';
+        case 'crossbow': return 'Weapon that deals\n' + (sumTo(level) + 4) + ' damage';
+        case 'sword': return 'Weapon that deals\n' + (sumTo(level) + 4) + ' damage';
+        case 'staff': return 'Weapon that deals\n' + (sumTo(level) + 4) + ' damage';
     }
 }

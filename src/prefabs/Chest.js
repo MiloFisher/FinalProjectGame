@@ -5,7 +5,7 @@ class Chest extends Phaser.Physics.Arcade.Sprite {
         activeScene.add.existing(this);
         activeScene.physics.add.existing(this);
         this.opened = false;
-        this.lootTable = ['health_potion','key'];
+        this.lootTable = ['health_potion', 'key', 'crossbow', 'sword', 'staff'];
         this.itemDrops = Phaser.Math.Between(1, 4);
     }
 
