@@ -406,6 +406,9 @@ function loadPlayerSpritesheets(scene) {
     scene.load.image('crossbow_icon', 'assets/crossbow_icon.png');
     scene.load.image('sword_icon', 'assets/sword_icon.png');
     scene.load.image('staff_icon', 'assets/staff_icon.png');
+    scene.load.image('warrior_armor_icon', 'assets/warrior_armor_icon.png');
+    scene.load.image('rogue_armor_icon', 'assets/rogue_armor_icon.png');
+    scene.load.image('mage_armor_icon', 'assets/mage_armor_icon.png');
     scene.load.image('cutscene_bar', 'assets/CutsceneBar.png');
     scene.load.image('info_panel', 'assets/infoPanel.png');
     scene.load.image('volume_tab', 'assets/VolumeTab.png');
@@ -1041,6 +1044,9 @@ function createInventory() {
     createItem('sword', 'weapon', 1, 0, 2, false);
     createItem('crossbow', 'weapon', 1, 0, 3, false);
     createItem('staff', 'weapon', 1, 0, 4, false);
+    createItem('warrior_armor', 'armor', 1, 0, 5, false);
+    createItem('rogue_armor', 'armor', 1, 0, 6, false);
+    createItem('mage_armor', 'armor', 1, 0, 7, false);
     setInventoryActive(false);
 }
 
@@ -1689,6 +1695,9 @@ function getName(item, level) {
         case 'crossbow': return 'Crossbow + ' + level;
         case 'sword': return 'Sword + ' + level;
         case 'staff': return 'Staff + ' + level;
+        case 'warrior_armor': return 'Chainmail + ' + level;
+        case 'rogue_armor': return 'Jacket + ' + level;
+        case 'mage_armor': return 'Cloak + ' + level;
     }
 }
 
@@ -1699,6 +1708,9 @@ function getType(item) {
         case 'crossbow': return 'weapon';
         case 'sword': return 'weapon';
         case 'staff': return 'weapon';
+        case 'warrior_armor': return 'armor';
+        case 'rogue_armor': return 'armor';
+        case 'mage_armor': return 'armor';
     }
 }
 
@@ -1709,5 +1721,8 @@ function getDescription(item, level) {
         case 'crossbow': return 'Weapon that deals\n' + (sumTo(level) + 4) + ' damage';
         case 'sword': return 'Weapon that deals\n' + (sumTo(level) + 4) + ' damage';
         case 'staff': return 'Weapon that deals\n' + (sumTo(level) + 4) + ' damage';
+        case 'warrior_armor': return 'Armor that provides\n' + (sumTo(level) * 2 + 4) + ' health';
+        case 'rogue_armor': return 'Armor that provides\n' + (sumTo(level) * 2 + 4) + ' health';
+        case 'mage_armor': return 'Armor that provides\n' + (sumTo(level) * 2 + 4) + ' health';
     }
 }
