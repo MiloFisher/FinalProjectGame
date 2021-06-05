@@ -237,7 +237,6 @@ class Level01 extends Phaser.Scene {
                     onComplete: function () {
                         if (activeScene.tower != undefined) {
                             activeScene.tower.destroy();
-                            activeScene.cameras.main.fadeIn(1000);
                         }
                     }
                 });
@@ -269,7 +268,6 @@ class Level01 extends Phaser.Scene {
                 cutscene('end', 0, 0, '', this.cutsceneMusic);
                 if(this.tower != undefined) {
                     this.tower.destroy();
-                    activeScene.cameras.main.fadeIn(0);
                 }
             }
         }

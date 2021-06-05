@@ -628,6 +628,8 @@ function createPlayerAnimations() {
 }
 
 function loadPlayerSounds(scene) {
+    scene.load.audio('chest', './assets/Chest.mp3');
+
     scene.load.audio('walk', './assets/Running.mp3');
     scene.load.audio('sword_swing', './assets/SwordSwing.mp3');
     scene.load.audio('thud', './assets/Thud.mp3');
@@ -765,6 +767,12 @@ function createPlayerSounds() {
         loop: false
     });
     soundEffects.push(activeScene.meteorExplosion);
+    activeScene.chest = activeScene.sound.add('chest', {
+        rate: 1,
+        volume: 2,
+        loop: false
+    });
+    soundEffects.push(activeScene.chest);
 }
 
 function createVolumes() {
@@ -1434,7 +1442,7 @@ function cutscene(type, duration, wait, text, music) {
                 }, null, activeScene);
                 break;
             case 'continue': 
-                if(inCutscene) {
+                if (inCutscene && !inCutsceneTween) {
                     var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000', align: 'center' }).setOrigin(0.5).setScrollFactor(0);
                     displayText.depth = 5;
                     displayTexts.push(displayText);
@@ -1463,6 +1471,7 @@ function cutscene(type, duration, wait, text, music) {
                             }
                             displayTexts = [];
                             inCutsceneTween = true;
+                            activeScene.cameras.main.fadeIn(1000);
                             activeScene.tweens.add({
                                 targets: cutsceneBars[0],
                                 y: -70,

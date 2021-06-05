@@ -125,6 +125,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                     }
                 }
                 if(foundChest) {
+                    activeScene.lockpick.play();
                     destroyItem(5, 2);
                     if (quantity > 1) {
                         createItem(item, type, quantity - 1, 5, 2);

@@ -15,6 +15,7 @@ class Chest extends Phaser.Physics.Arcade.Sprite {
         }
         this.opened = true;
         this.setTexture('chest_opened');
+        activeScene.chest.play();
         for(var i = 0; i < this.itemDrops; i++) {
             var tableIndex = Phaser.Math.Between(0, this.lootTable.length - 1);
             var item = new Phaser.Physics.Arcade.Sprite(activeScene, this.x, this.y, this.lootTable[tableIndex] + '_icon');
