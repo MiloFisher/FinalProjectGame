@@ -780,7 +780,6 @@ function updateMasterVolume(){
     for(var i = 0; i < soundEffects.length; i++) {
         soundEffects[i].setVolume(soundEffects[i].original * masterVolume);
     }
-    console.log(masterVolume);
     saveVolumes();
 }
 
@@ -788,7 +787,6 @@ function updateMusicVolume() {
     for (var i = 0; i < musicEffects.length; i++) {
         musicEffects[i].setVolume(musicEffects[i].original * musicVolume);
     }
-    console.log(musicVolume);
     saveVolumes();
 }
 
@@ -1452,6 +1450,9 @@ function cutscene(type, duration, wait, text, music) {
                     var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000', align: 'center' }).setOrigin(0.5).setScrollFactor(0);
                     displayText.depth = 5;
                     displayTexts.push(displayText);
+                    if(duration > 0) {
+                        activeScene.cameras.main.fadeOut(duration);
+                    }
                     activeScene.time.delayedCall(duration, () => {
                         if (displayText != undefined)
                         {

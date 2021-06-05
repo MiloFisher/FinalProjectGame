@@ -217,21 +217,6 @@ class Level01 extends Phaser.Scene {
             this.tower = activeScene.add.sprite(600,360,'tower').setOrigin(0.5).setScrollFactor(0);
             this.tower.depth = 4;
             this.tower.setScale(.67);
-            activeScene.time.delayedCall(1000, () => {
-                activeScene.tweens.add({
-                    targets: activeScene.tower,
-                    scaleX: 1.2,
-                    scaleY: 1.2,
-                    y: 500,
-                    duration: 25000,
-                    //ease: 'Power2',
-                    onComplete: function () {
-                        if (activeScene.tower != undefined) {
-                            activeScene.tower.destroy();
-                        }
-                    }
-                });
-            }, null, activeScene);
             var wait = cutscene('start', 2000, 0, 'The Tower of Dawn…', this.cutsceneMusic);
             wait += cutscene('continue', 4000, wait, 'It has stood tall over these remote plains\nfor as long as history can recall.');
             wait += cutscene('continue', 2000, wait, 'Nobody knows who built it, or why...');
@@ -239,7 +224,24 @@ class Level01 extends Phaser.Scene {
             wait += cutscene('continue', 4000, wait, 'Many stories and legends offer different\nexplanations for how the Tower came to be...');
             wait += cutscene('continue', 3000, wait, 'But there is one detail that almost\nall the stories can agree on:');
             wait += cutscene('continue', 2000, wait, 'Whoever manages to reach the tower\'s pinnacle...');
-            cutscene('end', 4000, wait, 'Will be rewarded with the power to\nfulfill their wildest goals and ambitions.', this.cutsceneMusic);
+            wait += cutscene('continue', 4000, wait, 'Will be rewarded with the power to\nfulfill their wildest goals and ambitions.');
+            wait += cutscene('end', 3000, wait, 'And this is where our story begins...', this.cutsceneMusic);
+            activeScene.time.delayedCall(1000, () => {
+                activeScene.tweens.add({
+                    targets: activeScene.tower,
+                    scaleX: 1.2,
+                    scaleY: 1.2,
+                    y: 500,
+                    duration: wait - 2000,
+                    //ease: 'Power2',
+                    onComplete: function () {
+                        if (activeScene.tower != undefined) {
+                            activeScene.tower.destroy();
+                            activeScene.cameras.main.fadeIn(1000);
+                        }
+                    }
+                });
+            }, null, activeScene);
             watchedCutscene1 = true;
         }
     }
@@ -267,6 +269,7 @@ class Level01 extends Phaser.Scene {
                 cutscene('end', 0, 0, '', this.cutsceneMusic);
                 if(this.tower != undefined) {
                     this.tower.destroy();
+                    activeScene.cameras.main.fadeIn(0);
                 }
             }
         }
