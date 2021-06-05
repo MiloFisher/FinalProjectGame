@@ -18,6 +18,7 @@ class Level01 extends Phaser.Scene {
         this.load.audio('bear_hurt', './assets/BearHurt.mp3');
         this.load.audio('wisp_hurt', './assets/WispHurt.mp3');
         this.load.audio('background_music', './assets/BackgroundMusic1.wav');
+        this.load.audio('cutscene_music', './assets/BossMusic.wav');
 
         // sprite sheets
         loadPlayerSpritesheets(this);
@@ -152,6 +153,12 @@ class Level01 extends Phaser.Scene {
             loop: true,
         });
         musicEffects.push(activeScene.backgroundMusic);
+        this.cutsceneMusic = activeScene.sound.add('cutscene_music', {
+            rate: .5,
+            volume: .5,
+            loop: true,
+        });
+        musicEffects.push(activeScene.backgroundMusic);
 
         // Update Volumes
         createVolumes();
@@ -224,14 +231,14 @@ class Level01 extends Phaser.Scene {
                     }
                 });
             }, null, activeScene);
-            var wait = cutscene('start', 2000, 0,'The Tower of Dawn…');
+            var wait = cutscene('start', 2000, 0, 'The Tower of Dawn…', this.cutsceneMusic);
             wait += cutscene('continue', 4000, wait, 'It has stood tall over these remote plains\nfor as long as history can recall.');
             wait += cutscene('continue', 2000, wait, 'Nobody knows who built it, or why...');
             wait += cutscene('continue', 4000, wait, 'And there are few who would risk facing the monsters\nthat roam its halls in order to find out.');
             wait += cutscene('continue', 4000, wait, 'Many stories and legends offer different\nexplanations for how the Tower came to be...');
             wait += cutscene('continue', 3000, wait, 'But there is one detail that almost\nall the stories can agree on:');
             wait += cutscene('continue', 2000, wait, 'Whoever manages to reach the tower\'s pinnacle...');
-            cutscene('end', 4000, wait, 'Will be rewarded with the power to\nfulfill their wildest goals and ambitions.');
+            cutscene('end', 4000, wait, 'Will be rewarded with the power to\nfulfill their wildest goals and ambitions.', this.cutsceneMusic);
             watchedCutscene1 = true;
         }
     }

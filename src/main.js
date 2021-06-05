@@ -1377,7 +1377,7 @@ function explosion(old_attack, container, duration) {
     }, null, activeScene);
 }
 
-function cutscene(type, duration, wait, text) {
+function cutscene(type, duration, wait, text, music) {
     var fontSize = 40;
     var startEndTime = 1000;
     activeScene.time.delayedCall(wait, () => {
@@ -1386,6 +1386,9 @@ function cutscene(type, duration, wait, text) {
                 displayTexts = [];
                 inCutscene = true;
                 toggleUI(false);
+                if(music != undefined) {
+                    music.play();
+                }
                 activeScene.tweens.add({
                     targets: cutsceneBars[0],
                     y: 70,
@@ -1455,6 +1458,9 @@ function cutscene(type, duration, wait, text) {
                                         }
                                     }
                                     displayTexts = [];
+                                    if (music != undefined) {
+                                        music.stop();
+                                    }
                                 },
                             });
                         }
