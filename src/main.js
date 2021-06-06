@@ -48,6 +48,7 @@ let groundItems = [];               // holds all ground items
 let chests = [];                    // holds all chests
 let inCutsceneTween = false;        // true when tweening cutscenes
 let watchedCutscene1 = false;       // true if watched cutscene 1
+let newGame = false;                // true if new game
 let enableHitboxes = false;         // controls if attack hitboxes are shown
 
 // data for save file
@@ -84,6 +85,9 @@ function reset() {
     chests = [];
     enemies = [];
     projectiles = [];
+    soundEffects = [];
+    musicEffects = [];
+    groundItems = [];
 }
 
 function diagonalCollision(object1, object2) {
@@ -297,11 +301,63 @@ function spawnWisp(x, y, target) {
 }
 
 function saveGame() {
+    var items = [[]];
+    var quantities = [[]];
+    var levels = [[]];
+    for(var r = 0; r < 5; r++) {
+        items.push([]);
+        quantities.push([]);
+        levels.push([]);
+        for (var c = 0; c < 11; c++) {
+            if (inventory[r] != undefined && inventory[r][c] != undefined) {
+                items[r].push(inventory[r][c].item);
+                quantities[r].push(inventory[r][c].quantity);
+                levels[r].push(inventory[r][c].level);
+            } else {
+                items[r].push(undefined);
+                quantities[r].push(undefined);
+                levels[r].push(undefined);
+            }
+        }
+    }
+    items.push([]);
+    quantities.push([]);
+    levels.push([]);
+    if (inventory[5] != undefined && inventory[5][0] != undefined) {
+        items[5].push(inventory[5][0].item);
+        quantities[5].push(inventory[5][0].quantity);
+        levels[5].push(inventory[5][0].level);
+    } else {
+        items[5].push(undefined);
+        quantities[5].push(undefined);
+        levels[5].push(undefined);
+    }
+    if (inventory[5] != undefined && inventory[5][1] != undefined) {
+        items[5].push(inventory[5][1].item);
+        quantities[5].push(inventory[5][1].quantity);
+        levels[5].push(inventory[5][1].level);
+    } else {
+        items[5].push(undefined);
+        quantities[5].push(undefined);
+        levels[5].push(undefined);
+    }
+    if (inventory[5] != undefined && inventory[5][2] != undefined) {
+        items[5].push(inventory[5][2].item);
+        quantities[5].push(inventory[5][2].quantity);
+        levels[5].push(inventory[5][2].level);
+    } else {
+        items[5].push(undefined);
+        quantities[5].push(undefined);
+        levels[5].push(undefined);
+    }
     var file = {
         class: playerClass,
         level: activeSceneKey,
         secret: secretUnlocked,
         cutscene1: watchedCutscene1,
+        items: items,
+        quantities: quantities,
+        levels: levels,
     };
     localStorage.setItem(saveName, JSON.stringify(file));
 }
@@ -311,7 +367,28 @@ function loadGame() {
     playerClass = file.class;
     secretUnlocked = file.secret;
     watchedCutscene1 = file.cutscene1;
+
     activeScene.scene.start(file.level);
+}
+
+function loadInventory() {
+    var file = JSON.parse(localStorage.getItem(saveName));
+    for (var r = 0; r < 5; r++) {
+        for (var c = 0; c < 11; c++) {
+            if (file.items[r][c] != null) {
+                createItem(file.items[r][c], getType(file.items[r][c]), file.quantities[r][c], r, c, false, file.levels[r][c]);
+            }
+        }
+    }
+    if (file.items[5][0] != null) {
+        createItem(file.items[5][0], getType(file.items[5][0]), file.quantities[5][0], 5, 0, false, file.levels[5][0]);
+    }
+    if (file.items[5][1] != null) {
+        createItem(file.items[5][1], getType(file.items[5][1]), file.quantities[5][1], 5, 1, false, file.levels[5][1]);
+    }
+    if (file.items[5][2] != null) {
+        createItem(file.items[5][2], getType(file.items[5][2]), file.quantities[5][2], 5, 2, false, file.levels[5][2]);
+    }
 }
 
 function saveVolumes() {
@@ -992,8 +1069,6 @@ function findRowCol(target) {
 }
 
 function createInventory() {
-    groundItems = [];
-
     inventoryComponents = [];
     inventoryComponents.push(activeScene.add.sprite(600, 360, 'inventory').setOrigin(0.5).setScrollFactor(0));
     inventoryComponents.push(activeScene.add.text(270, 590, 'Weapon', { font: 30 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5).setScrollFactor(0));
@@ -1002,16 +1077,17 @@ function createInventory() {
 
     inventorySlots = [[]];
     inventory = [[]];
+    
     var x = 600 - inventoryComponents[0].width / 2 + 51;
     var y = 360 - inventoryComponents[0].height / 2 + 51;
     for(var r = 0; r < 5; r++) {
-        inventory.push([]);
         inventorySlots.push([]);
+        inventory.push([]);
         for(var c = 0; c < 11; c++) {
-            inventory[r].push(undefined);
             inventorySlots[r].push(activeScene.add.sprite(x + c * 90, y + r * 90, 'inventory_slot').setScrollFactor(0).setInteractive({
                 dropZone: true
             }));
+            inventory[r].push(undefined);
         }
     }
     for (var r = 0; r < 5; r++) {
@@ -1039,14 +1115,6 @@ function createInventory() {
     for (var i = 0; i < inventoryComponents.length; i++) {
         inventoryComponents[i].depth = 4;
     }
-    createItem('health_potion', 'item', 1, 0, 0, false);
-    createItem('key', 'item', 1, 0, 1, false);
-    createItem('sword', 'weapon', 1, 0, 2, false);
-    createItem('crossbow', 'weapon', 1, 0, 3, false);
-    createItem('staff', 'weapon', 1, 0, 4, false);
-    createItem('warrior_armor', 'armor', 1, 0, 5, false);
-    createItem('rogue_armor', 'armor', 1, 0, 6, false);
-    createItem('mage_armor', 'armor', 1, 0, 7, false);
     setInventoryActive(false);
 }
 
@@ -1331,10 +1399,14 @@ function setInventoryActive(active) {
             hudIcons[1].quantityText.text = '\0';
         }
     } else {
-        hudIcons[1].quantityText.text = '\0';
+        if(hudIcons[1] != undefined) {
+            hudIcons[1].quantityText.text = '\0';
+        }
     }
-    player.blockInput = active;
-    player.inventoryOpen = active;
+    if(player != undefined) {
+        player.blockInput = active;
+        player.inventoryOpen = active;
+    }
 }
 
 function createHUD() {
