@@ -26,6 +26,7 @@ let soundEffects = [];              // holds all sound effects
 let musicVolume = 1;                // holds music volume (-5, 5)
 let musicEffects = [];              // holds all music effects
 let healthBar;                      // holds health bar object
+let xpBar;                          // holds xp bar object
 let menuComponents = [];            // holds components of menu
 let settingsComponents = [];        // holds components of settings
 let hudIcons = [];                  // holds icons on HUD
@@ -54,6 +55,8 @@ let enableHitboxes = false;         // controls if attack hitboxes are shown
 // data for save file
 let saveName = 'saveData';          // holds name of saved data
 let playerClass = 'warrior';        // holds player's class
+let playerLevel = 1;                // holds player's level
+let playerXP = 0;                   // holds player's xp
 let secretUnlocked = true;          // hold if secret character has been unlocked
 
 // reserve keyboard vars
@@ -352,6 +355,8 @@ function saveGame() {
     }
     var file = {
         class: playerClass,
+        playerLevel: playerLevel,
+        playerXP: playerXP,
         level: activeSceneKey,
         secret: secretUnlocked,
         cutscene1: watchedCutscene1,
@@ -365,9 +370,10 @@ function saveGame() {
 function loadGame() {
     var file = JSON.parse(localStorage.getItem(saveName));
     playerClass = file.class;
+    playerLevel = file.playerLevel;
+    playerXP = file.playerXP;
     secretUnlocked = file.secret;
     watchedCutscene1 = file.cutscene1;
-
     activeScene.scene.start(file.level);
 }
 
@@ -1074,6 +1080,8 @@ function createInventory() {
     inventoryComponents.push(activeScene.add.text(270, 590, 'Weapon', { font: 30 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5).setScrollFactor(0));
     inventoryComponents.push(activeScene.add.text(505, 590, 'Armor', { font: 30 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5).setScrollFactor(0));
     inventoryComponents.push(activeScene.add.text(740, 590, 'Item', { font: 30 + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5).setScrollFactor(0));
+    inventoryComponents.push(activeScene.add.text(975, 560, 'Level', { font: 40 + "px Gothic", fill: "#9e8035", stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0));
+    inventoryComponents.push(activeScene.add.text(975, 610, playerLevel, { font: 50 + "px Gothic", fill: "#9e8035", stroke: '#000000', strokeThickness: 5 }).setOrigin(0.5).setScrollFactor(0));
 
     inventorySlots = [[]];
     inventory = [[]];
@@ -1439,7 +1447,9 @@ function createHUD() {
     hudComponents.push(activeScene.add.text(cellX[4], cellY, '3', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: fontSize * hudScale * .1 }).setOrigin(0.5).setScrollFactor(0));
     hudComponents.push(activeScene.add.text(cellX[5], cellY, '4', { font: fontSize * hudScale + "px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: fontSize * hudScale * .1 }).setOrigin(0.5).setScrollFactor(0));
     healthBar = activeScene.add.rectangle(hud.x, hud.y - (hud.height * hudScale) * 0.37, 548 * hudScale, 30 * hudScale, 0xff0000, 1).setOrigin(0.5).setScrollFactor(0);
+    xpBar = activeScene.add.rectangle(hud.x, hud.y - (hud.height * hudScale) * 0.245, 0, 5 * hudScale, 0xff00ff, 1).setOrigin(0.5).setScrollFactor(0);
     hudComponents.push(healthBar);
+    hudComponents.push(xpBar);
     for(var i = 0; i < hudComponents.length; i++) {
         hudComponents[i].depth = 1;
     }
@@ -1448,12 +1458,19 @@ function createHUD() {
     cutsceneBars.push(activeScene.add.sprite(600, game.config.height + 70, 'cutscene_bar').setOrigin(0.5).setScrollFactor(0));
     cutsceneBars[0].depth = 5;
     cutsceneBars[1].depth = 5;
+    updateXPBar();
 }
 
 function updateHealthBar() {
     var percent = player.health / player.maxHealth;
     healthBar.setSize(548 * hudScale * percent,30 * hudScale);
     healthBar.x = hud.x + ((548 * hudScale) - (548 * hudScale * percent));
+}
+
+function updateXPBar() {
+    var percent = playerXP / (playerLevel * 500);
+    xpBar.setSize(548 * hudScale * percent, 5 * hudScale);
+    xpBar.x = hud.x - (548 * hudScale) / 2;
 }
 
 function explosion(old_attack, container, duration) {
@@ -1716,7 +1733,7 @@ function collectItem(item) {
     if(canStack && item.type == 'item') {
         var quantity = inventory[openSlot[0]][openSlot[1]].quantity + 1;
         destroyItem(openSlot[0], openSlot[1]);
-        createItem(item.itemName, item.type, quantity, openSlot[0], openSlot[1], false);
+        createItem(item.itemName, item.type, quantity, openSlot[0], openSlot[1], false, item.level);
         setInventoryActive(false);
     } else {
         // Add to open slot in inventory
@@ -1735,7 +1752,7 @@ function collectItem(item) {
             return;
         }
         // Otherwise add to inventory
-        createItem(item.itemName, item.type, 1, openSlot[0], openSlot[1], false);
+        createItem(item.itemName, item.type, 1, openSlot[0], openSlot[1], false, item.level);
     }
     // Remove from groundItems
     for(var i = 0; i < groundItems.length; i++) {

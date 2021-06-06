@@ -22,6 +22,8 @@ class Chest extends Phaser.Physics.Arcade.Sprite {
             item.setScale(.5);
             item.itemName = this.lootTable[tableIndex];
             item.type = getType(this.lootTable[tableIndex]);
+            var levelChoices = [playerLevel - 1, playerLevel, playerLevel, playerLevel, playerLevel + 1];
+            item.level = levelChoices[Phaser.Math.Between(0, levelChoices.length - 1)];
             activeScene.add.existing(item);
             activeScene.physics.add.existing(item);
             groundItems.push(item);

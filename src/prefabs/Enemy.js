@@ -1,5 +1,5 @@
 class Enemy extends Phaser.Physics.Arcade.Sprite {
-    constructor(x, y, texture, colliderRadius, range, health, movementSpeed, target, key, hitColor, moveSound, hurtSound, attackSound) {
+    constructor(x, y, texture, colliderRadius, range, health, movementSpeed, xp, target, key, hitColor, moveSound, hurtSound, attackSound) {
         super(activeScene, x, y, texture);
         // Enemy Configuration
         activeScene.add.existing(this);
@@ -10,6 +10,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.health = health;
         this.maxHealth = health;
         this.movementSpeed = movementSpeed;
+        this.xp = xp;
         this.target = target;
         this.targetNode = null;
         this.adjacent = false;
@@ -101,6 +102,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                     this.statusEffect.destroy();
                 }
                 this.dropLoot();
+                player.gainXP(this.xp);
                 this.destroy();
             }
         }
@@ -114,6 +116,8 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             item.setScale(.5);
             item.itemName = this.lootTable[tableIndex];
             item.type = getType(this.lootTable[tableIndex]);
+            var levelChoices = [playerLevel - 1, playerLevel, playerLevel, playerLevel, playerLevel + 1];
+            item.level = levelChoices[Phaser.Math.Between(0, levelChoices.length - 1)];
             activeScene.add.existing(item);
             activeScene.physics.add.existing(item);
             groundItems.push(item);

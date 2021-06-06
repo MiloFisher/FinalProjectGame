@@ -7,11 +7,12 @@ class Slime extends Enemy {
         var range = 90;
         var health = 20;
         var movementSpeed = 150;
+        var xp = 50;
         var moveSound = activeScene.slimeMoveSound;
         var hurtSound = activeScene.slimeHurtSound;
         var attackSound = activeScene.slimeAttackSound;
 
-        super(x, y, texture, colliderRadius, range, health, movementSpeed, target, key, hurtColor, moveSound, hurtSound, attackSound);
+        super(x, y, texture, colliderRadius, range, health, movementSpeed, xp, target, key, hurtColor, moveSound, hurtSound, attackSound);
         this.lootTable = ['health_potion', 'key', playerClass + '_weapon', playerClass + '_armor'];
         this.dropRate = .2;
     }

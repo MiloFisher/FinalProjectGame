@@ -201,6 +201,10 @@ class Level01 extends Phaser.Scene {
 
         if(newGame) {
             newGame = false;
+            playerLevel = 1;
+            playerXP = 0;
+            updateXPBar();
+            inventoryComponents[5].text = playerLevel;
             switch(playerClass){
                 case 'warrior': 
                     createItem('warrior_weapon', 'weapon', 1, 5, 0, false, 0);

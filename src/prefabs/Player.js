@@ -99,6 +99,19 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
+    gainXP(amount) {
+        if(playerLevel != 20) {
+            playerXP += amount;
+            var xpNeededToLevelUp = playerLevel * 500;
+            if(playerXP >= xpNeededToLevelUp) {
+                playerXP -= xpNeededToLevelUp;
+                playerLevel++;
+            }
+            updateXPBar();
+            inventoryComponents[5].text = playerLevel;
+        }
+    }
+
     useItem() {
         if (inventory[5][2] == undefined) {
             return;

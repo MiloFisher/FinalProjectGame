@@ -7,11 +7,12 @@ class Wisp extends Enemy {
         var range = 110;
         var health = 20;
         var movementSpeed = 150;
+        var xp = 50;
         var moveSound = activeScene.wispMoveSound;
         var hurtSound = activeScene.wispHurtSound;
         var attackSound = activeScene.wispAttackSound;
 
-        super(x, y, texture, colliderRadius, range, health, movementSpeed, target, key, hurtColor, moveSound, hurtSound, attackSound);
+        super(x, y, texture, colliderRadius, range, health, movementSpeed, xp, target, key, hurtColor, moveSound, hurtSound, attackSound);
         this.lootTable = ['health_potion', 'key', playerClass + '_weapon', playerClass + '_armor'];
         this.dropRate = .2;
     }
