@@ -38,9 +38,6 @@ class Level01 extends Phaser.Scene {
         // Reset
         reset();
 
-        // Save game
-        saveGame();
-
         // Create tile map
         map = this.make.tilemap({ key: 'map' });
         map.setCollisionByProperty({ walkable: false });
@@ -207,17 +204,17 @@ class Level01 extends Phaser.Scene {
             newGame = false;
             switch(playerClass){
                 case 'warrior': 
-                    createItem('sword', 'weapon', 1, 5, 0, false, 0);
+                    createItem('warrior_weapon', 'weapon', 1, 5, 0, false, 0);
                     createItem('warrior_armor', 'armor', 1, 5, 1, false, 0);
                     createItem('health_potion', 'item', 1, 0, 0, false);
                     break;
                 case 'rogue':
-                    createItem('crossbow', 'weapon', 1, 5, 0, false, 0);
+                    createItem('rogue_weapon', 'weapon', 1, 5, 0, false, 0);
                     createItem('rogue_armor', 'armor', 1, 5, 1, false, 0);
                     createItem('health_potion', 'item', 1, 0, 0, false);
                     break;
                 case 'mage':
-                    createItem('staff', 'weapon', 1, 5, 0, false, 0);
+                    createItem('mage_weapon', 'weapon', 1, 5, 0, false, 0);
                     createItem('mage_armor', 'armor', 1, 5, 1, false, 0);
                     createItem('health_potion', 'item', 1, 0, 0, false);
                     break;
@@ -265,6 +262,9 @@ class Level01 extends Phaser.Scene {
             }, null, activeScene);
             watchedCutscene1 = true;
         }
+
+        // Save game
+        saveGame();
     }
 
     update() {
