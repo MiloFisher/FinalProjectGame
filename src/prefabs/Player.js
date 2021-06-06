@@ -1,5 +1,5 @@
 class Player extends Phaser.Physics.Arcade.Sprite {
-    constructor(x, y, texture, colliderRadius, health) {
+    constructor(x, y, texture, colliderRadius) {
         super(activeScene, x, y, texture);
         // Player Configuration
         activeScene.add.existing(this);
@@ -13,8 +13,10 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.direction = 0;
         this.lockMovement = false;
         this.hitColor = 0xff0000;
-        this.health = health;
-        this.maxHealth = health;
+        this.attack = playerAttack;
+        this.bufferHealth = 0;
+        this.health = playerHealth;
+        this.maxHealth = playerHealth;
         this.selectedAbility = -1;
         this.displayHitArea;
         this.cooldown0 = false;
@@ -386,7 +388,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             }
             this.health -= damage;
             updateHealthBar();
-            if (this.health <= 0) {
+            if (this.health + this.bufferHealth <= 0) {
                 this.die();
             }
             activeScene.time.delayedCall(250, () => {
@@ -400,7 +402,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
     heal(amount) {
         this.health += amount;
-        if(this.health > this.maxHealth){
+        if (this.health + this.bufferHealth > this.maxHealth + this.bufferHealth){
             this.health = this.maxHealth;
         } 
         updateHealthBar();

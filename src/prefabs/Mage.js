@@ -1,6 +1,6 @@
 class Mage extends Player {
-    constructor(x, y, texture, colliderRadius, health) {
-        super(x, y, texture, colliderRadius, health);
+    constructor(x, y, texture, colliderRadius) {
+        super(x, y, texture, colliderRadius);
 
     }
 
@@ -34,7 +34,7 @@ class Mage extends Player {
         if (!this.isAttacking) {
             // Set attack variables
             var duration = 250;
-            var damage = 3;
+            var damage = this.attack;
 
             // Call helper functions
             this.setupAttack(pointer, gameObject, true);
@@ -63,7 +63,7 @@ class Mage extends Player {
             var abilityId = 0;
             var duration = 500;
             var cooldown = 2000;
-            var damage = 6; // Explosion effect deals 2x damage to target, and 1x damage to surrounding enemies
+            var damage = Math.trunc(this.attack * 1.25); // Explosion effect deals 2x damage to target, and 1x damage to surrounding enemies
 
             // Call helper functions
             this.setupAttack(pointer, gameObject, true);
@@ -104,7 +104,7 @@ class Mage extends Player {
             var abilityId = 1;
             var duration = 500;
             var cooldown = 4000;
-            var damage = 5;
+            var damage = Math.trunc(this.attack * 1);
             var range = 800;
 
             // Call helper functions
@@ -183,7 +183,7 @@ class Mage extends Player {
             var abilityId = 3;
             var duration = 1500;
             var cooldown = 4000;
-            var damage = 15;
+            var damage = Math.trunc(this.attack * 3);
 
             // Call helper functions
             this.setupAttack(pointer, gameObject, true);

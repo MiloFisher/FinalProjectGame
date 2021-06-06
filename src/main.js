@@ -14,6 +14,8 @@ let game = new Phaser.Game(config);
 
 // global variables
 let playerSpeed = 300;              // how fast the player will move
+let playerAttack = 1;               // how much base attack the player has
+let playerHealth = 30;              // how much base health the player has
 let diagonalSpeed = .71;            // multiplier for how fast entities move diagonally
 let cutsceneBars = [];              // holds black cutscene bars
 let displayTexts = [];              // holds display texts during cutscenes
@@ -943,6 +945,23 @@ function destroyInfoPanel(infoPanel) {
     infoPanel.destroy();
 }
 
+function updateAttackAndHealth() {
+    if (inventory[5][0] != undefined) {
+        player.attack = playerAttack + weaponValue(inventory[5][0].level);
+    } else {
+        player.attack = playerAttack;
+    }
+    if (inventory[5][1] != undefined) {
+        player.bufferHealth = armorValue(inventory[5][1].level);
+    } else {
+        player.bufferHealth = 0;
+        if (player.health <= 0) {
+            player.health = 1;
+        }
+    }
+    updateHealthBar();
+}
+
 function createItem(item, type, quantity, row, column, visible, level) {
     inventory[row][column] = activeScene.add.sprite(inventorySlots[row][column].x, inventorySlots[row][column].y, item + '_icon').setScrollFactor(0).setInteractive({
         draggable: true
@@ -965,6 +984,7 @@ function createItem(item, type, quantity, row, column, visible, level) {
     if(row == 5 && column == 2) {
         hudIcons[1].setTexture(inventory[row][column].texture);
     }
+    updateAttackAndHealth();
     inventory[row][column].depth = 4;
     inventory[row][column].infoPanel = createInfoPanel(inventory[row][column].x, inventory[row][column].y, item, type, level, row, column);
     inventory[row][column].hover = inventory[row][column].on('pointerover', function (pointer) {
@@ -1042,6 +1062,7 @@ function destroyItem(row, column) {
         hudIcons[1].setTexture('inventory_slot');
         hudIcons[1].quantityText.text = '\0';
     }
+    updateAttackAndHealth();
     inventory[row][column].hover.destroy();
     inventory[row][column].hoverOut.destroy();
     inventory[row][column].drag.destroy();
@@ -1462,7 +1483,7 @@ function createHUD() {
 }
 
 function updateHealthBar() {
-    var percent = player.health / player.maxHealth;
+    var percent = (player.health + player.bufferHealth) / (player.maxHealth + player.bufferHealth);
     healthBar.setSize(548 * hudScale * percent,30 * hudScale);
     healthBar.x = hud.x + ((548 * hudScale) - (548 * hudScale * percent));
 }
@@ -1807,11 +1828,19 @@ function getDescription(item, level) {
     switch (item) {
         case 'health_potion': return 'Effect: Restores\n25 health';
         case 'key': return 'Effect: Opens a\nlocked chest';
-        case 'rogue_weapon': return 'Weapon that deals\n' + (sumTo(level) + 4) + ' damage';
-        case 'warrior_weapon': return 'Weapon that deals\n' + (sumTo(level) + 4) + ' damage';
-        case 'mage_weapon': return 'Weapon that deals\n' + (sumTo(level) + 4) + ' damage';
-        case 'warrior_armor': return 'Armor that provides\n' + (sumTo(level) * 2 + 4) + ' health';
-        case 'rogue_armor': return 'Armor that provides\n' + (sumTo(level) * 2 + 4) + ' health';
-        case 'mage_armor': return 'Armor that provides\n' + (sumTo(level) * 2 + 4) + ' health';
+        case 'rogue_weapon': return 'Weapon that deals\n' + weaponValue(level) + ' damage';
+        case 'warrior_weapon': return 'Weapon that deals\n' + weaponValue(level) + ' damage';
+        case 'mage_weapon': return 'Weapon that deals\n' + weaponValue(level) + ' damage';
+        case 'warrior_armor': return 'Armor that provides\n' + armorValue(level) + ' health';
+        case 'rogue_armor': return 'Armor that provides\n' + armorValue(level) + ' health';
+        case 'mage_armor': return 'Armor that provides\n' + armorValue(level) + ' health';
     }
+}
+
+function armorValue(level) {
+    return (sumTo(level) * 2 + 4);
+}
+
+function weaponValue(level) {
+    return (sumTo(level) + 4);
 }

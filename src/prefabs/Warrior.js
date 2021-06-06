@@ -1,6 +1,6 @@
 class Warrior extends Player {
-    constructor(x, y, texture, colliderRadius, health) {
-        super(x, y, texture, colliderRadius, health);
+    constructor(x, y, texture, colliderRadius) {
+        super(x, y, texture, colliderRadius);
         this.charging = false;
         this.chargeCollision;
         this.chargeTargets;
@@ -29,7 +29,7 @@ class Warrior extends Player {
         if (!this.isAttacking) {
             // Set attack variables
             var duration = 250;
-            var damage = 3;
+            var damage = this.attack;
 
             // Call helper functions
             this.setupAttack(pointer, gameObject, true);
@@ -58,7 +58,7 @@ class Warrior extends Player {
             var abilityId = 0;
             var duration = 600;
             var cooldown = 4500;
-            var damage = 12;
+            var damage = Math.trunc(this.attack * 1.75);
 
             // Call helper functions
             this.setupAttack(pointer, gameObject, true);
@@ -96,7 +96,7 @@ class Warrior extends Player {
             var abilityId = 1;
             var duration = 750;
             var cooldown = 3000;
-            var damage = 8;
+            var damage = Math.trunc(this.attack * 1.2);
             var chargeSpeed = 700;
 
             // Call helper functions
@@ -175,7 +175,7 @@ class Warrior extends Player {
             var abilityId = 2;
             var duration = 1000;
             var cooldown = 6000;
-            var damage = 3;
+            var damage = Math.trunc(this.attack * .75);
             var attacks = 5;
 
             // Call helper functions

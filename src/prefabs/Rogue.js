@@ -1,6 +1,6 @@
 class Rogue extends Player {
-    constructor(x, y, texture, colliderRadius, health) {
-        super(x, y, texture, colliderRadius, health);
+    constructor(x, y, texture, colliderRadius) {
+        super(x, y, texture, colliderRadius);
         
     }
 
@@ -16,7 +16,7 @@ class Rogue extends Player {
         if (!this.isAttacking) {
             // Set attack variables
             var duration = 500;
-            var damage = 3;
+            var damage = this.attack;
 
             // Call helper functions
             this.setupAttack(pointer, gameObject, false);
@@ -51,7 +51,7 @@ class Rogue extends Player {
             var abilityId = 0;
             var duration = 600;
             var cooldown = 4500;
-            var damage = 12;
+            var damage = Math.trunc(this.attack * 1.75);
             var range = 600;
 
             // If gameObject is not specified, assign closest enemy to it 
@@ -220,7 +220,7 @@ class Rogue extends Player {
             var abilityId = 3;
             var duration = 500;
             var cooldown = 5000;
-            var damage = 5;
+            var damage = Math.trunc(this.attack * 1);
 
             // Call helper functions
             this.setupAttack(pointer, gameObject, true);

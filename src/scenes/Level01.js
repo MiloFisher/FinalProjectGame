@@ -167,9 +167,9 @@ class Level01 extends Phaser.Scene {
         var posX = 2 * 80 + 40;
         var posY = 6 * 80 + 40;
         switch(playerClass) {
-            case 'warrior': player = new Warrior(posX, posY, playerClass + '_idle', 40, 100); break;
-            case 'rogue': player = new Rogue(posX, posY, playerClass + '_idle', 40, 100); break;
-            case 'mage': player = new Mage(posX, posY, playerClass + '_idle', 40, 100); break;
+            case 'warrior': player = new Warrior(posX, posY, playerClass + '_idle', 40); break;
+            case 'rogue': player = new Rogue(posX, posY, playerClass + '_idle', 40); break;
+            case 'mage': player = new Mage(posX, posY, playerClass + '_idle', 40); break;
             case 'necromancer': player = new Necromancer(posX, posY, playerClass + '_idle', 40, 100); break;
         }
         player.angle = 90;
@@ -257,7 +257,6 @@ class Level01 extends Phaser.Scene {
                     scaleY: 1.2,
                     y: 500,
                     duration: wait - 2000,
-                    //ease: 'Power2',
                     onComplete: function () {
                         if (activeScene.tower != undefined) {
                             activeScene.tower.destroy();
