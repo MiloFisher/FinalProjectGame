@@ -998,23 +998,23 @@ function createItem(item, type, quantity, row, column, visible, level) {
         if (r == 5 && c == 2 && inventory[row][column].type != 'item') {
             return;
         }
-        var old = [inventory[row][column].item, inventory[row][column].type, inventory[row][column].quantity];
+        var old = [inventory[row][column].item, inventory[row][column].type, inventory[row][column].quantity, inventory[row][column].level];
         if (row == 5 && column == 2) {
             hudIcons[1].setTexture('inventory_slot');
         }
         destroyItem(row,column);
         if (inventory[r][c] != undefined) {
-            var old2 = [inventory[r][c].item, inventory[r][c].type, inventory[r][c].quantity];
+            var old2 = [inventory[r][c].item, inventory[r][c].type, inventory[r][c].quantity, inventory[r][c].level];
             destroyItem(r, c);
             if(old[0] == old2[0] && old[1] == 'item' && old2[1] == 'item') {
                 // Stack like items
                 old[2] = old[2] + old2[2];
             } else {
                 // Swap different items
-                createItem(old2[0], old2[1], old2[2], row, column, true);
+                createItem(old2[0], old2[1], old2[2], row, column, true, old2[3]);
             }
         }
-        createItem(old[0], old[1], old[2], r, c, true);
+        createItem(old[0], old[1], old[2], r, c, true, old[3]);
     });
     inventory[row][column].dragend = inventory[row][column].on('dragend', (pointer, dragX, dragY) => {
         inventory[row][column].depth = 4;

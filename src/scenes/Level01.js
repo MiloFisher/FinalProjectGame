@@ -198,7 +198,6 @@ class Level01 extends Phaser.Scene {
         createSettings();
         createHUD();
         createInventory();
-        loadInventory();
 
         if(newGame) {
             newGame = false;
@@ -219,6 +218,8 @@ class Level01 extends Phaser.Scene {
                     createItem('health_potion', 'item', 1, 0, 0, false);
                     break;
             }
+        } else {
+            loadInventory();
         }
 
         // Collisions
