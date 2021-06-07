@@ -1,7 +1,6 @@
 class Settings extends Phaser.Scene {
     constructor() {
-        activeSceneKey = "settingsScene";
-        super(activeSceneKey);
+        super("settingsScene");
     }
 
     preload() {
@@ -12,6 +11,7 @@ class Settings extends Phaser.Scene {
     create() {
         // Set active scene
         activeScene = this;
+        activeSceneKey = "settingsScene";
 
         // Set title & background
         var tower = activeScene.add.sprite(600, 360, 'tower').setOrigin(0.5);

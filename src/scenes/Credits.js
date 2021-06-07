@@ -1,7 +1,6 @@
 class Credits extends Phaser.Scene {
     constructor() {
-        activeSceneKey = "creditsScene";
-        super(activeSceneKey);
+        super("creditsScene");
     }
 
     preload() {
@@ -11,6 +10,7 @@ class Credits extends Phaser.Scene {
     create() {
         // Set active scene
         activeScene = this;
+        activeSceneKey = "creditsScene";
 
         // Set title & background
         var tower = activeScene.add.sprite(600, 360, 'tower').setOrigin(0.5);

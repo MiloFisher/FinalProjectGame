@@ -1,7 +1,6 @@
 class Level01 extends Phaser.Scene {
     constructor() {
-        activeSceneKey = "level01Scene";
-        super(activeSceneKey);
+        super("level01Scene");
     }
 
     preload() {
@@ -34,6 +33,7 @@ class Level01 extends Phaser.Scene {
     create() {
         // Set active scene
         activeScene = this;
+        activeSceneKey = "level01Scene";
 
         // Reset
         reset();
@@ -352,7 +352,7 @@ class Level01 extends Phaser.Scene {
                 break;
             case 1:
                 // Wait for action 1
-                if(player.x > 11 * 80) {
+                if(player.x > 8 * 80) {
                     this.tutorialText.destroy();
                     this.tutorialPhase = 2;
                 }
@@ -407,6 +407,21 @@ class Level01 extends Phaser.Scene {
                 if (inventory[5][2] != undefined) {
                     this.tutorialText.destroy();
                     this.tutorialPhase = 10;
+                }
+                else {
+                    var inventoryEmpty = true;
+                    outer:
+                    for(var r = 0; r < 5; r++) {
+                        for(var c = 0; c < 11; c++) {
+                            if(inventory[r][c] != undefined) {
+                                inventoryEmpty = false;
+                                break outer;
+                            }
+                        }
+                    }
+                    if(inventoryEmpty) {
+                        createItem('health_potion', 'item', 1, 0, 0, true);
+                    }
                 }
                 break;
             case 10:

@@ -1,7 +1,6 @@
 class Menu extends Phaser.Scene {
     constructor() {
-        activeSceneKey = "menuScene";
-        super(activeSceneKey);
+        super("menuScene");
     }
 
     preload() {
@@ -11,6 +10,7 @@ class Menu extends Phaser.Scene {
     create() {
         // Set active scene
         activeScene = this;
+        activeSceneKey = "menuScene";
 
         // Load volumes
         loadVolumes();

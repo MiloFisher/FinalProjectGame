@@ -1,7 +1,6 @@
 class NewGame extends Phaser.Scene {
     constructor() {
-        activeSceneKey = "newGameScene";
-        super(activeSceneKey);
+        super("newGameScene");
     }
 
     preload() {
@@ -15,6 +14,7 @@ class NewGame extends Phaser.Scene {
     create() {
         // Set active scene
         activeScene = this;
+        activeSceneKey = "newGameScene";
 
         // Define Input
         keyA = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);

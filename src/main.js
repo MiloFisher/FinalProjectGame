@@ -49,6 +49,7 @@ let enemyAttacks = [];              // holds enemies' attack objects
 let projectiles = [];               // holds all projectile objects
 let groundItems = [];               // holds all ground items
 let chests = [];                    // holds all chests
+let cutsceneCalls = [];             // holds all cutscene calls
 let inCutsceneTween = false;        // true when tweening cutscenes
 let watchedCutscene1 = false;       // true if watched cutscene 1
 let newGame = false;                // true if new game
@@ -87,11 +88,27 @@ function addTriangles() {
 }
 
 function reset() {
+    inCutscene = false;
     chests = [];
+    for (var i = 0; i < soundEffects.length; i++) {
+        if (soundEffects[i] != undefined) {
+            soundEffects[i].destroy();
+        }
+    }
     soundEffects = [];
+    for (var i = 0; i < musicEffects.length; i++) {
+        if (musicEffects[i] != undefined) {
+            musicEffects[i].destroy();
+        }
+    }
     musicEffects = [];
     groundItems = [];
     player = undefined;
+    for(var i = 0; i <  enemies.length; i++) {
+        if (enemies[i] != undefined) {
+            enemies[i].destroy();
+        }
+    }
     enemies = [];
     projectiles = [];
     if(map != undefined) {
@@ -1545,7 +1562,7 @@ function cutscene(type, duration, wait, text, music, image) {
     if(type == 'start') {
         inCutscene = true;
     }
-    activeScene.time.delayedCall(wait, () => {
+    cutsceneCalls.push(activeScene.time.delayedCall(wait, () => {
         switch(type) {
             case 'start': 
                 displayTexts = [];
@@ -1564,7 +1581,7 @@ function cutscene(type, duration, wait, text, music, image) {
                     y: game.config.height - 70,
                     duration: startEndTime,
                 });
-                activeScene.time.delayedCall(startEndTime, () => {
+                cutsceneCalls.push(activeScene.time.delayedCall(startEndTime, () => {
                     if (inCutscene && !inCutsceneTween) {
                         var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000', align: 'center' }).setOrigin(0.5).setScrollFactor(0);
                         displayText.depth = 5;
@@ -1575,16 +1592,16 @@ function cutscene(type, duration, wait, text, music, image) {
                             displayImage.depth = 5;
                             displayTexts.push(displayImage);
                         }
-                        activeScene.time.delayedCall(duration, () => {
+                        cutsceneCalls.push(activeScene.time.delayedCall(duration, () => {
                             if (displayText != undefined) {
                                 displayText.destroy();
                             }
                             if (displayImage != undefined) {
                                 displayImage.destroy();
                             }
-                        }, null, activeScene);
+                        }, null, activeScene));
                     }
-                }, null, activeScene);
+                }, null, activeScene));
                 break;
             case 'continue': 
                 if (inCutscene && !inCutsceneTween) {
@@ -1597,14 +1614,14 @@ function cutscene(type, duration, wait, text, music, image) {
                         displayImage.depth = 5;
                         displayTexts.push(displayImage);
                     }
-                    activeScene.time.delayedCall(duration, () => {
+                    cutsceneCalls.push(activeScene.time.delayedCall(duration, () => {
                         if (displayText != undefined) {
                             displayText.destroy();
                         }
                         if (displayImage != undefined) {
                             displayImage.destroy();
                         }
-                    }, null, activeScene);
+                    }, null, activeScene));
                 }
                 break;
             case 'end': 
@@ -1621,7 +1638,7 @@ function cutscene(type, duration, wait, text, music, image) {
                     if(duration > 0) {
                         activeScene.cameras.main.fadeOut(duration);
                     }
-                    activeScene.time.delayedCall(duration, () => {
+                    cutsceneCalls.push(activeScene.time.delayedCall(duration, () => {
                         if (displayText != undefined)
                         {
                             for (var i = 0; i < displayTexts.length; i++) {
@@ -1651,6 +1668,12 @@ function cutscene(type, duration, wait, text, music, image) {
                                         }
                                     }
                                     displayTexts = [];
+                                    for(var i = 0; i < cutsceneCalls.length; i++) {
+                                        if(cutsceneCalls[i] != undefined) {
+                                            cutsceneCalls[i].destroy();
+                                        }
+                                    }
+                                    cutsceneCalls = [];
                                     if (music != undefined) {
                                         music.stop();
                                     }
@@ -1660,11 +1683,11 @@ function cutscene(type, duration, wait, text, music, image) {
                         if (displayImage != undefined) {
                             displayImage.destroy();
                         }
-                    }, null, activeScene);
+                    }, null, activeScene));
                 }
                 break;
         }
-    }, null, activeScene);
+    }, null, activeScene));
     if(type == 'continue') {
         return duration;
     }

@@ -1,7 +1,6 @@
 class Level02 extends Phaser.Scene {
     constructor() {
-        activeSceneKey = "level02Scene";
-        super(activeSceneKey);
+        super("level02Scene");
     }
 
     preload() {
@@ -34,6 +33,7 @@ class Level02 extends Phaser.Scene {
     create() {
         // Set active scene
         activeScene = this;
+        activeSceneKey = "level02Scene";
 
         // Reset
         reset();

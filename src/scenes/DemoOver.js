@@ -1,7 +1,6 @@
 class DemoOver extends Phaser.Scene {
     constructor() {
-        activeSceneKey = "demoOverScene";
-        super(activeSceneKey);
+        super("demoOverScene");
     }
 
     preload() {
@@ -11,6 +10,7 @@ class DemoOver extends Phaser.Scene {
     create() {
         // Set active scene
         activeScene = this;
+        activeSceneKey = "demoOverScene";
 
         // Set title & background
         this.add.sprite(600, 360, 'demoOver').setOrigin(0.5);

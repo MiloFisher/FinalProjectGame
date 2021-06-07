@@ -409,7 +409,33 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     die() {
-        console.log("game over");
+        // Cutscenes
+        switch(playerClass) {
+            case 'warrior':
+                this.blockInput = true;
+                var wait = cutscene('start', 2000, 0, 'I wasn\'t strong enough...', null, playerClass + '_talking');
+                wait += cutscene('end', 1000, wait, '');
+                activeScene.time.delayedCall(wait - 1000, () => {
+                    loadGame();
+                }, null, activeScene);
+                break;
+            case 'rogue':
+                this.blockInput = true;
+                var wait = cutscene('start', 2000, 0, 'I have failed...', null, playerClass + '_talking');
+                wait += cutscene('end', 1000, wait, '');
+                activeScene.time.delayedCall(wait - 1000, () => {
+                    loadGame();
+                }, null, activeScene);
+                break;
+            case 'mage':
+                this.blockInput = true;
+                var wait = cutscene('start', 2000, 0, 'My powers failed me...', null, playerClass + '_talking');
+                wait += cutscene('end', 1000, wait, '');
+                activeScene.time.delayedCall(wait - 1000, () => {
+                    loadGame();
+                }, null, activeScene);
+                break;
+        }
     }
 
     displayHitAreaCircle(radius, distanceFromCaster) {
