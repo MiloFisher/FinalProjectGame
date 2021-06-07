@@ -5,16 +5,16 @@ class Slime extends Enemy {
         var hurtColor = 0x00c0f0;
         var colliderRadius = 40;
         var range = 90;
-        var health = 20;
-        var movementSpeed = 150;
-        var xp = 50;
+        var health = 15;
+        var movementSpeed = 120;
+        var xp = 10;
         var moveSound = activeScene.slimeMoveSound;
         var hurtSound = activeScene.slimeHurtSound;
         var attackSound = activeScene.slimeAttackSound;
 
         super(x, y, texture, colliderRadius, range, health, movementSpeed, xp, target, key, hurtColor, moveSound, hurtSound, attackSound);
         this.lootTable = ['health_potion', 'key', playerClass + '_weapon', playerClass + '_armor'];
-        this.dropRate = .2;
+        this.dropRate = 0;
     }
 
     attack() {
@@ -38,7 +38,7 @@ class Slime extends Enemy {
             var attack;
             // Start Attack
             activeScene.time.delayedCall(duration/4, () => {
-                attack = new Attack(activeScene, this, this.direction, 140, 140, 0, 5);
+                attack = new Attack(activeScene, this, this.direction, 140, 140, 0, 1);
                 enemyAttacks.push(attack);
             }, null, activeScene);
             // On Attack stop

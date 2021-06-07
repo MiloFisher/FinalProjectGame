@@ -1529,7 +1529,7 @@ function cutscene(type, duration, wait, text, music) {
         switch(type) {
             case 'start': 
                 displayTexts = [];
-                inCutscene = true;
+    
                 toggleUI(false);
                 if(music != undefined) {
                     music.play();

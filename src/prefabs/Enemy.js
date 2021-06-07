@@ -109,7 +109,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     dropLoot() {
-        var value = Phaser.Math.Between(0, 100);
+        var value = Phaser.Math.Between(1, 100);
         if(value <= this.dropRate * 100) {
             var tableIndex = Phaser.Math.Between(0, this.lootTable.length - 1);
             var item = new Phaser.Physics.Arcade.Sprite(activeScene, this.x, this.y, this.lootTable[tableIndex] + '_icon');

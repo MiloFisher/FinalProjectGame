@@ -9,7 +9,7 @@ class Level01 extends Phaser.Scene {
         this.load.image('tower', 'assets/tower.png');
         this.load.image('wispshot', 'assets/mobs1/projectile_wispshot.png');
 
-        this.load.tilemapTiledJSON('map', 'assets/tilemap.json');
+        this.load.tilemapTiledJSON('map', 'assets/levels/level01.json');
         this.load.image('tiles', 'assets/tiles/stage_1_tileset.png');
 
         // sounds
@@ -164,8 +164,8 @@ class Level01 extends Phaser.Scene {
         updateMusicVolume();
 
         // Create Player
-        var posX = 2 * 80 + 40;
-        var posY = 6 * 80 + 40;
+        var posX = 4 * 80 + 40;
+        var posY = 15 * 80 + 40;
         switch(playerClass) {
             case 'warrior': player = new Warrior(posX, posY, playerClass + '_idle', 40); break;
             case 'rogue': player = new Rogue(posX, posY, playerClass + '_idle', 40); break;
@@ -178,20 +178,19 @@ class Level01 extends Phaser.Scene {
 
         // Create Entites
         enemies = [];
-        spawnSlime(16, 11, player);
-        spawnSlime(17, 23, player);
-        spawnSlime(6, 34, player);
-        spawnSlime(29, 35, player);
-        spawnSlime(38, 29, player);
-        spawnSlime(50, 17, player);
-        spawnSlime(54, 10, player);
-        spawnSlime(57, 29, player);
+        spawnSlime(17, 18, player);
+        spawnSlime(11, 33, player);
+        spawnSlime(16, 42, player);
+        spawnSlime(23, 35, player);
+        spawnSlime(28, 26, player);
+        spawnSlime(31, 25, player);
+        spawnSlime(31, 29, player);
 
-        spawnBear(5, 24, player);
+        // spawnBear(5, 24, player);
 
-        spawnWisp(15, 20, player);
+        // spawnWisp(15, 20, player);
 
-        spawnChest(4, 6);
+        // spawnChest(4, 6);
 
         // HUD     
         createMenu();
@@ -237,8 +236,8 @@ class Level01 extends Phaser.Scene {
 
         // Cutscenes
         keySPACE = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        inCutscene = true; // blocks temporary user input at begining of cutscene
         if(!watchedCutscene1) {
+            inCutscene = true; // blocks temporary user input at begining of cutscene
             this.tower = activeScene.add.sprite(600,360,'tower').setOrigin(0.5).setScrollFactor(0);
             this.tower.depth = 4;
             this.tower.setScale(.67);
@@ -313,6 +312,9 @@ class Level01 extends Phaser.Scene {
 
         // Save game
         saveGame();
+
+        this.tutorialPhase = 0;
+        this.tutorialText = undefined;
     }
 
     update() {
@@ -334,12 +336,121 @@ class Level01 extends Phaser.Scene {
                 if(!this.backgroundMusic.isPlaying) {
                     this.backgroundMusic.play();
                 }
+
+                // Tutorial Contols
+                this.tutorial();
             } else if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
                 cutscene('end', 0, 0, '', this.cutsceneMusic);
                 if(this.tower != undefined) {
                     this.tower.destroy();
                 }
             }
+        }
+    }
+
+    tutorial() {
+        var height = 110;
+        switch(this.tutorialPhase) {
+            case 0:
+                // Prompt 1
+                this.tutorialText = this.add.text(600, height, 'Use WASD to move', { font: "50px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0);
+                this.tutorialText.depth = 6;
+                this.tutorialPhase = 1;
+                break;
+            case 1:
+                // Wait for action 1
+                if(player.x > 11 * 80) {
+                    this.tutorialText.destroy();
+                    this.tutorialPhase = 2;
+                }
+                break;
+            case 2:
+                // Prompt 2
+                this.tutorialText = this.add.text(600, height, 'Use Left-Click to attack', { font: "50px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0);
+                this.tutorialText.depth = 6;
+                this.tutorialPhase = 3;
+                break;
+            case 3:
+                // Wait for action 2
+                if (player.y > 27 * 80) {
+                    this.tutorialText.destroy();
+                    this.tutorialPhase = 4;
+                }
+                break;
+            case 4:
+                // Prompt 3
+                this.tutorialText = this.add.text(600, height, 'Use 1, 2, 3, 4 to activate your combat abilities\nand click to attack when aiming', { font: "50px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4, align: 'center' }).setOrigin(0.5).setScrollFactor(0);
+                this.tutorialText.depth = 6;
+                this.tutorialPhase = 5;
+                break;
+            case 5:
+                // Wait for action 3
+                if (player.x > 32 * 80) {
+                    this.tutorialText.destroy();
+                    this.tutorialPhase = 6;
+                }
+                break;
+            case 6:
+                // Prompt 4
+                this.tutorialText = this.add.text(600, height, 'Use E to open your inventory', { font: "50px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0);
+                this.tutorialText.depth = 6;
+                this.tutorialPhase = 7;
+                break;
+            case 7:
+                // Wait for action 4
+                if (player.inventoryOpen) {
+                    this.tutorialText.destroy();
+                    this.tutorialPhase = 8;
+                }
+                break;
+            case 8:
+                // Prompt 5
+                this.tutorialText = this.add.text(600, height, '<- Click & drag the potion to your Item slot', { font: "50px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0);
+                this.tutorialText.depth = 6;
+                this.tutorialPhase = 9;
+                break;
+            case 9:
+                // Wait for action 5
+                if (inventory[5][2] != undefined) {
+                    this.tutorialText.destroy();
+                    this.tutorialPhase = 10;
+                }
+                break;
+            case 10:
+                // Prompt 6
+                this.tutorialText = this.add.text(600, height, 'Use E to close your inventory', { font: "50px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0);
+                this.tutorialText.depth = 6;
+                this.tutorialPhase = 11;
+                break;
+            case 11:
+                // Wait for action 6
+                if (!player.inventoryOpen) {
+                    this.tutorialText.destroy();
+                    this.tutorialPhase = 12;
+                }
+                break;
+            case 12:
+                // Prompt 7
+                this.tutorialText = this.add.text(600, height, 'Use C to use your potion', { font: "50px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0);
+                this.tutorialText.depth = 6;
+                this.tutorialPhase = 13;
+                break;
+            case 13:
+                // Wait for action 7
+                if (inventory[5][2] == undefined) {
+                    this.tutorialText.destroy();
+                    this.tutorialPhase = 14;
+                }
+                break;
+            case 14:
+                // Prompt 8
+                this.tutorialText = this.add.text(600, height, 'Leave the area', { font: "50px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4 }).setOrigin(0.5).setScrollFactor(0);
+                this.tutorialText.depth = 6;
+                this.tutorialPhase = 15;
+                break;
+            case 15:
+                // Wait for action 8
+                break;
         }
     }
 }
