@@ -62,7 +62,7 @@ class Mage extends Player {
             // Set attack variables
             var abilityId = 0;
             var duration = 500;
-            var cooldown = 2000;
+            var cooldown = 3000;
             var damage = Math.trunc(this.attack * 1.25); // Explosion effect deals 2x damage to target, and 1x damage to surrounding enemies
 
             // Call helper functions
@@ -103,7 +103,7 @@ class Mage extends Player {
             // Set attack variables
             var abilityId = 1;
             var duration = 500;
-            var cooldown = 4000;
+            var cooldown = 7000;
             var damage = Math.trunc(this.attack * 1);
             var range = 800;
 
@@ -142,7 +142,7 @@ class Mage extends Player {
             // Set attack variables
             var abilityId = 2;
             var duration = 500;
-            var cooldown = 4000;
+            var cooldown = 5000;
             var damage = 1;
 
             // Call helper functions
@@ -182,7 +182,7 @@ class Mage extends Player {
             // Set attack variables
             var abilityId = 3;
             var duration = 1500;
-            var cooldown = 4000;
+            var cooldown = 9000;
             var damage = Math.trunc(this.attack * 3);
 
             // Call helper functions
