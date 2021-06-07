@@ -7,13 +7,13 @@ class Bear extends Enemy {
         var range = 90;
         var health = 20;
         var movementSpeed = 150;
-        var xp = 50;
+        var xp = 30;
         var moveSound = activeScene.bearMoveSound;
         var hurtSound = activeScene.bearHurtSound;
         var attackSound = activeScene.bearAttackSound;
 
         super(x, y, texture, colliderRadius, range, health, movementSpeed, xp, target, key, hurtColor, moveSound, hurtSound, attackSound);
-        this.lootTable = ['health_potion', 'key', playerClass + '_weapon', playerClass + '_armor'];
+        this.lootTable = ['health_potion', 'key', 'coin', playerClass + '_weapon', playerClass + '_armor'];
         this.dropRate = .2;
     }
 
@@ -30,7 +30,7 @@ class Bear extends Enemy {
             var attack;
             // Start Attack
             activeScene.time.delayedCall(duration / 4, () => {
-                attack = new Attack(activeScene, this, this.direction, 140, 140, 0, 5);
+                attack = new Attack(activeScene, this, this.direction, 140, 140, 0, 3);
                 enemyAttacks.push(attack);
             }, null, activeScene);
             // On Attack stop

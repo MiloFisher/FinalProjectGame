@@ -1,5 +1,5 @@
 class Slime extends Enemy {
-    constructor(x, y, target) {
+    constructor(x, y, target, tutorialMob) {
         var key = 'slime';
         var texture = key + '_idle';
         var hurtColor = 0x00c0f0;
@@ -13,8 +13,12 @@ class Slime extends Enemy {
         var attackSound = activeScene.slimeAttackSound;
 
         super(x, y, texture, colliderRadius, range, health, movementSpeed, xp, target, key, hurtColor, moveSound, hurtSound, attackSound);
-        this.lootTable = ['health_potion', 'key', playerClass + '_weapon', playerClass + '_armor'];
-        this.dropRate = 0;
+        this.lootTable = ['health_potion', 'key', 'coin', playerClass + '_weapon', playerClass + '_armor'];
+        if(tutorialMob) {
+            this.dropRate = 0;
+        } else {
+            this.dropRate = .2;
+        }
     }
 
     attack() {

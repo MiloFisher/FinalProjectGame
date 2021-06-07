@@ -8,7 +8,7 @@ let config = {
             debug: false
         }
     },
-    scene: [Menu, NewGame, Settings, Credits, Level01 ]
+    scene: [Menu, NewGame, Settings, Credits, Level01, Level02 ]
 }
 let game = new Phaser.Game(config);
 
@@ -59,7 +59,7 @@ let saveName = 'saveData';          // holds name of saved data
 let playerClass = 'warrior';        // holds player's class
 let playerLevel = 1;                // holds player's level
 let playerXP = 0;                   // holds player's xp
-let secretUnlocked = true;          // hold if secret character has been unlocked
+let secretUnlocked = false;          // hold if secret character has been unlocked
 
 // reserve keyboard vars
 let keyW, keyA, keyS, keyD, keyUP, keyLEFT, keyDOWN, keyRIGHT, keyENTER, keyESCAPE, keySPACE, keyE, keyC, key1, key2, key3, key4;
@@ -88,11 +88,15 @@ function addTriangles() {
 
 function reset() {
     chests = [];
-    enemies = [];
-    projectiles = [];
     soundEffects = [];
     musicEffects = [];
     groundItems = [];
+    player = undefined;
+    enemies = [];
+    projectiles = [];
+    if(map != undefined) {
+        map.destroy();
+    }
 }
 
 function diagonalCollision(object1, object2) {
@@ -281,10 +285,13 @@ function spawnChest(x,y) {
     chests.push(c);
 }
 
-function spawnSlime(x, y, target) {
+function spawnSlime(x, y, target, tutorialMob) {
+    if(tutorialMob == undefined){
+        tutorialMob = false;
+    }
     x = x * 80 + 40;
     y = y * 80 + 40;
-    var e = new Slime(x, y, target);
+    var e = new Slime(x, y, target, tutorialMob);
     snapToNode(e);
     enemies.push(e);
 }
@@ -488,6 +495,7 @@ function loadPlayerSpritesheets(scene) {
     scene.load.image('bag_icon', 'assets/inventory_icon.png');
     scene.load.image('health_potion_icon', 'assets/health_potion_icon.png');
     scene.load.image('key_icon', 'assets/key_icon.png');
+    scene.load.image('coin_icon', 'assets/coin.png');
     scene.load.image('rogue_weapon_icon', 'assets/crossbow_icon.png');
     scene.load.image('warrior_weapon_icon', 'assets/sword_icon.png');
     scene.load.image('mage_weapon_icon', 'assets/staff_icon.png');
@@ -500,6 +508,14 @@ function loadPlayerSpritesheets(scene) {
 
     scene.load.image('chest_closed', 'assets/chest_closed.png');
     scene.load.image('chest_opened', 'assets/chest_opened.png');
+
+    scene.load.image('warrior_talking', 'assets/warrior_talking.png');
+    scene.load.image('rogue_talking', 'assets/rogue_talking.png');
+    scene.load.image('mage_talking', 'assets/mage_talking.png');
+    scene.load.image('necromancer_talking', 'assets/necromancer_talking.png');
+    scene.load.image('priest_talking', 'assets/priest_talking.png');
+    scene.load.image('shopkeep_talking', 'assets/shopkeep_talking.png');
+    scene.load.image('boss_talking', 'assets/boss_talking.png');
 
     scene.load.spritesheet('warrior_walking', './assets/warrior/warrior_walking.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 1 });
     scene.load.spritesheet('warrior_idle', './assets/warrior/warrior_idle.png', { frameWidth: 80, frameHeight: 80, startFrame: 0, endFrame: 0 });
@@ -1032,7 +1048,7 @@ function createItem(item, type, quantity, row, column, visible, level) {
         if (inventory[r][c] != undefined) {
             var old2 = [inventory[r][c].item, inventory[r][c].type, inventory[r][c].quantity, inventory[r][c].level];
             destroyItem(r, c);
-            if(old[0] == old2[0] && old[1] == 'item' && old2[1] == 'item') {
+            if (old[0] == old2[0] && ((old[1] == 'item' && old2[1] == 'item') || (old[1] == 'currency' && old2[1] == 'currency'))) {
                 // Stack like items
                 old[2] = old[2] + old2[2];
             } else {
@@ -1173,6 +1189,7 @@ function createMenu() {
     menuComponents.push(activeScene.add.sprite(600, startY + gap * 3, 'menu_button').setOrigin(0.5).setInteractive().setScrollFactor(0));
     menuComponents[4].on('pointerup', function (pointer) {
         game.sound.stopAll();
+        saveGame();
         activeScene.scene.start('menuScene'); // Quit
     });
 
@@ -1522,7 +1539,7 @@ function explosion(old_attack, container, duration) {
     }, null, activeScene);
 }
 
-function cutscene(type, duration, wait, text, music) {
+function cutscene(type, duration, wait, text, music, image) {
     var fontSize = 40;
     var startEndTime = 1000;
     activeScene.time.delayedCall(wait, () => {
@@ -1549,9 +1566,18 @@ function cutscene(type, duration, wait, text, music) {
                         var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000', align: 'center' }).setOrigin(0.5).setScrollFactor(0);
                         displayText.depth = 5;
                         displayTexts.push(displayText);
+                        var displayImage;
+                        if(image != undefined) {
+                            displayImage = activeScene.add.sprite(600 - displayText.width / 2 - 50, cutsceneBars[1].y, image).setOrigin(0.5).setScrollFactor(0);
+                            displayImage.depth = 5;
+                            displayTexts.push(displayImage);
+                        }
                         activeScene.time.delayedCall(duration, () => {
                             if (displayText != undefined) {
                                 displayText.destroy();
+                            }
+                            if (displayImage != undefined) {
+                                displayImage.destroy();
                             }
                         }, null, activeScene);
                     }
@@ -1562,9 +1588,18 @@ function cutscene(type, duration, wait, text, music) {
                     var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000', align: 'center' }).setOrigin(0.5).setScrollFactor(0);
                     displayText.depth = 5;
                     displayTexts.push(displayText);
+                    var displayImage;
+                    if (image != undefined) {
+                        displayImage = activeScene.add.sprite(600 - displayText.width / 2 - 50, cutsceneBars[1].y, image).setOrigin(0.5).setScrollFactor(0);
+                        displayImage.depth = 5;
+                        displayTexts.push(displayImage);
+                    }
                     activeScene.time.delayedCall(duration, () => {
                         if (displayText != undefined) {
                             displayText.destroy();
+                        }
+                        if (displayImage != undefined) {
+                            displayImage.destroy();
                         }
                     }, null, activeScene);
                 }
@@ -1574,6 +1609,12 @@ function cutscene(type, duration, wait, text, music) {
                     var displayText = activeScene.add.text(600, cutsceneBars[1].y, text, { font: fontSize + "px Gothic", fill: "#ffffff", stroke: '#000000', align: 'center' }).setOrigin(0.5).setScrollFactor(0);
                     displayText.depth = 5;
                     displayTexts.push(displayText);
+                    var displayImage;
+                    if (image != undefined) {
+                        displayImage = activeScene.add.sprite(600 - displayText.width/2 - 50, cutsceneBars[1].y, image).setOrigin(0.5).setScrollFactor(0);
+                        displayImage.depth = 5;
+                        displayTexts.push(displayImage);
+                    }
                     if(duration > 0) {
                         activeScene.cameras.main.fadeOut(duration);
                     }
@@ -1612,6 +1653,9 @@ function cutscene(type, duration, wait, text, music) {
                                     }
                                 },
                             });
+                        }
+                        if (displayImage != undefined) {
+                            displayImage.destroy();
                         }
                     }, null, activeScene);
                 }
@@ -1751,7 +1795,7 @@ function collectItem(item) {
             canStack = true;
         }
     }
-    if(canStack && item.type == 'item') {
+    if (canStack && (item.type == 'item' || item.type == 'currency')) {
         var quantity = inventory[openSlot[0]][openSlot[1]].quantity + 1;
         destroyItem(openSlot[0], openSlot[1]);
         createItem(item.itemName, item.type, quantity, openSlot[0], openSlot[1], false, item.level);
@@ -1795,6 +1839,7 @@ function getTypeName(type) {
         case 'item': return 'Item';
         case 'weapon': return 'Weapon';
         case 'armor': return 'Armor';
+        case 'currency': return 'Currency';
     }
 }
 
@@ -1808,6 +1853,7 @@ function getName(item, level) {
         case 'warrior_armor': return 'Chainmail + ' + level;
         case 'rogue_armor': return 'Jacket + ' + level;
         case 'mage_armor': return 'Cloak + ' + level;
+        case 'coin': return 'Coin';
     }
 }
 
@@ -1821,6 +1867,7 @@ function getType(item) {
         case 'warrior_armor': return 'armor';
         case 'rogue_armor': return 'armor';
         case 'mage_armor': return 'armor';
+        case 'coin': return 'currency';
     }
 }
 
@@ -1834,6 +1881,7 @@ function getDescription(item, level) {
         case 'warrior_armor': return 'Armor that provides\n' + armorValue(level) + ' health';
         case 'rogue_armor': return 'Armor that provides\n' + armorValue(level) + ' health';
         case 'mage_armor': return 'Armor that provides\n' + armorValue(level) + ' health';
+        case 'coin': return 'Can be exchanged\nfor items';
     }
 }
 

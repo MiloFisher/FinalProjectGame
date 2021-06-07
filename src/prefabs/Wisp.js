@@ -5,15 +5,15 @@ class Wisp extends Enemy {
         var hurtColor = 0x00ff00;
         var colliderRadius = 40;
         var range = 110;
-        var health = 20;
-        var movementSpeed = 150;
+        var health = 10;
+        var movementSpeed = 180;
         var xp = 50;
         var moveSound = activeScene.wispMoveSound;
         var hurtSound = activeScene.wispHurtSound;
         var attackSound = activeScene.wispAttackSound;
 
         super(x, y, texture, colliderRadius, range, health, movementSpeed, xp, target, key, hurtColor, moveSound, hurtSound, attackSound);
-        this.lootTable = ['health_potion', 'key', playerClass + '_weapon', playerClass + '_armor'];
+        this.lootTable = ['health_potion', 'key', 'coin', playerClass + '_weapon', playerClass + '_armor'];
         this.dropRate = .2;
     }
 
@@ -38,7 +38,7 @@ class Wisp extends Enemy {
             var attack;
             // Start Attack
             activeScene.time.delayedCall(duration / 4, () => {
-                attack = new Projectile(activeScene, this, this.direction, 11, 30, 0, 5, 6, 'wispshot');
+                attack = new Projectile(activeScene, this, this.direction, 11, 30, 0, 2, 6, 'wispshot');
                 enemyAttacks.push(attack);
                 projectiles.push(attack);
             }, null, activeScene);
