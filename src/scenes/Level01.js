@@ -231,11 +231,10 @@ class Level01 extends Phaser.Scene {
         // Cutscenes
         keySPACE = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         if(!watchedCutscene1) {
-            inCutscene = true; // blocks temporary user input at begining of cutscene
             this.tower = activeScene.add.sprite(600,360,'tower').setOrigin(0.5).setScrollFactor(0);
             this.tower.depth = 4;
             this.tower.setScale(.67);
-            var wait = cutscene('start', 2000, 0, 'The Tower of Dawn…', this.cutsceneMusic);
+            var wait = cutscene('start', 2000, 0, 'The Tower of Dawn...', this.cutsceneMusic);
             wait += cutscene('continue', 4000, wait, 'It has stood tall over these remote plains\nfor as long as history can recall.');
             wait += cutscene('continue', 2000, wait, 'Nobody knows who built it, or why...');
             wait += cutscene('continue', 4000, wait, 'And there are few who would risk facing the monsters\nthat roam its halls in order to find out.');

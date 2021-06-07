@@ -209,6 +209,10 @@ class Level02 extends Phaser.Scene {
 
         this.started = true;
 
+        // Cutscenes
+        var wait = cutscene('start', 4000, 0, 'If I stay on this path, it\nshould lead to the tower...', null, playerClass + '_talking');
+        cutscene('end', 1000, wait, '');
+
         // Save game
         saveGame();
     }
@@ -234,7 +238,7 @@ class Level02 extends Phaser.Scene {
                 }
 
                 // Next level check
-                if (player.y > 48 * 80) {
+                if (player.y > 49 * 80) {
                     saveGame();
                     game.sound.stopAll();
                     this.scene.start('demoOverScene');

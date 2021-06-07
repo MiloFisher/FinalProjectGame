@@ -1542,6 +1542,9 @@ function explosion(old_attack, container, duration) {
 function cutscene(type, duration, wait, text, music, image) {
     var fontSize = 40;
     var startEndTime = 1000;
+    if(type == 'start') {
+        inCutscene = true;
+    }
     activeScene.time.delayedCall(wait, () => {
         switch(type) {
             case 'start': 
