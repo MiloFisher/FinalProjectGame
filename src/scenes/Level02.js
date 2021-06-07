@@ -237,7 +237,7 @@ class Level02 extends Phaser.Scene {
                 if (player.y > 48 * 80) {
                     saveGame();
                     game.sound.stopAll();
-                    this.scene.start('level02Scene');
+                    this.scene.start('demoOverScene');
                 }
             }
         }
