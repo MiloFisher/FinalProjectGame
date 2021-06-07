@@ -372,7 +372,7 @@ class Level01 extends Phaser.Scene {
                 break;
             case 4:
                 // Prompt 3
-                this.tutorialText = this.add.text(600, height, 'Use 1, 2, 3, 4 to activate your combat abilities\nand click to attack when aiming', { font: "50px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4, align: 'center' }).setOrigin(0.5).setScrollFactor(0);
+                this.tutorialText = this.add.text(600, height, 'Use 1, 2, 3, 4 to activate your combat abilities\nand left-click to attack when aiming', { font: "50px Gothic", fill: "#ffffff", stroke: '#000000', strokeThickness: 4, align: 'center' }).setOrigin(0.5).setScrollFactor(0);
                 this.tutorialText.depth = 6;
                 this.tutorialPhase = 5;
                 break;
