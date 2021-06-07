@@ -237,6 +237,7 @@ class Level01 extends Phaser.Scene {
 
         // Cutscenes
         keySPACE = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        inCutscene = true; // blocks temporary user input at begining of cutscene
         if(!watchedCutscene1) {
             this.tower = activeScene.add.sprite(600,360,'tower').setOrigin(0.5).setScrollFactor(0);
             this.tower.depth = 4;
@@ -249,14 +250,14 @@ class Level01 extends Phaser.Scene {
             wait += cutscene('continue', 3000, wait, 'But there is one detail that almost\nall the stories can agree on:');
             wait += cutscene('continue', 2000, wait, 'Whoever manages to reach the tower\'s pinnacle...');
             wait += cutscene('continue', 4000, wait, 'Will be rewarded with the power to\nfulfill their wildest goals and ambitions.');
-            wait += cutscene('end', 3000, wait, 'And this is where our story begins...', this.cutsceneMusic);
+            var towerTime = wait;
             activeScene.time.delayedCall(1000, () => {
                 activeScene.tweens.add({
                     targets: activeScene.tower,
                     scaleX: 1.2,
                     scaleY: 1.2,
                     y: 500,
-                    duration: wait - 2000,
+                    duration: towerTime - 1000,
                     onComplete: function () {
                         if (activeScene.tower != undefined) {
                             activeScene.tower.destroy();
@@ -264,6 +265,49 @@ class Level01 extends Phaser.Scene {
                     }
                 });
             }, null, activeScene);
+            switch(playerClass) {
+                case 'warrior': 
+                    wait += cutscene('continue', 4000, wait, 'And that\'s why my adventures\nhave taken me here!');
+                    wait += cutscene('continue', 3000, wait, 'My home village is in need of protection...');
+                    wait += cutscene('continue', 5000, wait, 'Whether from bandits or the occasional monster,\nits people live in constant fear.');
+                    wait += cutscene('continue', 6000, wait, 'I\'ve always strived to hone my skill with the blade,\nso that I can become the hero my people need...');
+                    wait += cutscene('continue', 4000, wait, 'But, no matter how hard I trained...\nIt never seemed to be enough.');
+                    wait += cutscene('continue', 4000, wait, 'I was never hailed as the kind of\nhero I wanted to become.');
+                    wait += cutscene('continue', 3000, wait, 'But!\nIf the legends of the Tower are true...!');
+                    wait += cutscene('continue', 4000, wait, 'If I can reach the pinnacle and\nobtain the Tower\'s blessing...');
+                    wait += cutscene('continue', 4000, wait, 'Then no threat to my village would\npossibly stand against me!');
+                    wait += cutscene('continue', 4000, wait, 'So...  It\'s time to face down\nwhatever perils lie within!');
+                    wait += cutscene('end', 3000, wait, 'My destiny as a hero awaits!', this.cutsceneMusic);
+                    break;
+                case 'rogue':
+                    wait += cutscene('continue', 4000, wait, 'And so, my desperation has brought\nme here, to the Tower\'s base.');
+                    wait += cutscene('continue', 4000, wait, 'Years ago, a tyrant took the\nthrone of my home country...');
+                    wait += cutscene('continue', 5000, wait, 'He forces my people to work themselves to death,\nand steals all the fruits of their labor for himself.');
+                    wait += cutscene('continue', 4000, wait, 'Many have tried to rise up in\nrebellion against him before...');
+                    wait += cutscene('continue', 4000, wait, '...My mother and father included.\nNeither of them survived.');
+                    wait += cutscene('continue', 4000, wait, 'I need to avenge them...\nTo finish what they started...');
+                    wait += cutscene('continue', 3000, wait, 'But I know I\'m not strong enough.\nNot yet.');
+                    wait += cutscene('continue', 3000, wait, 'That\'s why the Tower is my only hope.');
+                    wait += cutscene('continue', 4000, wait, 'If the legends are true, and if\nI can claim that promised power...');
+                    wait += cutscene('continue', 4000, wait, 'Then I can finally break that bastard\'s\niron grip over my home.');
+                    wait += cutscene('continue', 4000, wait, 'All right, then...\nNo matter what deadly trials await me inside...');
+                    wait += cutscene('end', 3000, wait, 'I have no choice -\nThere\'s nowhere for me to go but up!', this.cutsceneMusic);
+                    break;
+                case 'mage':
+                    wait += cutscene('continue', 3000, wait, 'Thus, my curiosity has drawn me here.');
+                    wait += cutscene('continue', 2000, wait, 'I have one singular goal in life:');
+                    wait += cutscene('continue', 5000, wait, 'To perfect my arcane talents, and unlock\nthe magical secrets of the universe.');
+                    wait += cutscene('continue', 4000, wait, 'Imagine what mankind might be\ncapable of with those secrets...');
+                    wait += cutscene('continue', 7000, wait, 'With the power to reshape reality at our fingertips, we could\neliminate the need to struggle and fight over limited resources...');
+                    wait += cutscene('continue', 4000, wait, 'It might even be possible to achieve\nsuch things as eternal life.');
+                    wait += cutscene('continue', 5000, wait, 'That is why ancient, mysterious sites such as\nthe Tower are of great interest to me.');
+                    wait += cutscene('continue', 7000, wait, 'Even if the rumors of the power it grants are false,\nstudying such relics can only add to my knowledge of the arcane.');
+                    wait += cutscene('continue', 3000, wait, 'And if the rumors are true?');
+                    wait += cutscene('continue', 5000, wait, 'Well then...  I may just be able to fulfill\nmy life\'s goal in one fell swoop.');
+                    wait += cutscene('continue', 4000, wait, 'All right.  It\'s time I begin my ascent.');
+                    wait += cutscene('end', 4000, wait, 'Whatever monsters I may find within\nshall fall before my magic!', this.cutsceneMusic);
+                    break;
+            }
             watchedCutscene1 = true;
         }
 
