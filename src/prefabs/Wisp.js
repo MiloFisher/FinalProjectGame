@@ -7,7 +7,7 @@ class Wisp extends Enemy {
         var range = 110;
         var health = 10;
         var movementSpeed = 180;
-        var xp = 50;
+        var xp = 10;
         var moveSound = activeScene.wispMoveSound;
         var hurtSound = activeScene.wispHurtSound;
         var attackSound = activeScene.wispAttackSound;
