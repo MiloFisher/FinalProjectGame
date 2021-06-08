@@ -270,7 +270,7 @@ class Level03 extends Phaser.Scene {
                 }
 
                 // Next level check
-                if (player.x < 5 * 80 && player.y > 95 * 80) {
+                if (player.x < 3 * 80 && player.y > 97 * 80) {
                     saveGame();
                     game.sound.stopAll();
                     this.scene.start('demoOverScene');

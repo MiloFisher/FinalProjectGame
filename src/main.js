@@ -1716,6 +1716,9 @@ function checkCollisions() {
                     }
                 }
                 playerAttacks[i].targets[j].takeDamage(playerAttacks[i].damage);
+                if(player.battlecry) {
+                    player.heal(Math.trunc(playerAttacks[i].damage * .1));
+                }
                 if (playerAttacks[i].effect == 'stun') {
                     playerAttacks[i].targets[j].stun(playerAttacks[i].duration);
                 }
