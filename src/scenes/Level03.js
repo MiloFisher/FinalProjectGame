@@ -1,6 +1,6 @@
-class Level02 extends Phaser.Scene {
+class Level03 extends Phaser.Scene {
     constructor() {
-        super("level02Scene");
+        super("level03Scene");
     }
 
     preload() {
@@ -8,7 +8,7 @@ class Level02 extends Phaser.Scene {
         this.load.image('tower', 'assets/tower.png');
         this.load.image('wispshot', 'assets/mobs1/projectile_wispshot.png');
 
-        this.load.tilemapTiledJSON('map2', 'assets/levels/level02.json');
+        this.load.tilemapTiledJSON('map3', 'assets/levels/level03.json');
         this.load.image('tiles', 'assets/tiles/stage_1_tileset.png');
 
         // sounds
@@ -33,13 +33,13 @@ class Level02 extends Phaser.Scene {
     create() {
         // Set active scene
         activeScene = this;
-        activeSceneKey = "level02Scene";
+        activeSceneKey = "level03Scene";
 
         // Reset
         reset();
 
         // Create tile map
-        map = this.make.tilemap({ key: 'map2' });
+        map = this.make.tilemap({ key: 'map3' });
         map.setCollisionByProperty({ walkable: false });
         var tileset = map.addTilesetImage('stage_1_tileset', 'tiles');
         var layer = map.createLayer('Tile Layer 1', tileset, 0, 0);
@@ -164,34 +164,66 @@ class Level02 extends Phaser.Scene {
         updateMusicVolume();
 
         // Create Player
-        var posX = 1 * 80 + 40;
-        var posY = 31 * 80 + 40;
+        var posX = 64 * 80 + 40;
+        var posY = 2 * 80 + 40;
         switch (playerClass) {
             case 'warrior': player = new Warrior(posX, posY, playerClass + '_idle', 40); break;
             case 'rogue': player = new Rogue(posX, posY, playerClass + '_idle', 40); break;
             case 'mage': player = new Mage(posX, posY, playerClass + '_idle', 40); break;
             case 'necromancer': player = new Necromancer(posX, posY, playerClass + '_idle', 40, 100); break;
         }
-        player.angle = 90;
+        player.angle = 180;
         this.cameras.main.setBounds(0, 0, map.width * 80, map.height * 80);
         this.cameras.main.startFollow(player);
 
         // Create Entites
         enemies = [];
-        spawnSlime(17, 10, player);
-        spawnSlime(35, 8, player);
-        spawnSlime(47, 11, player);
-        spawnSlime(35, 21, player);
+        spawnSlime(86, 79, player);
+        spawnSlime(90, 73, player);
+        spawnSlime(96, 84, player);
+        spawnSlime(83, 88, player);
 
-        spawnBear(44, 30, player);
-        spawnBear(44, 42, player);
-        spawnBear(20, 42, player);
+        spawnBear(7, 11, player);
+        spawnBear(21, 12, player);
+        spawnBear(8, 21, player);
+        spawnBear(21, 31, player);
+        spawnBear(52, 30, player);
+        spawnBear(71, 27, player);
+        spawnBear(87, 23, player);
+        spawnBear(87, 36, player);
+        spawnBear(12, 54, player);
+        spawnBear(31, 52, player);
+        spawnBear(51, 48, player);
+        spawnBear(69, 40, player);
+        spawnBear(23, 65, player);
+        spawnBear(44, 66, player);
+        spawnBear(58, 62, player);
+        spawnBear(56, 82, player);
+        spawnBear(31, 92, player);
 
-        spawnWisp(9, 13, player);
-        spawnWisp(29, 2, player);
-        spawnWisp(36, 26, player);
+        spawnWisp(9, 21, player);
+        spawnWisp(25, 14, player);
+        spawnWisp(21, 34, player);
+        spawnWisp(51, 38, player);
+        spawnWisp(59, 40, player);
+        spawnWisp(73, 31, player);
+        spawnWisp(90, 14, player);
+        spawnWisp(92, 18, player);
+        spawnWisp(90, 31, player);
+        spawnWisp(62, 49, player);
+        spawnWisp(82, 48, player);
+        spawnWisp(71, 66, player);
+        spawnWisp(24, 49, player);
+        spawnWisp(9, 70, player);
+        spawnWisp(41, 67, player);
+        spawnWisp(47, 86, player);
+        spawnWisp(47, 52, player);
 
-        spawnChest(48, 35);
+        spawnChest(96, 71);
+        spawnChest(91, 15);
+        spawnChest(7, 8);
+        spawnChest(26, 49);
+        spawnChest(68, 52);
 
         // HUD     
         createMenu();
@@ -210,7 +242,7 @@ class Level02 extends Phaser.Scene {
         this.started = true;
 
         // Cutscenes
-        var wait = cutscene('start', 4000, 0, 'If I stay on this path, it\nshould lead to the tower...', null, playerClass + '_talking');
+        var wait = cutscene('start', 5000, 0, 'The path disappears into this forest... \nI have to find where it starts back up again. ', null, playerClass + '_talking');
         cutscene('end', 1000, wait, '');
 
         // Save game
@@ -238,10 +270,10 @@ class Level02 extends Phaser.Scene {
                 }
 
                 // Next level check
-                if (player.y > 49 * 80) {
+                if (player.x < 5 * 80 && player.y > 95 * 80) {
                     saveGame();
                     game.sound.stopAll();
-                    this.scene.start('level03Scene');
+                    this.scene.start('demoOverScene');
                 }
             }
         }
